@@ -21,11 +21,8 @@ import com.insidemovie.backend.common.exception.NotFoundException;
 import com.insidemovie.backend.common.exception.UnAuthorizedException;
 import com.insidemovie.backend.common.response.ErrorStatus;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,7 +31,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
@@ -138,10 +138,9 @@ public class MemberService {
                 .orElseThrow(() -> new BadRequestException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(member.getEmail(), null, authorities);
 
-        String accessToken = jwtProvider.generateAccessToken(authentication);
-        String refreshToken = jwtProvider.generateRefreshToken(member.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String refreshToken = jwtProvider.generateRefreshToken(member.getId());
         member.updateRefreshtoken(refreshToken);
 
         Map<String, Object> result = new HashMap<>();
@@ -162,10 +161,9 @@ public class MemberService {
         }
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(member.getEmail(), null, authorities);
 
-        String accessToken = jwtProvider.generateAccessToken(authentication);
-        String refreshToken = jwtProvider.generateRefreshToken(member.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String refreshToken = jwtProvider.generateRefreshToken(member.getId());
         member.updateRefreshtoken(refreshToken);
 
         return new MemberLoginResponseDto(accessToken, refreshToken, member.getAuthority());
@@ -185,10 +183,9 @@ public class MemberService {
                 .orElseThrow(() -> new BadRequestException("Refresh token not registered"));
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
-        Authentication auth = new UsernamePasswordAuthenticationToken(member.getEmail(), null, authorities);
 
-        String newAccess = jwtProvider.generateAccessToken(auth);
-        String newRefresh = jwtProvider.generateRefreshToken(member.getEmail());
+        String newAccess = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String newRefresh = jwtProvider.generateRefreshToken(member.getId());
         member.updateRefreshtoken(newRefresh); // rotation
 
         return new TokenResponseDto(newAccess, newRefresh);

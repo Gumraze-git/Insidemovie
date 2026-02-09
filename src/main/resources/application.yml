@@ -41,7 +41,9 @@ mail:
     personal: "InsideMovie 인증센터"
 
 jwt:
-  secret: a1f7d23c8e56b9f1840f7a9b9f4c3b579a3d8f2e648cbe7398cdd249e2f4baf52c3678e1054f3e1e0aa6e1db4523e07f
+  secret: ${JWT_SECRET}
+  access-exp-ms: ${JWT_ACCESS_EXP_MS}
+  refresh-exp-ms: ${JWT_REFRESH_EXP_MS}
   access:
     header: Authorization
 
