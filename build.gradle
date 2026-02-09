@@ -67,6 +67,9 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+	// OAuth
+	// OAuth Resource Server
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 }
 
 tasks.named('test') {
