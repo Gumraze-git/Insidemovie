@@ -17,12 +17,16 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -116,7 +120,7 @@ public class SecurityConfig {
      * @throws Exception 필터 체인 생성 중 발생할 수 있는 예외
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtProperties jwtProperties) throws Exception {
         http
             // Disable default form login, HTTP Basic, CSRF
             .formLogin(AbstractHttpConfigurer::disable)
@@ -179,6 +183,7 @@ public class SecurityConfig {
             // Resource Server (JWT)
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .bearerTokenResolver(bearerTokenResolver(jwtProperties))
             )
 
             // Spring Security 로그아웃 기능 비활성화
@@ -204,6 +209,24 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withSecretKey(key)
             .macAlgorithm(MacAlgorithm.HS512)
             .build();
+    }
+
+    @Bean
+    public BearerTokenResolver bearerTokenResolver(JwtProperties jwtProperties) {
+        return request -> resolveAccessTokenFromCookie(request, jwtProperties.getCookie().getAccessName());
+    }
+
+    private String resolveAccessTokenFromCookie(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     /**

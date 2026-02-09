@@ -1,5 +1,6 @@
 package com.insidemovie.backend.api.member.controller;
 
+import com.insidemovie.backend.api.jwt.JwtProperties;
 import com.insidemovie.backend.api.member.dto.*;
 import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
 import com.insidemovie.backend.api.member.dto.emotion.MemberEmotionSummaryRequestDTO;
@@ -18,15 +19,20 @@ import com.insidemovie.backend.common.response.ApiResponse;
 import com.insidemovie.backend.common.response.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -41,6 +47,7 @@ public class MemberController {
     private final ReviewService reviewService;
     private final MovieLikeService movieLikeService;
     private final MovieService movieService;
+    private final JwtProperties jwtProperties;
 
     // =====================================
     // 회원가입 / 로그인
@@ -55,19 +62,21 @@ public class MemberController {
 
     @Operation(summary = "로그인 API", description = "이메일로 로그인을 처리합니다.")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
+    public ResponseEntity<ApiResponse<Void>> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
         MemberLoginResponseDto dto = memberService.login(memberLoginRequestDto);
-        return ApiResponse.success(SuccessStatus.SEND_LOGIN_SUCCESS, dto);
+        return successWithCookies(SuccessStatus.SEND_LOGIN_SUCCESS, buildAuthCookies(dto.getAccessToken(), dto.getRefreshToken()));
     }
 
-    @Operation(summary = "토큰 재발급", description = "Refresh 토큰을 이용해 Access / Refresh 토큰을 재발급합니다. (Header: Authorization-Refresh: Bearer {token})")
+    @Operation(summary = "토큰 재발급", description = "Refresh 토큰 쿠키를 이용해 Access / Refresh 토큰을 재발급합니다.")
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<TokenResponseDto>> reissue(
-            @RequestHeader(value = "Authorization-Refresh", required = false) String refreshHeader
-    ) {
-        String refreshToken = extractBearerToken(refreshHeader, "Refresh token header missing");
+    public ResponseEntity<ApiResponse<Void>> reissue(HttpServletRequest request) {
+        String refreshToken = extractTokenFromCookie(
+            request,
+            jwtProperties.getCookie().getRefreshName(),
+            "Refresh token cookie missing"
+        );
         TokenResponseDto dto = memberService.reissue(refreshToken);
-        return ApiResponse.success(SuccessStatus.SEND_LOGIN_SUCCESS, dto);
+        return successWithCookies(SuccessStatus.SEND_LOGIN_SUCCESS, buildAuthCookies(dto.getAccessToken(), dto.getRefreshToken()));
     }
 
 
@@ -80,10 +89,10 @@ public class MemberController {
 
     @Operation(summary = "카카오 로그인 API", description = "카카오 AccessToken으로 사용자 정보를 조회하고 회원가입 또는 로그인을 처리합니다.")
     @PostMapping("/kakao-login")
-    public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> body) {
+    public ResponseEntity<ApiResponse<Void>> kakaoLogin(@RequestBody Map<String, String> body) {
         String token = body.get("accessToken");
-        Map<String, Object> result = memberService.kakaoLogin(token);
-        return ApiResponse.success(SuccessStatus.SEND_KAKAO_LOGIN_SUCCESS, result);
+        TokenResponseDto dto = memberService.kakaoLogin(token);
+        return successWithCookies(SuccessStatus.SEND_KAKAO_LOGIN_SUCCESS, buildAuthCookies(dto.getAccessToken(), dto.getRefreshToken()));
     }
 
     @Operation(summary = "카카오 회원가입 API", description = "카카오 AccessToken으로 사용자 정보를 조회하고 회원가입을 처리합니다.")
@@ -106,7 +115,7 @@ public class MemberController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal UserDetails userDetails) {
         memberService.logout(userDetails.getUsername());
-        return ApiResponse.success_only(SuccessStatus.LOGOUT_SUCCESS);
+        return successWithCookies(SuccessStatus.LOGOUT_SUCCESS, clearAuthCookies());
     }
 
     @Operation(summary = "닉네임 변경 API", description = "사용자의 닉네임을 수정합니다.")
@@ -220,17 +229,78 @@ public class MemberController {
 
 
     // private helper
-    private String extractBearerToken(String header, String missingMessage) {
-        if (header == null || header.isBlank()) {
+    private ResponseEntity<ApiResponse<Void>> successWithCookies(SuccessStatus status, HttpHeaders headers) {
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .status(status.getStatusCode())
+            .success(true)
+            .message(status.getMessage())
+            .build();
+        return ResponseEntity.status(status.getStatusCode()).headers(headers).body(response);
+    }
+
+    private HttpHeaders buildAuthCookies(String accessToken, String refreshToken) {
+        Duration accessMaxAge = Duration.ofMillis(jwtProperties.getAccessExpMs());
+        Duration refreshMaxAge = Duration.ofMillis(jwtProperties.getRefreshExpMs());
+
+        ResponseCookie accessCookie = ResponseCookie.from(jwtProperties.getCookie().getAccessName(), accessToken)
+            .httpOnly(true)
+            .secure(jwtProperties.getCookie().getSecure())
+            .sameSite(jwtProperties.getCookie().getSameSite())
+            .path("/")
+            .maxAge(accessMaxAge)
+            .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from(jwtProperties.getCookie().getRefreshName(), refreshToken)
+            .httpOnly(true)
+            .secure(jwtProperties.getCookie().getSecure())
+            .sameSite(jwtProperties.getCookie().getSameSite())
+            .path("/")
+            .maxAge(refreshMaxAge)
+            .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        return headers;
+    }
+
+    private HttpHeaders clearAuthCookies() {
+        ResponseCookie accessCookie = ResponseCookie.from(jwtProperties.getCookie().getAccessName(), "")
+            .httpOnly(true)
+            .secure(jwtProperties.getCookie().getSecure())
+            .sameSite(jwtProperties.getCookie().getSameSite())
+            .path("/")
+            .maxAge(0)
+            .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from(jwtProperties.getCookie().getRefreshName(), "")
+            .httpOnly(true)
+            .secure(jwtProperties.getCookie().getSecure())
+            .sameSite(jwtProperties.getCookie().getSameSite())
+            .path("/")
+            .maxAge(0)
+            .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        return headers;
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request, String cookieName, String missingMessage) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
             throw new UnAuthorizedException(missingMessage);
         }
-        if (!header.startsWith("Bearer ")) {
-            throw new UnAuthorizedException("Invalid token header format");
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                String value = cookie.getValue();
+                if (value == null || value.isBlank()) {
+                    throw new UnAuthorizedException("Empty token");
+                }
+                return value;
+            }
         }
-        String token = header.substring(7).trim();
-        if (token.isEmpty()) {
-            throw new UnAuthorizedException("Empty token");
-        }
-        return token;
+        throw new UnAuthorizedException(missingMessage);
     }
 }

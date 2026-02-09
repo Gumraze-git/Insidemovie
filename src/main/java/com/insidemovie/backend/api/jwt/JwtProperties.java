@@ -1,5 +1,6 @@
 package com.insidemovie.backend.api.jwt;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -29,4 +30,24 @@ public class JwtProperties {
     @NotNull
     @Positive
     private Long refreshExpMs;
+
+    @Valid
+    @NotNull
+    private Cookie cookie;
+
+    @Getter
+    @Setter
+    public static class Cookie {
+        @NotBlank
+        private String accessName;
+
+        @NotBlank
+        private String refreshName;
+
+        @NotBlank
+        private String sameSite;
+
+        @NotNull
+        private Boolean secure;
+    }
 }

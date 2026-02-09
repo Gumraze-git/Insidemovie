@@ -127,7 +127,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Map<String, Object> kakaoLogin(String kakaoAccessToken) {
+    public TokenResponseDto kakaoLogin(String kakaoAccessToken) {
         if (kakaoAccessToken == null || kakaoAccessToken.isBlank()) {
             throw new BadRequestException(ErrorStatus.KAKAO_LOGIN_FAILED.getMessage());
         }
@@ -143,10 +143,7 @@ public class MemberService {
         String refreshToken = jwtProvider.generateRefreshToken(member.getId());
         member.updateRefreshtoken(refreshToken);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-        return result;
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 
     // 이메일 로그인
