@@ -1,0 +1,466 @@
+package com.insidemovie.backend.api.member.service;
+
+
+import com.insidemovie.backend.api.constant.Authority;
+import com.insidemovie.backend.api.constant.EmotionType;
+import com.insidemovie.backend.api.jwt.JwtProvider;
+import com.insidemovie.backend.api.member.dto.*;
+import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
+import com.insidemovie.backend.api.member.dto.emotion.MemberEmotionSummaryRequestDTO;
+import com.insidemovie.backend.api.member.dto.emotion.MemberEmotionSummaryResponseDTO;
+import com.insidemovie.backend.api.member.entity.Member;
+import com.insidemovie.backend.api.member.entity.MemberEmotionSummary;
+import com.insidemovie.backend.api.member.repository.MemberEmotionSummaryRepository;
+import com.insidemovie.backend.api.member.repository.MemberRepository;
+import com.insidemovie.backend.api.movie.repository.MovieLikeRepository;
+import com.insidemovie.backend.api.review.repository.EmotionRepository;
+import com.insidemovie.backend.api.review.repository.ReviewRepository;
+import com.insidemovie.backend.common.exception.BadRequestException;
+import com.insidemovie.backend.common.exception.BaseException;
+import com.insidemovie.backend.common.exception.NotFoundException;
+import com.insidemovie.backend.common.exception.UnAuthorizedException;
+import com.insidemovie.backend.common.response.ErrorStatus;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+@Service
+@RequiredArgsConstructor
+public class MemberService {
+
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
+    private final OAuthService oAuthService;
+    private final EmotionRepository emotionRepository;
+    private final MemberEmotionSummaryRepository memberEmotionSummaryRepository;
+    private final MovieLikeRepository movieLikeRepository;
+    private final ReviewRepository reviewRepository;
+
+    // 이메일 회원가입
+    @Transactional
+    public Map<String, Object> signup(MemberSignupRequestDto requestDto) {
+
+        if (memberRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+            throw new BadRequestException(ErrorStatus.ALREADY_EMAIL_EXIST_EXCEPTION.getMessage());
+        }
+        if (!requestDto.getPassword().equals(requestDto.getCheckedPassword())) {
+            throw new BadRequestException(ErrorStatus.PASSWORD_MISMATCH_EXCEPTION.getMessage());
+        }
+
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+        Member member = requestDto.toEntity(encodedPassword);
+
+        // MemberEmotionSummary 생성 및 연결
+        MemberEmotionSummary summary = MemberEmotionSummary.builder()
+                .joy(0f)
+                .sadness(0f)
+                .fear(0f)
+                .anger(0f)
+                .disgust(0f)
+                .repEmotionType(EmotionType.NONE)
+                .build();
+
+        summary.setMember(member);
+        member.setEmotionSummary(summary);
+
+        memberRepository.save(member);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("memberId", member.getId());
+        return result;
+    }
+
+    // 카카오 회원가입 / 로그인
+    @Transactional
+    public Map<String, Object> kakaoSignup(String kakaoAccessToken, String nickname) {
+        if (kakaoAccessToken == null || kakaoAccessToken.isBlank()) {
+            throw new BadRequestException(ErrorStatus.KAKAO_LOGIN_FAILED.getMessage());
+        }
+
+        KakaoUserInfoDto userInfo = oAuthService.getKakaoUserInfo(kakaoAccessToken);
+
+        if (memberRepository.findBySocialId(userInfo.getId()).isPresent()) {
+            throw new BadRequestException(ErrorStatus.ALREADY_MEMBER_EXIST_EXCEPTION.getMessage());
+        }
+
+        Member member = Member.builder()
+                .socialId(userInfo.getId())
+                .email("kakao_" + userInfo.getId() + "@social.com")
+                .nickname(nickname)
+                .socialType("KAKAO")
+                .authority(Authority.ROLE_USER)
+                .build();
+
+        // MemberEmotionSummary 생성 및 연결
+        MemberEmotionSummary summary = MemberEmotionSummary.builder()
+                .member(member)
+                .joy(0f)
+                .sadness(0f)
+                .fear(0f)
+                .anger(0f)
+                .disgust(0f)
+                .repEmotionType(EmotionType.NONE)
+                .build();
+
+        summary.setMember(member);
+        member.setEmotionSummary(summary);
+
+        memberRepository.save(member);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("memberId", member.getId());
+        return result;
+    }
+
+    @Transactional
+    public TokenResponseDto kakaoLogin(String kakaoAccessToken) {
+        if (kakaoAccessToken == null || kakaoAccessToken.isBlank()) {
+            throw new BadRequestException(ErrorStatus.KAKAO_LOGIN_FAILED.getMessage());
+        }
+
+        KakaoUserInfoDto userInfo = oAuthService.getKakaoUserInfo(kakaoAccessToken);
+
+        Member member = memberRepository.findBySocialId(userInfo.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
+
+        String accessToken = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String refreshToken = jwtProvider.generateRefreshToken(member.getId());
+        member.updateRefreshtoken(refreshToken);
+
+        return new TokenResponseDto(accessToken, refreshToken);
+    }
+
+    // 이메일 로그인
+    @Transactional
+    public MemberLoginResponseDto login(MemberLoginRequestDto dto) {
+
+        Member member = memberRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+            throw new BadRequestException(ErrorStatus.PASSWORD_MISMATCH_EXCEPTION.getMessage());
+        }
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
+
+        String accessToken = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String refreshToken = jwtProvider.generateRefreshToken(member.getId());
+        member.updateRefreshtoken(refreshToken);
+
+        return new MemberLoginResponseDto(accessToken, refreshToken, member.getAuthority());
+    }
+
+    // 토큰 재발급
+    @Transactional
+    public TokenResponseDto reissue(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new BadCredentialsException("Missing refresh token");
+        }
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new BadCredentialsException("Invalid refresh token");
+        }
+
+        Member member = memberRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new BadRequestException("Refresh token not registered"));
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(member.getAuthority().name()));
+
+        String newAccess = jwtProvider.generateAccessToken(member.getId(), authorities);
+        String newRefresh = jwtProvider.generateRefreshToken(member.getId());
+        member.updateRefreshtoken(newRefresh); // rotation
+
+        return new TokenResponseDto(newAccess, newRefresh);
+    }
+
+    // 회원 정보
+    @Transactional(readOnly = true)
+    public MemberInfoDto getMemberInfo(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        MemberEmotionSummary summary = memberEmotionSummaryRepository
+                .findById(member.getId())
+                .orElseThrow(() -> new EntityNotFoundException("MemberEmotionSummary not found for id=" + member.getId()));
+
+        int movieLikeCount = movieLikeRepository.countByMember_Id(member.getId());
+        long watchMovieCount = reviewRepository.countByMember(member);
+
+        return MemberInfoDto.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .reportCount(member.getReportCount())
+                .watchMovieCount((int) watchMovieCount)
+                .likeCount(movieLikeCount)
+                .repEmotionType(summary.getRepEmotionType())
+                .authority(member.getAuthority())
+                .build();
+    }
+
+    // 닉네임
+    @Transactional
+    public void updateNickname(String email, NicknameUpdateRequestDTO dto) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        String newNickname = dto.getNickname();
+        if (memberRepository.existsByNickname(newNickname)) {
+            throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+        }
+        member.updateNickname(newNickname);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isNicknameDuplicated(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    // 비밀번호
+    @Transactional
+    public void updatePassword(String email, PasswordUpdateRequestDTO dto) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+            throw new BadRequestException(ErrorStatus.PASSWORD_MISMATCH_EXCEPTION.getMessage());
+        }
+        if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+            throw new BadRequestException(ErrorStatus.PASSWORD_MISMATCH_EXCEPTION.getMessage());
+        }
+        if (passwordEncoder.matches(dto.getNewPassword(), member.getPassword())) {
+            throw new BadRequestException(ErrorStatus.PASSWORD_SAME_EXCEPTION.getMessage());
+        }
+
+        String newEncoded = passwordEncoder.encode(dto.getNewPassword());
+        member.updatePassword(newEncoded);
+    }
+
+//    // 프로필 감정
+//    @Transactional
+//    public EmotionType updateProfileEmotion(String email, EmotionType emotionType) {
+//        Member member = memberRepository.findByEmail(email)
+//                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+//        member.updateProfileEmotion(emotionType);
+//        return member.getProfileEmotion();
+//    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new BaseException(
+                        ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getHttpStatus(),
+                        ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()
+                ));
+
+        if (member.getRefreshToken() == null) {
+            throw new UnAuthorizedException(
+                    ErrorStatus.USER_ALREADY_LOGGED_OUT.getHttpStatus(),
+                    ErrorStatus.USER_ALREADY_LOGGED_OUT.getMessage()
+            );
+        }
+        member.updateRefreshtoken(null);
+    }
+
+    @Transactional(readOnly = true)
+    public EmotionAvgDTO getMyEmotionSummary(String email) {
+        // 1) 사용자 조회
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NotFoundException(
+                ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+
+        // 2) 저장된 감정 요약 조회
+        MemberEmotionSummary summary = memberEmotionSummaryRepository
+            .findById(member.getId())
+            .orElseThrow(() -> new NotFoundException(
+                "감정 요약 정보가 없습니다."));
+
+        // 3) 엔티티 값을 DTO로 변환하여 반환
+        return EmotionAvgDTO.builder()
+            .joy(Double.valueOf(summary.getJoy()))
+            .sadness(Double.valueOf(summary.getSadness()))
+            .fear(Double.valueOf(summary.getFear()))
+            .anger(Double.valueOf(summary.getAnger()))
+            .disgust(Double.valueOf(summary.getDisgust()))
+            .repEmotionType(summary.getRepEmotionType())
+            .build();
+    }
+
+    private EmotionType calculateRepEmotion(EmotionAvgDTO dto) {
+        Map<EmotionType, Double> scores = Map.of(
+                EmotionType.JOY, dto.getJoy(),
+                EmotionType.SADNESS, dto.getSadness(),
+                EmotionType.ANGER,   dto.getAnger(),
+                EmotionType.FEAR,    dto.getFear(),
+                EmotionType.DISGUST, dto.getDisgust()
+        );
+
+        // 모든 값이 0.0이면 NONE
+        boolean allZero = scores.values().stream().allMatch(v -> v == 0.0);
+        if (allZero) return EmotionType.NONE;
+
+        // 최댓값 감정 리턴
+        return scores.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(EmotionType.NONE);
+    }
+
+    @Transactional
+    public MemberEmotionSummaryResponseDTO saveInitialEmotionSummary(MemberEmotionSummaryRequestDTO dto) {
+        Member member = memberRepository.findById(dto.getMemberId())
+                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+
+        EmotionType rep = findMaxEmotion(
+            dto.getJoy(), dto.getSadness(), dto.getFear(),
+            dto.getAnger(), dto.getDisgust()
+            );
+
+        // 기존 감정 상태가 있는 경우 → 수정
+        MemberEmotionSummary summary = memberEmotionSummaryRepository.findByMember(member)
+                .orElseGet(() -> MemberEmotionSummary.builder()
+                        .member(member)
+                        .build()
+                );
+
+        summary.updateFromRequest(dto, rep);
+        memberEmotionSummaryRepository.save(summary);
+        return MemberEmotionSummaryResponseDTO.fromEntity(summary);
+    }
+
+    public static EmotionType findMaxEmotion(
+                Float joy, Float sadness, Float fear,
+                Float anger, Float disgust
+        ) {
+            return Map.<EmotionType, Float>of(
+                EmotionType.JOY,    joy,
+                EmotionType.SADNESS,sadness,
+                EmotionType.FEAR,   fear,
+                EmotionType.ANGER,  anger,
+                EmotionType.DISGUST,disgust
+            ).entrySet().stream()
+             .max(Map.Entry.comparingByValue())
+             .orElseThrow()  // 혹은 기본값 설정
+             .getKey();
+        }
+
+    @Transactional
+    public MemberEmotionSummaryResponseDTO updateEmotionSummary(
+            MemberEmotionSummaryRequestDTO dto
+    ) {
+        // 1) 시큐리티 컨텍스트에서 인증 정보 꺼내기
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        // 2) 이메일로 Member 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() ->
+                    new EntityNotFoundException("Member not found for email=" + email)
+                );
+        Long memberId = member.getId();
+
+        // 3) 기존 로직 그대로
+        MemberEmotionSummary summary = memberEmotionSummaryRepository.findById(memberId)
+            .orElseThrow(() ->
+                new EntityNotFoundException(
+                    "MemberEmotionSummary not found for id=" + memberId
+                )
+            );
+
+        double joy     = dto.getJoy();
+        double sadness = dto.getSadness();
+        double anger   = dto.getAnger();
+        double fear    = dto.getFear();
+        double disgust = dto.getDisgust();
+
+        EmotionType repType = Stream.of(
+                Map.entry(EmotionType.JOY,     joy),
+                Map.entry(EmotionType.SADNESS, sadness),
+                Map.entry(EmotionType.ANGER,   anger),
+                Map.entry(EmotionType.FEAR,    fear),
+                Map.entry(EmotionType.DISGUST, disgust)
+            )
+            .max(Comparator.comparingDouble(Map.Entry::getValue))
+            .map(Map.Entry::getKey)
+            .orElse(EmotionType.JOY);
+
+        summary.updateFromDTO(
+            EmotionAvgDTO.builder()
+                .joy(joy)
+                .sadness(sadness)
+                .anger(anger)
+                .fear(fear)
+                .disgust(disgust)
+                .repEmotionType(repType)
+                .build()
+        );
+
+        MemberEmotionSummary updated = memberEmotionSummaryRepository.save(summary);
+        return MemberEmotionSummaryResponseDTO.fromEntity(updated);
+    }
+
+    // 두 값의 평균 (소수점 유지)
+    private double avg(double a, double b) {
+        return (a + b) / 2.0;
+    }
+
+    /**
+     * 사용자가 좋아요 누른 영화들의 감정 데이터를 집계하여
+     * MemberEmotionSummary를 갱신하고 그 DTO를 반환한다.
+     */
+    @Transactional
+    public MemberEmotionSummaryResponseDTO updateEmotionSummaryByLikedMovies(Long memberId) {
+        // 1) 좋아요 누른 영화 ID 목록 조회
+        List<Long> likedMovieIds = movieLikeRepository
+            .findByMember_Id(memberId)
+            .stream()
+            .map(ml -> ml.getMovie().getId())
+            .toList();
+
+        // 2) 해당 영화들의 감정 평균 집계 (없으면 0.0 기본)
+        EmotionAvgDTO avg = emotionRepository
+            .findAverageEmotionsByMovieIds(likedMovieIds)
+            .orElseGet(() -> EmotionAvgDTO.builder()
+                .joy(0.0).sadness(0.0).anger(0.0)
+                .fear(0.0).disgust(0.0)
+                .repEmotionType(EmotionType.NONE)
+                .build()
+            );
+
+        // 3) 대표 감정 계산
+        EmotionType rep = calculateRepEmotion(avg);
+        avg.setRepEmotionType(rep);
+
+        // 4) MemberEmotionSummary 엔티티 조회 또는 생성
+        MemberEmotionSummary summary = memberEmotionSummaryRepository
+            .findById(memberId)
+            .orElseGet(() -> {
+                MemberEmotionSummary s = MemberEmotionSummary.builder()
+                    .member(Member.builder().id(memberId).build()) // member만 식별자로 설정
+                    .build();
+                return s;
+            });
+
+        // 5) DTO → 엔티티 반영 및 저장
+        summary.updateFromDTO(avg);
+        MemberEmotionSummary updated = memberEmotionSummaryRepository.save(summary);
+
+        return MemberEmotionSummaryResponseDTO.fromEntity(updated);
+    }
+}

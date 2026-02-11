@@ -1,0 +1,28 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:file:.env[.properties]
+
+  batch:
+    jdbc:
+      initialize-schema: never
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/insidemovie?useSSL=false&serverTimezone=UTC
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update # 개발 환경: update
+
+  fastapi:
+    base-url: "http://localhost:8000"
+    url: "http://localhost:8000/recommend/emotion"

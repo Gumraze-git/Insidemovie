@@ -1,0 +1,96 @@
+spring:
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:file:./application-key.yml
+      - optional:./application-key.yml
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${kakao.client.id}
+            client-secret: ${kakao.client.secret}
+            client-name: kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: http://52.79.175.149:5173/login/oauth2/code/kakao
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.connectiontimeout: 5000
+mail:
+  from:
+    address: admin@insidemovie.com
+    personal: "InsideMovie 인증센터"
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-exp-ms: ${JWT_ACCESS_EXP_MS}
+  refresh-exp-ms: ${JWT_REFRESH_EXP_MS}
+  cookie:
+    access-name: ACCESS_TOKEN
+    refresh-name: REFRESH_TOKEN
+    same-site: None
+    secure: true
+  access:
+    header: Authorization
+
+  refresh:
+    header: Authorization-Refresh
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /api-doc
+
+tmdb:
+  api:
+    # TMDB API 키
+    key: ${tmdb.api.key}
+    # TMDB 베이스 URL
+    base-url: https://api.themoviedb.org/3
+    # 응답 언어 설정 (한국어)
+    language: ko-KR
+  image:
+    base-url: https://image.tmdb.org/t/p/
+    poster-size: original
+
+kobis:
+  api:
+    #영화진흥원 API 키
+    key: ${kobis.api.key}
+    # 베이스 URL
+    base-url: http://www.kobis.or.kr/kobisopenapi/webservice/rest
+
+scheduler:
+  cron:
+    daily: "0 30 16 * * *"
+    weekly: "0 30 16 * * MON"
+    request_movie: "0 42 19 * * MON"
+  zone: "Asia/Seoul"
+
+movie:
+  seed-enabled: false # 시딩 끝나면 false
+  update-enabled: true #시딩 끝나면 true
+
+match:
+  cron:
+    weekly: "0 30 16 * * MON"
