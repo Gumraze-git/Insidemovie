@@ -1,0 +1,2802 @@
+[
+    {
+        "rank": 1,
+        "posterName": "영화 B1",
+        "starValue": 4.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 5
+            },
+            {
+                "icon": "sad",
+                "value": 12
+            },
+            {
+                "icon": "angry",
+                "value": 29
+            },
+            {
+                "icon": "fear",
+                "value": 32
+            },
+            {
+                "icon": "disgust",
+                "value": 22
+            }
+        ]
+    },
+    {
+        "rank": 2,
+        "posterName": "영화 C2",
+        "starValue": 1.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 5
+            },
+            {
+                "icon": "sad",
+                "value": 20
+            },
+            {
+                "icon": "angry",
+                "value": 16
+            },
+            {
+                "icon": "fear",
+                "value": 23
+            },
+            {
+                "icon": "disgust",
+                "value": 35
+            }
+        ]
+    },
+    {
+        "rank": 3,
+        "posterName": "영화 D3",
+        "starValue": 1.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 16
+            },
+            {
+                "icon": "angry",
+                "value": 34
+            },
+            {
+                "icon": "fear",
+                "value": 28
+            },
+            {
+                "icon": "disgust",
+                "value": 8
+            }
+        ]
+    },
+    {
+        "rank": 4,
+        "posterName": "영화 E4",
+        "starValue": 2.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 27
+            },
+            {
+                "icon": "sad",
+                "value": 30
+            },
+            {
+                "icon": "angry",
+                "value": 18
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 6
+            }
+        ]
+    },
+    {
+        "rank": 5,
+        "posterName": "영화 F5",
+        "starValue": 4.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 44
+            },
+            {
+                "icon": "fear",
+                "value": 9
+            },
+            {
+                "icon": "disgust",
+                "value": 2
+            }
+        ]
+    },
+    {
+        "rank": 6,
+        "posterName": "영화 G6",
+        "starValue": 2.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 45
+            },
+            {
+                "icon": "sad",
+                "value": 16
+            },
+            {
+                "icon": "angry",
+                "value": 20
+            },
+            {
+                "icon": "fear",
+                "value": 5
+            },
+            {
+                "icon": "disgust",
+                "value": 13
+            }
+        ]
+    },
+    {
+        "rank": 7,
+        "posterName": "영화 H7",
+        "starValue": 2.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 25
+            },
+            {
+                "icon": "sad",
+                "value": 15
+            },
+            {
+                "icon": "angry",
+                "value": 23
+            },
+            {
+                "icon": "fear",
+                "value": 15
+            },
+            {
+                "icon": "disgust",
+                "value": 22
+            }
+        ]
+    },
+    {
+        "rank": 8,
+        "posterName": "영화 I8",
+        "starValue": 3.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 3
+            },
+            {
+                "icon": "sad",
+                "value": 9
+            },
+            {
+                "icon": "angry",
+                "value": 32
+            },
+            {
+                "icon": "fear",
+                "value": 16
+            },
+            {
+                "icon": "disgust",
+                "value": 40
+            }
+        ]
+    },
+    {
+        "rank": 9,
+        "posterName": "영화 J9",
+        "starValue": 0.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 6
+            },
+            {
+                "icon": "sad",
+                "value": 23
+            },
+            {
+                "icon": "angry",
+                "value": 33
+            },
+            {
+                "icon": "fear",
+                "value": 32
+            },
+            {
+                "icon": "disgust",
+                "value": 5
+            }
+        ]
+    },
+    {
+        "rank": 10,
+        "posterName": "영화 K10",
+        "starValue": 2.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 31
+            },
+            {
+                "icon": "sad",
+                "value": 31
+            },
+            {
+                "icon": "angry",
+                "value": 10
+            },
+            {
+                "icon": "fear",
+                "value": 12
+            },
+            {
+                "icon": "disgust",
+                "value": 15
+            }
+        ]
+    },
+    {
+        "rank": 11,
+        "posterName": "영화 L11",
+        "starValue": 3.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 35
+            },
+            {
+                "icon": "angry",
+                "value": 13
+            },
+            {
+                "icon": "fear",
+                "value": 15
+            },
+            {
+                "icon": "disgust",
+                "value": 23
+            }
+        ]
+    },
+    {
+        "rank": 12,
+        "posterName": "영화 M12",
+        "starValue": 0.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 13
+            },
+            {
+                "icon": "sad",
+                "value": 34
+            },
+            {
+                "icon": "angry",
+                "value": 3
+            },
+            {
+                "icon": "fear",
+                "value": 1
+            },
+            {
+                "icon": "disgust",
+                "value": 50
+            }
+        ]
+    },
+    {
+        "rank": 13,
+        "posterName": "영화 N13",
+        "starValue": 3.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 16
+            },
+            {
+                "icon": "sad",
+                "value": 20
+            },
+            {
+                "icon": "angry",
+                "value": 22
+            },
+            {
+                "icon": "fear",
+                "value": 17
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 14,
+        "posterName": "영화 O14",
+        "starValue": 3.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 20
+            },
+            {
+                "icon": "sad",
+                "value": 41
+            },
+            {
+                "icon": "angry",
+                "value": 7
+            },
+            {
+                "icon": "fear",
+                "value": 7
+            },
+            {
+                "icon": "disgust",
+                "value": 25
+            }
+        ]
+    },
+    {
+        "rank": 15,
+        "posterName": "영화 P15",
+        "starValue": 3.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 30
+            },
+            {
+                "icon": "sad",
+                "value": 5
+            },
+            {
+                "icon": "angry",
+                "value": 36
+            },
+            {
+                "icon": "fear",
+                "value": 10
+            },
+            {
+                "icon": "disgust",
+                "value": 19
+            }
+        ]
+    },
+    {
+        "rank": 16,
+        "posterName": "영화 Q16",
+        "starValue": 0.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 31
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 21
+            },
+            {
+                "icon": "fear",
+                "value": 13
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 17,
+        "posterName": "영화 R17",
+        "starValue": 1.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 23
+            },
+            {
+                "icon": "angry",
+                "value": 12
+            },
+            {
+                "icon": "fear",
+                "value": 23
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 18,
+        "posterName": "영화 S18",
+        "starValue": 0.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 20
+            },
+            {
+                "icon": "sad",
+                "value": 13
+            },
+            {
+                "icon": "angry",
+                "value": 20
+            },
+            {
+                "icon": "fear",
+                "value": 27
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 19,
+        "posterName": "영화 T19",
+        "starValue": 3.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 31
+            },
+            {
+                "icon": "sad",
+                "value": 49
+            },
+            {
+                "icon": "angry",
+                "value": 2
+            },
+            {
+                "icon": "fear",
+                "value": 3
+            },
+            {
+                "icon": "disgust",
+                "value": 16
+            }
+        ]
+    },
+    {
+        "rank": 20,
+        "posterName": "영화 U20",
+        "starValue": 2.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 26
+            },
+            {
+                "icon": "sad",
+                "value": 16
+            },
+            {
+                "icon": "angry",
+                "value": 25
+            },
+            {
+                "icon": "fear",
+                "value": 6
+            },
+            {
+                "icon": "disgust",
+                "value": 26
+            }
+        ]
+    },
+    {
+        "rank": 21,
+        "posterName": "영화 V21",
+        "starValue": 5.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 7
+            },
+            {
+                "icon": "sad",
+                "value": 33
+            },
+            {
+                "icon": "angry",
+                "value": 23
+            },
+            {
+                "icon": "fear",
+                "value": 36
+            },
+            {
+                "icon": "disgust",
+                "value": 1
+            }
+        ]
+    },
+    {
+        "rank": 22,
+        "posterName": "영화 W22",
+        "starValue": 0.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 21
+            },
+            {
+                "icon": "sad",
+                "value": 24
+            },
+            {
+                "icon": "angry",
+                "value": 35
+            },
+            {
+                "icon": "fear",
+                "value": 16
+            },
+            {
+                "icon": "disgust",
+                "value": 3
+            }
+        ]
+    },
+    {
+        "rank": 23,
+        "posterName": "영화 X23",
+        "starValue": 2.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 16
+            },
+            {
+                "icon": "sad",
+                "value": 34
+            },
+            {
+                "icon": "angry",
+                "value": 14
+            },
+            {
+                "icon": "fear",
+                "value": 16
+            },
+            {
+                "icon": "disgust",
+                "value": 20
+            }
+        ]
+    },
+    {
+        "rank": 24,
+        "posterName": "영화 Y24",
+        "starValue": 2.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 1
+            },
+            {
+                "icon": "angry",
+                "value": 13
+            },
+            {
+                "icon": "fear",
+                "value": 44
+            },
+            {
+                "icon": "disgust",
+                "value": 17
+            }
+        ]
+    },
+    {
+        "rank": 25,
+        "posterName": "영화 Z25",
+        "starValue": 4.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 1
+            },
+            {
+                "icon": "sad",
+                "value": 34
+            },
+            {
+                "icon": "angry",
+                "value": 7
+            },
+            {
+                "icon": "fear",
+                "value": 22
+            },
+            {
+                "icon": "disgust",
+                "value": 36
+            }
+        ]
+    },
+    {
+        "rank": 26,
+        "posterName": "영화 A26",
+        "starValue": 2.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 12
+            },
+            {
+                "icon": "sad",
+                "value": 12
+            },
+            {
+                "icon": "angry",
+                "value": 23
+            },
+            {
+                "icon": "fear",
+                "value": 23
+            },
+            {
+                "icon": "disgust",
+                "value": 30
+            }
+        ]
+    },
+    {
+        "rank": 27,
+        "posterName": "영화 B27",
+        "starValue": 3.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 7
+            },
+            {
+                "icon": "sad",
+                "value": 32
+            },
+            {
+                "icon": "angry",
+                "value": 10
+            },
+            {
+                "icon": "fear",
+                "value": 42
+            },
+            {
+                "icon": "disgust",
+                "value": 9
+            }
+        ]
+    },
+    {
+        "rank": 28,
+        "posterName": "영화 C28",
+        "starValue": 2.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 9
+            },
+            {
+                "icon": "sad",
+                "value": 7
+            },
+            {
+                "icon": "angry",
+                "value": 33
+            },
+            {
+                "icon": "fear",
+                "value": 46
+            },
+            {
+                "icon": "disgust",
+                "value": 5
+            }
+        ]
+    },
+    {
+        "rank": 29,
+        "posterName": "영화 D29",
+        "starValue": 3.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 1
+            },
+            {
+                "icon": "sad",
+                "value": 41
+            },
+            {
+                "icon": "angry",
+                "value": 13
+            },
+            {
+                "icon": "fear",
+                "value": 44
+            },
+            {
+                "icon": "disgust",
+                "value": 1
+            }
+        ]
+    },
+    {
+        "rank": 30,
+        "posterName": "영화 E30",
+        "starValue": 3.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 27
+            },
+            {
+                "icon": "sad",
+                "value": 18
+            },
+            {
+                "icon": "angry",
+                "value": 9
+            },
+            {
+                "icon": "fear",
+                "value": 25
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 31,
+        "posterName": "영화 F31",
+        "starValue": 0.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 15
+            },
+            {
+                "icon": "sad",
+                "value": 26
+            },
+            {
+                "icon": "angry",
+                "value": 24
+            },
+            {
+                "icon": "fear",
+                "value": 12
+            },
+            {
+                "icon": "disgust",
+                "value": 22
+            }
+        ]
+    },
+    {
+        "rank": 32,
+        "posterName": "영화 G32",
+        "starValue": 2.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 30
+            },
+            {
+                "icon": "angry",
+                "value": 2
+            },
+            {
+                "icon": "fear",
+                "value": 31
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 33,
+        "posterName": "영화 H33",
+        "starValue": 4.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 29
+            },
+            {
+                "icon": "angry",
+                "value": 30
+            },
+            {
+                "icon": "fear",
+                "value": 15
+            },
+            {
+                "icon": "disgust",
+                "value": 11
+            }
+        ]
+    },
+    {
+        "rank": 34,
+        "posterName": "영화 I34",
+        "starValue": 1.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 15
+            },
+            {
+                "icon": "sad",
+                "value": 32
+            },
+            {
+                "icon": "angry",
+                "value": 19
+            },
+            {
+                "icon": "fear",
+                "value": 2
+            },
+            {
+                "icon": "disgust",
+                "value": 32
+            }
+        ]
+    },
+    {
+        "rank": 35,
+        "posterName": "영화 J35",
+        "starValue": 1.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 11
+            },
+            {
+                "icon": "sad",
+                "value": 23
+            },
+            {
+                "icon": "angry",
+                "value": 19
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 28
+            }
+        ]
+    },
+    {
+        "rank": 36,
+        "posterName": "영화 K36",
+        "starValue": 4.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 11
+            },
+            {
+                "icon": "sad",
+                "value": 31
+            },
+            {
+                "icon": "angry",
+                "value": 2
+            },
+            {
+                "icon": "fear",
+                "value": 35
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 37,
+        "posterName": "영화 L37",
+        "starValue": 4.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 27
+            },
+            {
+                "icon": "sad",
+                "value": 2
+            },
+            {
+                "icon": "angry",
+                "value": 50
+            },
+            {
+                "icon": "fear",
+                "value": 5
+            },
+            {
+                "icon": "disgust",
+                "value": 16
+            }
+        ]
+    },
+    {
+        "rank": 38,
+        "posterName": "영화 M38",
+        "starValue": 2.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 29
+            },
+            {
+                "icon": "sad",
+                "value": 3
+            },
+            {
+                "icon": "angry",
+                "value": 29
+            },
+            {
+                "icon": "fear",
+                "value": 14
+            },
+            {
+                "icon": "disgust",
+                "value": 25
+            }
+        ]
+    },
+    {
+        "rank": 39,
+        "posterName": "영화 N39",
+        "starValue": 2.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 17
+            },
+            {
+                "icon": "fear",
+                "value": 27
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 40,
+        "posterName": "영화 O40",
+        "starValue": 1.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 10
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 28
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 41,
+        "posterName": "영화 P41",
+        "starValue": 3.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 30
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 3
+            },
+            {
+                "icon": "fear",
+                "value": 34
+            },
+            {
+                "icon": "disgust",
+                "value": 12
+            }
+        ]
+    },
+    {
+        "rank": 42,
+        "posterName": "영화 Q42",
+        "starValue": 1.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 28
+            },
+            {
+                "icon": "sad",
+                "value": 4
+            },
+            {
+                "icon": "angry",
+                "value": 25
+            },
+            {
+                "icon": "fear",
+                "value": 16
+            },
+            {
+                "icon": "disgust",
+                "value": 28
+            }
+        ]
+    },
+    {
+        "rank": 43,
+        "posterName": "영화 R43",
+        "starValue": 0.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 3
+            },
+            {
+                "icon": "sad",
+                "value": 15
+            },
+            {
+                "icon": "angry",
+                "value": 39
+            },
+            {
+                "icon": "fear",
+                "value": 2
+            },
+            {
+                "icon": "disgust",
+                "value": 41
+            }
+        ]
+    },
+    {
+        "rank": 44,
+        "posterName": "영화 S44",
+        "starValue": 1.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 25
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 31
+            },
+            {
+                "icon": "fear",
+                "value": 15
+            },
+            {
+                "icon": "disgust",
+                "value": 7
+            }
+        ]
+    },
+    {
+        "rank": 45,
+        "posterName": "영화 T45",
+        "starValue": 3.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 22
+            },
+            {
+                "icon": "sad",
+                "value": 10
+            },
+            {
+                "icon": "angry",
+                "value": 25
+            },
+            {
+                "icon": "fear",
+                "value": 18
+            },
+            {
+                "icon": "disgust",
+                "value": 25
+            }
+        ]
+    },
+    {
+        "rank": 46,
+        "posterName": "영화 U46",
+        "starValue": 1.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 26
+            },
+            {
+                "icon": "sad",
+                "value": 19
+            },
+            {
+                "icon": "angry",
+                "value": 10
+            },
+            {
+                "icon": "fear",
+                "value": 17
+            },
+            {
+                "icon": "disgust",
+                "value": 28
+            }
+        ]
+    },
+    {
+        "rank": 47,
+        "posterName": "영화 V47",
+        "starValue": 1.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 7
+            },
+            {
+                "icon": "angry",
+                "value": 24
+            },
+            {
+                "icon": "fear",
+                "value": 33
+            },
+            {
+                "icon": "disgust",
+                "value": 11
+            }
+        ]
+    },
+    {
+        "rank": 48,
+        "posterName": "영화 W48",
+        "starValue": 1.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 2
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 20
+            },
+            {
+                "icon": "fear",
+                "value": 30
+            },
+            {
+                "icon": "disgust",
+                "value": 37
+            }
+        ]
+    },
+    {
+        "rank": 49,
+        "posterName": "영화 X49",
+        "starValue": 4.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 9
+            },
+            {
+                "icon": "sad",
+                "value": 1
+            },
+            {
+                "icon": "angry",
+                "value": 12
+            },
+            {
+                "icon": "fear",
+                "value": 14
+            },
+            {
+                "icon": "disgust",
+                "value": 64
+            }
+        ]
+    },
+    {
+        "rank": 50,
+        "posterName": "영화 Y50",
+        "starValue": 2.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 32
+            },
+            {
+                "icon": "sad",
+                "value": 16
+            },
+            {
+                "icon": "angry",
+                "value": 8
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 51,
+        "posterName": "영화 Z51",
+        "starValue": 2.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 18
+            },
+            {
+                "icon": "sad",
+                "value": 28
+            },
+            {
+                "icon": "angry",
+                "value": 31
+            },
+            {
+                "icon": "fear",
+                "value": 20
+            },
+            {
+                "icon": "disgust",
+                "value": 2
+            }
+        ]
+    },
+    {
+        "rank": 52,
+        "posterName": "영화 A52",
+        "starValue": 4.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 11
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 28
+            },
+            {
+                "icon": "fear",
+                "value": 7
+            },
+            {
+                "icon": "disgust",
+                "value": 32
+            }
+        ]
+    },
+    {
+        "rank": 53,
+        "posterName": "영화 B53",
+        "starValue": 0.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 15
+            },
+            {
+                "icon": "sad",
+                "value": 38
+            },
+            {
+                "icon": "angry",
+                "value": 6
+            },
+            {
+                "icon": "fear",
+                "value": 21
+            },
+            {
+                "icon": "disgust",
+                "value": 20
+            }
+        ]
+    },
+    {
+        "rank": 54,
+        "posterName": "영화 C54",
+        "starValue": 2.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 1
+            },
+            {
+                "icon": "sad",
+                "value": 26
+            },
+            {
+                "icon": "angry",
+                "value": 43
+            },
+            {
+                "icon": "fear",
+                "value": 22
+            },
+            {
+                "icon": "disgust",
+                "value": 9
+            }
+        ]
+    },
+    {
+        "rank": 55,
+        "posterName": "영화 D55",
+        "starValue": 3.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 21
+            },
+            {
+                "icon": "sad",
+                "value": 27
+            },
+            {
+                "icon": "angry",
+                "value": 8
+            },
+            {
+                "icon": "fear",
+                "value": 33
+            },
+            {
+                "icon": "disgust",
+                "value": 11
+            }
+        ]
+    },
+    {
+        "rank": 56,
+        "posterName": "영화 E56",
+        "starValue": 4.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 42
+            },
+            {
+                "icon": "sad",
+                "value": 12
+            },
+            {
+                "icon": "angry",
+                "value": 28
+            },
+            {
+                "icon": "fear",
+                "value": 3
+            },
+            {
+                "icon": "disgust",
+                "value": 16
+            }
+        ]
+    },
+    {
+        "rank": 57,
+        "posterName": "영화 F57",
+        "starValue": 4.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 27
+            },
+            {
+                "icon": "sad",
+                "value": 9
+            },
+            {
+                "icon": "angry",
+                "value": 23
+            },
+            {
+                "icon": "fear",
+                "value": 11
+            },
+            {
+                "icon": "disgust",
+                "value": 30
+            }
+        ]
+    },
+    {
+        "rank": 58,
+        "posterName": "영화 G58",
+        "starValue": 1.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 5
+            },
+            {
+                "icon": "sad",
+                "value": 25
+            },
+            {
+                "icon": "angry",
+                "value": 26
+            },
+            {
+                "icon": "fear",
+                "value": 25
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 59,
+        "posterName": "영화 H59",
+        "starValue": 1.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 1
+            },
+            {
+                "icon": "sad",
+                "value": 31
+            },
+            {
+                "icon": "angry",
+                "value": 21
+            },
+            {
+                "icon": "fear",
+                "value": 8
+            },
+            {
+                "icon": "disgust",
+                "value": 40
+            }
+        ]
+    },
+    {
+        "rank": 60,
+        "posterName": "영화 I60",
+        "starValue": 1.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 38
+            },
+            {
+                "icon": "sad",
+                "value": 3
+            },
+            {
+                "icon": "angry",
+                "value": 12
+            },
+            {
+                "icon": "fear",
+                "value": 17
+            },
+            {
+                "icon": "disgust",
+                "value": 30
+            }
+        ]
+    },
+    {
+        "rank": 61,
+        "posterName": "영화 J61",
+        "starValue": 2.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 15
+            },
+            {
+                "icon": "sad",
+                "value": 18
+            },
+            {
+                "icon": "angry",
+                "value": 22
+            },
+            {
+                "icon": "fear",
+                "value": 18
+            },
+            {
+                "icon": "disgust",
+                "value": 28
+            }
+        ]
+    },
+    {
+        "rank": 62,
+        "posterName": "영화 K62",
+        "starValue": 2.2,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 30
+            },
+            {
+                "icon": "sad",
+                "value": 4
+            },
+            {
+                "icon": "angry",
+                "value": 24
+            },
+            {
+                "icon": "fear",
+                "value": 24
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 63,
+        "posterName": "영화 L63",
+        "starValue": 4.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 18
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 22
+            },
+            {
+                "icon": "fear",
+                "value": 15
+            },
+            {
+                "icon": "disgust",
+                "value": 23
+            }
+        ]
+    },
+    {
+        "rank": 64,
+        "posterName": "영화 M64",
+        "starValue": 2.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 25
+            },
+            {
+                "icon": "sad",
+                "value": 38
+            },
+            {
+                "icon": "angry",
+                "value": 6
+            },
+            {
+                "icon": "fear",
+                "value": 4
+            },
+            {
+                "icon": "disgust",
+                "value": 29
+            }
+        ]
+    },
+    {
+        "rank": 65,
+        "posterName": "영화 N65",
+        "starValue": 1.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 33
+            },
+            {
+                "icon": "sad",
+                "value": 19
+            },
+            {
+                "icon": "angry",
+                "value": 2
+            },
+            {
+                "icon": "fear",
+                "value": 22
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 66,
+        "posterName": "영화 O66",
+        "starValue": 0.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 5
+            },
+            {
+                "icon": "sad",
+                "value": 50
+            },
+            {
+                "icon": "angry",
+                "value": 20
+            },
+            {
+                "icon": "fear",
+                "value": 5
+            },
+            {
+                "icon": "disgust",
+                "value": 20
+            }
+        ]
+    },
+    {
+        "rank": 67,
+        "posterName": "영화 P67",
+        "starValue": 0.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 20
+            },
+            {
+                "icon": "sad",
+                "value": 21
+            },
+            {
+                "icon": "angry",
+                "value": 4
+            },
+            {
+                "icon": "fear",
+                "value": 38
+            },
+            {
+                "icon": "disgust",
+                "value": 16
+            }
+        ]
+    },
+    {
+        "rank": 68,
+        "posterName": "영화 Q68",
+        "starValue": 4.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 19
+            },
+            {
+                "icon": "sad",
+                "value": 20
+            },
+            {
+                "icon": "angry",
+                "value": 18
+            },
+            {
+                "icon": "fear",
+                "value": 24
+            },
+            {
+                "icon": "disgust",
+                "value": 19
+            }
+        ]
+    },
+    {
+        "rank": 69,
+        "posterName": "영화 R69",
+        "starValue": 3.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 10
+            },
+            {
+                "icon": "sad",
+                "value": 33
+            },
+            {
+                "icon": "angry",
+                "value": 5
+            },
+            {
+                "icon": "fear",
+                "value": 12
+            },
+            {
+                "icon": "disgust",
+                "value": 39
+            }
+        ]
+    },
+    {
+        "rank": 70,
+        "posterName": "영화 S70",
+        "starValue": 0.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 2
+            },
+            {
+                "icon": "sad",
+                "value": 24
+            },
+            {
+                "icon": "angry",
+                "value": 11
+            },
+            {
+                "icon": "fear",
+                "value": 51
+            },
+            {
+                "icon": "disgust",
+                "value": 12
+            }
+        ]
+    },
+    {
+        "rank": 71,
+        "posterName": "영화 T71",
+        "starValue": 4.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 30
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 15
+            },
+            {
+                "icon": "fear",
+                "value": 21
+            },
+            {
+                "icon": "disgust",
+                "value": 12
+            }
+        ]
+    },
+    {
+        "rank": 72,
+        "posterName": "영화 U72",
+        "starValue": 4.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 3
+            },
+            {
+                "icon": "sad",
+                "value": 23
+            },
+            {
+                "icon": "angry",
+                "value": 15
+            },
+            {
+                "icon": "fear",
+                "value": 41
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 73,
+        "posterName": "영화 V73",
+        "starValue": 0.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 32
+            },
+            {
+                "icon": "sad",
+                "value": 25
+            },
+            {
+                "icon": "angry",
+                "value": 16
+            },
+            {
+                "icon": "fear",
+                "value": 10
+            },
+            {
+                "icon": "disgust",
+                "value": 16
+            }
+        ]
+    },
+    {
+        "rank": 74,
+        "posterName": "영화 W74",
+        "starValue": 2.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 38
+            },
+            {
+                "icon": "angry",
+                "value": 14
+            },
+            {
+                "icon": "fear",
+                "value": 14
+            },
+            {
+                "icon": "disgust",
+                "value": 10
+            }
+        ]
+    },
+    {
+        "rank": 75,
+        "posterName": "영화 X75",
+        "starValue": 3.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 39
+            },
+            {
+                "icon": "sad",
+                "value": 22
+            },
+            {
+                "icon": "angry",
+                "value": 23
+            },
+            {
+                "icon": "fear",
+                "value": 1
+            },
+            {
+                "icon": "disgust",
+                "value": 15
+            }
+        ]
+    },
+    {
+        "rank": 76,
+        "posterName": "영화 Y76",
+        "starValue": 4.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 16
+            },
+            {
+                "icon": "sad",
+                "value": 21
+            },
+            {
+                "icon": "angry",
+                "value": 7
+            },
+            {
+                "icon": "fear",
+                "value": 32
+            },
+            {
+                "icon": "disgust",
+                "value": 24
+            }
+        ]
+    },
+    {
+        "rank": 77,
+        "posterName": "영화 Z77",
+        "starValue": 1.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 23
+            },
+            {
+                "icon": "sad",
+                "value": 10
+            },
+            {
+                "icon": "angry",
+                "value": 8
+            },
+            {
+                "icon": "fear",
+                "value": 22
+            },
+            {
+                "icon": "disgust",
+                "value": 37
+            }
+        ]
+    },
+    {
+        "rank": 78,
+        "posterName": "영화 A78",
+        "starValue": 0.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 22
+            },
+            {
+                "icon": "sad",
+                "value": 21
+            },
+            {
+                "icon": "angry",
+                "value": 14
+            },
+            {
+                "icon": "fear",
+                "value": 14
+            },
+            {
+                "icon": "disgust",
+                "value": 30
+            }
+        ]
+    },
+    {
+        "rank": 79,
+        "posterName": "영화 B79",
+        "starValue": 3.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 22
+            },
+            {
+                "icon": "sad",
+                "value": 36
+            },
+            {
+                "icon": "angry",
+                "value": 8
+            },
+            {
+                "icon": "fear",
+                "value": 22
+            },
+            {
+                "icon": "disgust",
+                "value": 12
+            }
+        ]
+    },
+    {
+        "rank": 80,
+        "posterName": "영화 C80",
+        "starValue": 2.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 33
+            },
+            {
+                "icon": "angry",
+                "value": 27
+            },
+            {
+                "icon": "fear",
+                "value": 10
+            },
+            {
+                "icon": "disgust",
+                "value": 15
+            }
+        ]
+    },
+    {
+        "rank": 81,
+        "posterName": "영화 D81",
+        "starValue": 1.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 19
+            },
+            {
+                "icon": "sad",
+                "value": 29
+            },
+            {
+                "icon": "angry",
+                "value": 2
+            },
+            {
+                "icon": "fear",
+                "value": 25
+            },
+            {
+                "icon": "disgust",
+                "value": 25
+            }
+        ]
+    },
+    {
+        "rank": 82,
+        "posterName": "영화 E82",
+        "starValue": 1.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 20
+            },
+            {
+                "icon": "sad",
+                "value": 29
+            },
+            {
+                "icon": "angry",
+                "value": 24
+            },
+            {
+                "icon": "fear",
+                "value": 9
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 83,
+        "posterName": "영화 F83",
+        "starValue": 4.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 23
+            },
+            {
+                "icon": "sad",
+                "value": 28
+            },
+            {
+                "icon": "angry",
+                "value": 14
+            },
+            {
+                "icon": "fear",
+                "value": 17
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 84,
+        "posterName": "영화 G84",
+        "starValue": 1.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 37
+            },
+            {
+                "icon": "sad",
+                "value": 20
+            },
+            {
+                "icon": "angry",
+                "value": 4
+            },
+            {
+                "icon": "fear",
+                "value": 20
+            },
+            {
+                "icon": "disgust",
+                "value": 20
+            }
+        ]
+    },
+    {
+        "rank": 85,
+        "posterName": "영화 H85",
+        "starValue": 2.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 25
+            },
+            {
+                "icon": "sad",
+                "value": 15
+            },
+            {
+                "icon": "angry",
+                "value": 14
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 27
+            }
+        ]
+    },
+    {
+        "rank": 86,
+        "posterName": "영화 I86",
+        "starValue": 1.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 31
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 16
+            },
+            {
+                "icon": "fear",
+                "value": 19
+            },
+            {
+                "icon": "disgust",
+                "value": 23
+            }
+        ]
+    },
+    {
+        "rank": 87,
+        "posterName": "영화 J87",
+        "starValue": 3.1,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 21
+            },
+            {
+                "icon": "sad",
+                "value": 43
+            },
+            {
+                "icon": "angry",
+                "value": 12
+            },
+            {
+                "icon": "fear",
+                "value": 7
+            },
+            {
+                "icon": "disgust",
+                "value": 17
+            }
+        ]
+    },
+    {
+        "rank": 88,
+        "posterName": "영화 K88",
+        "starValue": 0.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 9
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 27
+            },
+            {
+                "icon": "fear",
+                "value": 27
+            },
+            {
+                "icon": "disgust",
+                "value": 25
+            }
+        ]
+    },
+    {
+        "rank": 89,
+        "posterName": "영화 L89",
+        "starValue": 2.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 14
+            },
+            {
+                "icon": "sad",
+                "value": 29
+            },
+            {
+                "icon": "angry",
+                "value": 17
+            },
+            {
+                "icon": "fear",
+                "value": 29
+            },
+            {
+                "icon": "disgust",
+                "value": 12
+            }
+        ]
+    },
+    {
+        "rank": 90,
+        "posterName": "영화 M90",
+        "starValue": 0.6,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 50
+            },
+            {
+                "icon": "sad",
+                "value": 8
+            },
+            {
+                "icon": "angry",
+                "value": 33
+            },
+            {
+                "icon": "fear",
+                "value": 5
+            },
+            {
+                "icon": "disgust",
+                "value": 4
+            }
+        ]
+    },
+    {
+        "rank": 91,
+        "posterName": "영화 N91",
+        "starValue": 1.0,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 21
+            },
+            {
+                "icon": "sad",
+                "value": 29
+            },
+            {
+                "icon": "angry",
+                "value": 8
+            },
+            {
+                "icon": "fear",
+                "value": 4
+            },
+            {
+                "icon": "disgust",
+                "value": 38
+            }
+        ]
+    },
+    {
+        "rank": 92,
+        "posterName": "영화 O92",
+        "starValue": 1.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 24
+            },
+            {
+                "icon": "sad",
+                "value": 11
+            },
+            {
+                "icon": "angry",
+                "value": 19
+            },
+            {
+                "icon": "fear",
+                "value": 18
+            },
+            {
+                "icon": "disgust",
+                "value": 29
+            }
+        ]
+    },
+    {
+        "rank": 93,
+        "posterName": "영화 P93",
+        "starValue": 2.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 28
+            },
+            {
+                "icon": "sad",
+                "value": 26
+            },
+            {
+                "icon": "angry",
+                "value": 16
+            },
+            {
+                "icon": "fear",
+                "value": 13
+            },
+            {
+                "icon": "disgust",
+                "value": 17
+            }
+        ]
+    },
+    {
+        "rank": 94,
+        "posterName": "영화 Q94",
+        "starValue": 3.5,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 16
+            },
+            {
+                "icon": "sad",
+                "value": 2
+            },
+            {
+                "icon": "angry",
+                "value": 27
+            },
+            {
+                "icon": "fear",
+                "value": 34
+            },
+            {
+                "icon": "disgust",
+                "value": 21
+            }
+        ]
+    },
+    {
+        "rank": 95,
+        "posterName": "영화 R95",
+        "starValue": 3.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 3
+            },
+            {
+                "icon": "sad",
+                "value": 16
+            },
+            {
+                "icon": "angry",
+                "value": 39
+            },
+            {
+                "icon": "fear",
+                "value": 24
+            },
+            {
+                "icon": "disgust",
+                "value": 18
+            }
+        ]
+    },
+    {
+        "rank": 96,
+        "posterName": "영화 S96",
+        "starValue": 2.7,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 22
+            },
+            {
+                "icon": "sad",
+                "value": 13
+            },
+            {
+                "icon": "angry",
+                "value": 31
+            },
+            {
+                "icon": "fear",
+                "value": 1
+            },
+            {
+                "icon": "disgust",
+                "value": 34
+            }
+        ]
+    },
+    {
+        "rank": 97,
+        "posterName": "영화 T97",
+        "starValue": 0.8,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 23
+            },
+            {
+                "icon": "sad",
+                "value": 23
+            },
+            {
+                "icon": "angry",
+                "value": 24
+            },
+            {
+                "icon": "fear",
+                "value": 3
+            },
+            {
+                "icon": "disgust",
+                "value": 27
+            }
+        ]
+    },
+    {
+        "rank": 98,
+        "posterName": "영화 U98",
+        "starValue": 3.9,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 7
+            },
+            {
+                "icon": "sad",
+                "value": 33
+            },
+            {
+                "icon": "angry",
+                "value": 15
+            },
+            {
+                "icon": "fear",
+                "value": 42
+            },
+            {
+                "icon": "disgust",
+                "value": 2
+            }
+        ]
+    },
+    {
+        "rank": 99,
+        "posterName": "영화 V99",
+        "starValue": 3.4,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 23
+            },
+            {
+                "icon": "sad",
+                "value": 32
+            },
+            {
+                "icon": "angry",
+                "value": 29
+            },
+            {
+                "icon": "fear",
+                "value": 7
+            },
+            {
+                "icon": "disgust",
+                "value": 10
+            }
+        ]
+    },
+    {
+        "rank": 100,
+        "posterName": "영화 W100",
+        "starValue": 2.3,
+        "posterImg": "/assets/sample_poster.png",
+        "emotions": [
+            {
+                "icon": "joy",
+                "value": 22
+            },
+            {
+                "icon": "sad",
+                "value": 24
+            },
+            {
+                "icon": "angry",
+                "value": 20
+            },
+            {
+                "icon": "fear",
+                "value": 32
+            },
+            {
+                "icon": "disgust",
+                "value": 1
+            }
+        ]
+    }
+]

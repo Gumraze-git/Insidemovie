@@ -1,0 +1,27 @@
+{
+  "posterImg": "/assets/sample_poster.png",
+  "posterName": "인사이드 아웃",
+  "starValue": 4.5,
+  "emotions": [
+    {
+      "icon": "joy",
+      "value": 20
+    },
+    {
+      "icon": "sad",
+      "value": 20
+    },
+    {
+      "icon": "angry",
+      "value": 80
+    },
+    {
+      "icon": "fear",
+      "value": 60
+    },
+    {
+      "icon": "disgust",
+      "value": 100
+    }
+  ]
+}

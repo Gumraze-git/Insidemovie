@@ -1,0 +1,32 @@
+{
+  "review_id" : 1,
+  "user_profile": "img",
+  "user_name" : "유저이름",
+  "date": "2024-05-07",
+  "content" : "내용",
+  "like_count" : 12,
+  "star_value": 4.4,
+  "spoiler": false,
+  "emotions": [
+    {
+      "icon": "joy",
+      "value": 28
+    },
+    {
+      "icon": "sad",
+      "value": 99
+    },
+    {
+      "icon": "angry",
+      "value": 16
+    },
+    {
+      "icon": "fear",
+      "value": 13
+    },
+    {
+      "icon": "disgust",
+      "value": 17
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "skipLibCheck": true,
+        "target": "ES2021",
+        "lib": ["DOM", "ES2021", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "verbatimModuleSyntax": true,
+        "baseUrl": "src",
+        "paths": {
+            "@assets/*": ["assets/*"]
+        },
+
+        "noEmit": true,
+        "composite": false,
+        "declaration": false
+        //        "declaration": false
+    },
+    "include": ["src"]
+}
