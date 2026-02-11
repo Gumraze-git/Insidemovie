@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# 가상환경
+.venv/
+venv/
+env/
+ENV/
+
+# 로그 파일
+*.log
+
+# macOS 메타데이터
+.DS_Store
+
+# IDE 설정 파일
+.vscode/
+.idea/
