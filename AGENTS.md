@@ -10,7 +10,7 @@
 
 ## Commit and Branch Rules
 
-- Conventional Commit 타입은 `feat`, `fix`, `refactor`만 사용합니다.
+- Conventional Commit 타입은 `feat`, `fix`, `refactor`, `chore`, `docs`를 사용합니다.
 - 권장 커밋 형식: `type(scope): summary`
 - 권장 scope: `frontend`, `backend`, `ai`, `monorepo`
 - 브랜치는 작업 목적이 드러나게 짧고 명확하게 작성합니다.

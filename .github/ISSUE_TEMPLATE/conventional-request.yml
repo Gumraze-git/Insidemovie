@@ -13,14 +13,16 @@ body:
         - 참고: https://www.conventionalcommits.org/en/v1.0.0/
 
   - type: dropdown
-    id: type
+    id: commit_type
     attributes:
-      label: Type
+      label: Commit Type
       description: 요청 작업의 커밋 타입을 선택하세요.
       options:
         - feat
         - fix
         - refactor
+        - chore
+        - docs
     validations:
       required: true
 
@@ -50,8 +52,8 @@ body:
     id: cc_title
     attributes:
       label: Conventional Title
-      description: `type(scope): summary` 형식으로 작성하세요.
-      placeholder: feat(frontend): add loading state to login button
+      description: "`type(scope): summary` 형식으로 작성하세요."
+      placeholder: "feat(frontend): add loading state to login button"
     validations:
       required: true
 
@@ -99,5 +101,3 @@ body:
         - 관련 이슈:
         - 관련 PR:
         - 참고 문서:
-    validations:
-      required: false
