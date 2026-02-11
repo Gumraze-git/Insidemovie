@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Conventional Commits 1.0.0
+    url: https://www.conventionalcommits.org/en/v1.0.0/
+    about: "type(scope): summary 작성 규칙을 확인하세요."
+  - name: GitHub Issue Forms 가이드
+    url: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository
+    about: 이슈 템플릿 사용법이 필요하면 공식 가이드를 확인하세요.
+
