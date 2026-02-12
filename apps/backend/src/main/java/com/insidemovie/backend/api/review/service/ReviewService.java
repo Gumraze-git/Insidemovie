@@ -27,13 +27,14 @@ import com.insidemovie.backend.common.response.ErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
     private final MovieRepository movieRepository;
-    private final RestTemplate fastApiRestTemplate;
+    @Qualifier("fastApiRestClient")
+    private final RestClient fastApiRestClient;
     private final EmotionRepository emotionRepository;
     private final MemberService memberService;
     private final MovieService movieService;
@@ -84,11 +86,11 @@ public class ReviewService {
         // 감정 분석
         try {
             PredictRequestDTO request = new PredictRequestDTO(savedReview.getContent());
-            PredictResponseDTO response = fastApiRestTemplate.postForObject(
-                    "/predict/overall_avg",
-                    request,
-                    PredictResponseDTO.class
-            );
+            PredictResponseDTO response = fastApiRestClient.post()
+                    .uri("/predict/overall_avg")
+                    .body(request)
+                    .retrieve()
+                    .body(PredictResponseDTO.class);
 
             if (response == null || response.getProbabilities() == null) {
                 throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
@@ -183,11 +185,11 @@ public class ReviewService {
         // 새로운 감정 분석 요청
         try {
             PredictRequestDTO request = new PredictRequestDTO(reviewUpdateDTO.getContent());
-            PredictResponseDTO response = fastApiRestTemplate.postForObject(
-                    "/predict/overall_avg",
-                    request,
-                    PredictResponseDTO.class
-            );
+            PredictResponseDTO response = fastApiRestClient.post()
+                    .uri("/predict/overall_avg")
+                    .body(request)
+                    .retrieve()
+                    .body(PredictResponseDTO.class);
 
             if (response == null || response.getProbabilities() == null) {
                 throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());

@@ -13,9 +13,9 @@ import com.insidemovie.backend.common.exception.NotFoundException;
 import com.insidemovie.backend.common.response.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,19 +30,17 @@ public class EmotionRecommendationService {
 
     private final MovieEmotionSummaryRepository movieEmotionSummaryRepository;
     private final ReviewRepository reviewRepository;
-    private final RestTemplate fastApiRestTemplate;
+    @Qualifier("fastApiRestClient")
+    private final RestClient fastApiRestClient;
     private final MovieRepository movieRepository;
-
-    @Value("${spring.fastapi.url}")
-    private String fastApiUrl;
 
     // 사용자의 감정 벡터를 기반으로 영화 추천 리스트 반환
     public List<MovieRecommendationDTO> recommendByEmotion(EmotionRequestDTO userEmotion) {
-        MovieSimilarityResDto[] responseArray = fastApiRestTemplate.postForObject(
-                fastApiUrl,
-                userEmotion,
-                MovieSimilarityResDto[].class
-        );
+        MovieSimilarityResDto[] responseArray = fastApiRestClient.post()
+                .uri("/recommend/emotion")
+                .body(userEmotion)
+                .retrieve()
+                .body(MovieSimilarityResDto[].class);
 
         if (responseArray == null) {
             throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());

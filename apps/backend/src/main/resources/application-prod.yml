@@ -19,4 +19,5 @@ spring:
         format_sql: true
 
   fastapi:
+    base-url: "http://ai:8000"
     url: "http://ai:8000/recommend/emotion"

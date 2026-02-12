@@ -26,6 +26,7 @@ import com.insidemovie.backend.common.response.ErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +34,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
@@ -48,15 +50,13 @@ public class MovieService {
 
     private final ObjectMapper objectMapper;
     private final MovieRepository movieRepository;
-    private final RestTemplate restTemplate;
+    @Qualifier("tmdbRestClient")
+    private final RestClient tmdbRestClient;
     private final MovieGenreRepository movieGenreRepository;
     private final EmotionRepository emotionRepository;
     private final MovieEmotionSummaryRepository movieEmotionSummaryRepository;
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
-
-    @Value("${tmdb.api.base-url}")
-    private String baseUrl;
 
     @Value("${tmdb.api.key}")
     private String apiKey;
@@ -77,12 +77,16 @@ public class MovieService {
     @Transactional
     public boolean fetchAndSaveMoviesByPage(String type, int page, boolean isInitial) {
         String url = String.format(
-            "%s/movie/%s?api_key=%s&language=%s&page=%d",
-            baseUrl, type, apiKey, language, page
+            "/movie/%s?api_key=%s&language=%s&page=%d",
+            type, apiKey, language, page
         );
-
-        ResponseEntity<SearchMovieWrapperDTO> response =
-            restTemplate.getForEntity(url, SearchMovieWrapperDTO.class);
+        ResponseEntity<SearchMovieWrapperDTO> response;
+        try {
+            response = tmdbRestClient.get().uri(url).retrieve().toEntity(SearchMovieWrapperDTO.class);
+        } catch (RestClientException e) {
+            log.warn("[페이지 실패] type={} page={} error={}", type, page, e.getMessage());
+            return false;
+        }
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             log.warn("[페이지 실패] type={} page={} status={}", type, page, response.getStatusCode());
@@ -118,11 +122,16 @@ public class MovieService {
     public void fetchAndSaveMovieById(Long tmdbId) {
         // 1) 상세정보 호출 (credits, release_dates, watch/providers 포함)
         String detailUrl = String.format(
-            "%s/movie/%d?api_key=%s&language=%s&append_to_response=credits,release_dates,watch/providers",
-            baseUrl, tmdbId, apiKey, language
+            "/movie/%d?api_key=%s&language=%s&append_to_response=credits,release_dates,watch/providers",
+            tmdbId, apiKey, language
         );
-        ResponseEntity<MovieDetailDTO> detailRes =
-            restTemplate.getForEntity(detailUrl, MovieDetailDTO.class);
+        ResponseEntity<MovieDetailDTO> detailRes;
+        try {
+            detailRes = tmdbRestClient.get().uri(detailUrl).retrieve().toEntity(MovieDetailDTO.class);
+        } catch (RestClientException e) {
+            log.warn("TMDB 상세정보 조회 실패: ID={} error={}", tmdbId, e.getMessage());
+            return;
+        }
         if (!detailRes.getStatusCode().is2xxSuccessful() || detailRes.getBody() == null) {
             log.warn("TMDB 상세정보 조회 실패: ID={}", tmdbId);
             return;
@@ -258,11 +267,15 @@ public class MovieService {
     public Optional<SearchMovieResponseDTO> searchMovieByTitleAndYear(String title, int year) {
         String encoded = URLEncoder.encode(title, StandardCharsets.UTF_8);
         String url = String.format(
-            "%s/search/movie?api_key=%s&language=%s&query=%s&primary_release_year=%d",
-            baseUrl, apiKey, language, encoded, year
+            "/search/movie?api_key=%s&language=%s&query=%s&primary_release_year=%d",
+            apiKey, language, encoded, year
         );
-        ResponseEntity<SearchMovieWrapperDTO> resp =
-            restTemplate.getForEntity(url, SearchMovieWrapperDTO.class);
+        ResponseEntity<SearchMovieWrapperDTO> resp;
+        try {
+            resp = tmdbRestClient.get().uri(url).retrieve().toEntity(SearchMovieWrapperDTO.class);
+        } catch (RestClientException e) {
+            return Optional.empty();
+        }
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
             return Optional.empty();
         }
@@ -621,11 +634,15 @@ public class MovieService {
     }
     @Transactional
     public int fetchTotalPages(String type) {
-        String url = String.format("%s/movie/%s?api_key=%s&language=%s&page=1",
-                baseUrl, type, apiKey, language);
-
-        ResponseEntity<SearchMovieWrapperDTO> response =
-                restTemplate.getForEntity(url, SearchMovieWrapperDTO.class);
+        String url = String.format("/movie/%s?api_key=%s&language=%s&page=1",
+                type, apiKey, language);
+        ResponseEntity<SearchMovieWrapperDTO> response;
+        try {
+            response = tmdbRestClient.get().uri(url).retrieve().toEntity(SearchMovieWrapperDTO.class);
+        } catch (RestClientException e) {
+            log.warn("[totalPages] 요청 실패 type={} error={}", type, e.getMessage());
+            return 0;
+        }
 
         if (!response.getStatusCode().is2xxSuccessful()
                 || response.getBody() == null) {

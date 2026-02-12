@@ -24,9 +24,10 @@ import com.insidemovie.backend.common.response.ErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -56,14 +57,14 @@ public class BoxOfficeService {
     private final MovieGenreRepository movieGenreRepository;
     private final MovieEmotionSummaryRepository movieEmotionSummaryRepository;
     private final ReviewRepository reviewRepository;
+    @Qualifier("kobisRestClient")
+    private final RestClient kobisRestClient;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private static final String DAILY_URL_JSON =
-        "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
-    private static final String WEEKLY_URL_JSON =
-        "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json";
+    private static final String DAILY_PATH_JSON = "/boxoffice/searchDailyBoxOfficeList.json";
+    private static final String WEEKLY_PATH_JSON = "/boxoffice/searchWeeklyBoxOfficeList.json";
 
     // 일간 박스오피스 조회 및 저장
     @Transactional
@@ -121,14 +122,14 @@ public class BoxOfficeService {
         int itemPerPage
     ) {
         String targetDt = date.format(FMT);
-        RestTemplate rest = new RestTemplate();
-        String uri = UriComponentsBuilder.fromHttpUrl(DAILY_URL_JSON)
+        String uri = UriComponentsBuilder.fromPath(DAILY_PATH_JSON)
             .queryParam("key", kobisApiKey)
             .queryParam("targetDt", targetDt)
             .queryParam("itemPerPage", itemPerPage)
             .toUriString();
-
-        JsonNode listNode = rest.getForObject(uri, JsonNode.class)
+        JsonNode response = kobisRestClient.get().uri(uri).retrieve().body(JsonNode.class);
+        JsonNode listNode = Optional.ofNullable(response)
+            .orElseGet(() -> objectMapper.createObjectNode())
             .path("boxOfficeResult")
             .path("dailyBoxOfficeList");
 
@@ -206,14 +207,15 @@ public class BoxOfficeService {
     ) {
         String targetDt = date.format(FMT);
         String uri = UriComponentsBuilder
-            .fromHttpUrl(WEEKLY_URL_JSON)
+            .fromPath(WEEKLY_PATH_JSON)
             .queryParam("key", kobisApiKey)
             .queryParam("targetDt", targetDt)
             .queryParam("weekGb", weekGb)
             .queryParam("itemPerPage", itemPerPage)
             .toUriString();
-
-        JsonNode listNode = new RestTemplate().getForObject(uri, JsonNode.class)
+        JsonNode response = kobisRestClient.get().uri(uri).retrieve().body(JsonNode.class);
+        JsonNode listNode = Optional.ofNullable(response)
+            .orElseGet(() -> objectMapper.createObjectNode())
             .path("boxOfficeResult")
             .path("weeklyBoxOfficeList");
 
