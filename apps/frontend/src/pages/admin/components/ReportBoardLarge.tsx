@@ -25,7 +25,7 @@ export default function ReportBoard() {
         const fetchData = async () => {
             try {
                 const res = await axios.get(
-                    "http://52.79.175.149:8080/api/v1/admin/reports?page=0&size=20",
+                    "/api/v1/admin/reports?page=0&size=20",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
