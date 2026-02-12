@@ -24,7 +24,7 @@ export default function MemberBoard() {
         const fetchData = async () => {
             try {
                 const res = await axios.get(
-                    "http://52.79.175.149:8080/api/v1/admin/members?page=0&size=20",
+                    "/api/v1/admin/members?page=0&size=20",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

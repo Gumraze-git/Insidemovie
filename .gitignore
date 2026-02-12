@@ -10,6 +10,8 @@
 .env
 .env.*
 !.env.example
+env/*.env
+!env/*.env.example
 
 # Logs
 logs/
@@ -37,7 +39,5 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
-env/
-ENV/
 .pytest_cache/
 .mypy_cache/
