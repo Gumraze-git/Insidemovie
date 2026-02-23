@@ -2,6 +2,7 @@ package com.insidemovie.backend.api.match.controller;
 
 import com.insidemovie.backend.api.match.dto.VoteCreateRequest;
 import com.insidemovie.backend.api.match.dto.WinnerHistoryDto;
+import com.insidemovie.backend.api.match.docs.MatchQueryApi;
 import com.insidemovie.backend.api.match.service.MatchService;
 import com.insidemovie.backend.api.movie.dto.MovieDetailSimpleResDto;
 import jakarta.validation.Valid;
@@ -23,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/matches")
-public class MatchQueryController {
+public class MatchQueryController implements MatchQueryApi {
     private final MatchService matchService;
 
     @GetMapping("/current")

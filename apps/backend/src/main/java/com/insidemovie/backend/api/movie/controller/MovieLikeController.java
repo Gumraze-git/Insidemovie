@@ -1,5 +1,6 @@
 package com.insidemovie.backend.api.movie.controller;
 
+import com.insidemovie.backend.api.movie.docs.MovieLikeApi;
 import com.insidemovie.backend.api.movie.service.MovieLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/movies")
-public class MovieLikeController {
+public class MovieLikeController implements MovieLikeApi {
     private final MovieLikeService movieLikeService;
 
     @PutMapping("/{movieId}/likes/me")

@@ -6,6 +6,7 @@ import com.insidemovie.backend.api.review.dto.ReviewCreateDTO;
 import com.insidemovie.backend.api.review.dto.ReviewCreatedResponseDTO;
 import com.insidemovie.backend.api.review.dto.ReviewResponseDTO;
 import com.insidemovie.backend.api.review.dto.ReviewUpdateDTO;
+import com.insidemovie.backend.api.review.docs.ReviewApi;
 import com.insidemovie.backend.api.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class ReviewController {
+public class ReviewController implements ReviewApi {
     private final ReviewService reviewService;
 
     @PostMapping("/movies/{movieId}/reviews")

@@ -7,6 +7,7 @@ import com.insidemovie.backend.api.movie.dto.MovieSearchResDto;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
 import com.insidemovie.backend.api.movie.dto.emotion.MovieEmotionResDTO;
 import com.insidemovie.backend.api.movie.dto.tmdb.SearchMovieWrapperDTO;
+import com.insidemovie.backend.api.movie.docs.MovieQueryApi;
 import com.insidemovie.backend.api.movie.service.MovieDetailService;
 import com.insidemovie.backend.api.movie.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/movies")
-public class MovieQueryController {
+public class MovieQueryController implements MovieQueryApi {
     private final MovieService movieService;
     private final MovieDetailService movieDetailService;
 

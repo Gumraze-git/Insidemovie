@@ -3,6 +3,7 @@ package com.insidemovie.backend.api.member.controller;
 import com.insidemovie.backend.api.movie.dto.MovieSearchResDto;
 import com.insidemovie.backend.api.movie.dto.MyMovieResponseDTO;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
+import com.insidemovie.backend.api.member.docs.MemberActivityApi;
 import com.insidemovie.backend.api.member.service.MemberActivityService;
 import com.insidemovie.backend.api.review.dto.ReviewResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members/me")
-public class MemberActivityController {
+public class MemberActivityController implements MemberActivityApi {
     private final MemberActivityService memberActivityService;
 
     @GetMapping("/reviews")
