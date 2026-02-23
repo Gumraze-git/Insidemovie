@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +31,7 @@ public interface ReviewApi {
     ResponseEntity<ReviewCreatedResponseDTO> createReview(
             @PathVariable Long movieId,
             @Valid @RequestBody ReviewCreateDTO request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 
     @Operation(summary = "Get reviews by movie")
@@ -48,7 +48,7 @@ public interface ReviewApi {
     @ApiResponse(responseCode = "200", description = "OK")
     ResponseEntity<ReviewResponseDTO> getMyReview(
             @PathVariable Long movieId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 
     @Operation(summary = "Update review")
@@ -57,7 +57,7 @@ public interface ReviewApi {
     ResponseEntity<Void> updateReview(
             @PathVariable Long reviewId,
             @Valid @RequestBody ReviewUpdateDTO request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 
     @Operation(summary = "Delete review")
@@ -65,7 +65,7 @@ public interface ReviewApi {
     @ApiNoContent
     ResponseEntity<Void> deleteReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 }
 

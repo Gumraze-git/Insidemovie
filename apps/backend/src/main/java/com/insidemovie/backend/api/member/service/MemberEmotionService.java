@@ -11,22 +11,22 @@ import org.springframework.stereotype.Service;
 public class MemberEmotionService {
     private final MemberService memberService;
 
-    public EmotionAvgDTO getMyEmotionSummary(String email) {
-        return memberService.getMyEmotionSummary(email);
+    public EmotionAvgDTO getMyEmotionSummary(Long userId) {
+        return memberService.getMyEmotionSummary(userId);
     }
 
     public MemberEmotionSummaryResponseDTO saveInitialEmotionSummary(
-            Long memberId,
+            Long userId,
             MemberEmotionSummaryRequestDTO request
     ) {
-        request.setMemberId(memberId);
+        request.setUserId(userId);
         return memberService.saveInitialEmotionSummary(request);
     }
 
     public MemberEmotionSummaryResponseDTO updateEmotionSummary(
-            String email,
+            Long userId,
             MemberEmotionSummaryRequestDTO request
     ) {
-        return memberService.updateEmotionSummary(email, request);
+        return memberService.updateEmotionSummary(userId, request);
     }
 }

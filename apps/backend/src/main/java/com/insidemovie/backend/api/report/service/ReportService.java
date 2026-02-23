@@ -28,10 +28,10 @@ public class ReportService {
 
     // 리뷰 신고
     @Transactional
-    public ReportResponseDTO reportReview(String reporterEmail, Long reviewId, ReportReason reason) {
+    public ReportResponseDTO reportReview(Long reporterUserId, Long reviewId, ReportReason reason) {
 
         // 신고자 조회
-        Member reporter = memberPolicyService.getActiveMemberByEmail(reporterEmail);
+        Member reporter = memberPolicyService.getActiveMemberById(reporterUserId);
 
         // 리뷰 조회
         Review review = reviewRepository.findById(reviewId)

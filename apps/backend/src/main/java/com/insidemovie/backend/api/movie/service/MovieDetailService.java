@@ -47,11 +47,11 @@ public class MovieDetailService {
     /**
      * 로그인 사용자 영화 상세 (좋아요 여부 포함)
      */
-    public MovieDetailResDto getMovieDetail(Long id, String userEmail) {
+    public MovieDetailResDto getMovieDetail(Long id, Long userId) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
 
-        Member member = memberRepository.findByEmail(userEmail)
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
         boolean isLike = movieLikeRepository.existsByMovie_IdAndMember_Id(movie.getId(), member.getId());

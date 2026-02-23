@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
@@ -34,7 +34,7 @@ public interface AuthSessionApi {
     @Operation(summary = "Delete current session", description = "Logout current user and expire auth cookies.")
     @ApiCookieAuth
     @ApiNoContent
-    ResponseEntity<Void> deleteCurrentSession(@AuthenticationPrincipal UserDetails userDetails);
+    ResponseEntity<Void> deleteCurrentSession(@AuthenticationPrincipal Jwt jwt);
 
     @Operation(summary = "Exchange Kakao auth code", description = "Exchange Kakao authorization code for Kakao access token.")
     @ApiResponse(responseCode = "200", description = "OK")

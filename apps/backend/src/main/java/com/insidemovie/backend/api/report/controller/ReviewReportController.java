@@ -4,11 +4,12 @@ import com.insidemovie.backend.api.report.dto.ReportCreateRequest;
 import com.insidemovie.backend.api.report.dto.ReportResponseDTO;
 import com.insidemovie.backend.api.report.docs.ReviewReportApi;
 import com.insidemovie.backend.api.report.service.ReportService;
+import com.insidemovie.backend.common.config.security.CurrentUserIdResolver;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,14 +25,15 @@ import java.net.URI;
 @RequestMapping("/api/v1")
 public class ReviewReportController implements ReviewReportApi {
     private final ReportService reportService;
+    private final CurrentUserIdResolver currentUserIdResolver;
 
     @PostMapping("/reviews/{reviewId}/reports")
     public ResponseEntity<ReportResponseDTO> createReport(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody ReportCreateRequest request
     ) {
-        ReportResponseDTO dto = reportService.reportReview(userDetails.getUsername(), reviewId, request.getReason());
+        ReportResponseDTO dto = reportService.reportReview(currentUserIdResolver.resolve(jwt), reviewId, request.getReason());
         URI location = ServletUriComponentsBuilder.fromPath("/api/v1/reports/{id}")
                 .buildAndExpand(dto.getId())
                 .toUri();

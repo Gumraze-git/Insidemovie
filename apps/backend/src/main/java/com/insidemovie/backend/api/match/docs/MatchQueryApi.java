@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public interface MatchQueryApi {
     @ApiCookieAuth
     @ApiCreatedWithLocation
     ResponseEntity<Map<String, Long>> voteCurrentMatch(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody VoteCreateRequest request
     );
 }

@@ -589,10 +589,10 @@ public class MovieService {
         return result;
     }
 
-    public PageResDto<MovieSearchResDto> getMyWatchedMovies(String memberEmail, Integer page, Integer pageSize){
+    public PageResDto<MovieSearchResDto> getMyWatchedMovies(Long userId, Integer page, Integer pageSize){
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Member member = memberRepository.findByEmail(memberEmail)
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
         Page<Review> moviePage = reviewRepository.findByMember(member, pageable);
 

@@ -26,8 +26,8 @@ public class AuthSessionService {
         return memberService.kakaoLogin(kakaoAccessToken);
     }
 
-    public void logout(String email) {
-        memberService.logout(email);
+    public void logout(Long userId) {
+        memberService.logout(userId);
     }
 
     public String getKakaoAccessToken(String code) {

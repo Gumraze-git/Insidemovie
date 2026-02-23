@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 public class MemberPolicyService {
     private final MemberRepository memberRepository;
 
-    public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
+    public Member getMemberById(Long userId) {
+        return memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
     }
 
-    public Member getActiveMemberByEmail(String email) {
-        Member member = getMemberByEmail(email);
+    public Member getActiveMemberById(Long userId) {
+        Member member = getMemberById(userId);
         if (member.isBanned()) {
             throw new ForbiddenException(ErrorStatus.USER_BANNED_EXCEPTION.getMessage());
         }

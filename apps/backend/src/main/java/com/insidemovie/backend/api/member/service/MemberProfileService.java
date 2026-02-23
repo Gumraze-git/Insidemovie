@@ -11,19 +11,19 @@ import org.springframework.stereotype.Service;
 public class MemberProfileService {
     private final MemberService memberService;
 
-    public MemberInfoDto getMemberInfo(String email) {
-        return memberService.getMemberInfo(email);
+    public MemberInfoDto getMemberInfo(Long userId) {
+        return memberService.getMemberInfo(userId);
     }
 
-    public void updateNickname(String email, NicknameUpdateRequestDTO request) {
-        memberService.updateNickname(email, request);
+    public void updateNickname(Long userId, NicknameUpdateRequestDTO request) {
+        memberService.updateNickname(userId, request);
     }
 
     public boolean isNicknameDuplicated(String nickname) {
         return memberService.isNicknameDuplicated(nickname);
     }
 
-    public void updatePassword(String email, PasswordUpdateRequestDTO request) {
-        memberService.updatePassword(email, request);
+    public void updatePassword(Long userId, PasswordUpdateRequestDTO request) {
+        memberService.updatePassword(userId, request);
     }
 }

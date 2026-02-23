@@ -23,7 +23,6 @@ import com.insidemovie.backend.common.response.ErrorStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,7 +78,7 @@ public class MemberService {
         memberRepository.save(member);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("memberId", member.getId());
+        result.put("userId", member.getId());
         return result;
     }
 
@@ -121,7 +120,7 @@ public class MemberService {
         memberRepository.save(member);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("memberId", member.getId());
+        result.put("userId", member.getId());
         return result;
     }
 
@@ -189,8 +188,8 @@ public class MemberService {
 
     // 회원 정보
     @Transactional(readOnly = true)
-    public MemberInfoDto getMemberInfo(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public MemberInfoDto getMemberInfo(Long userId) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
         MemberEmotionSummary summary = memberEmotionSummaryRepository
@@ -201,7 +200,7 @@ public class MemberService {
         long watchMovieCount = reviewRepository.countByMember(member);
 
         return MemberInfoDto.builder()
-                .memberId(member.getId())
+                .userId(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .reportCount(member.getReportCount())
@@ -214,8 +213,8 @@ public class MemberService {
 
     // 닉네임
     @Transactional
-    public void updateNickname(String email, NicknameUpdateRequestDTO dto) {
-        Member member = memberRepository.findByEmail(email)
+    public void updateNickname(Long userId, NicknameUpdateRequestDTO dto) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
         String newNickname = dto.getNickname();
@@ -232,8 +231,8 @@ public class MemberService {
 
     // 비밀번호
     @Transactional
-    public void updatePassword(String email, PasswordUpdateRequestDTO dto) {
-        Member member = memberRepository.findByEmail(email)
+    public void updatePassword(Long userId, PasswordUpdateRequestDTO dto) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
         if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
@@ -261,8 +260,8 @@ public class MemberService {
 
     // 로그아웃
     @Transactional
-    public void logout(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public void logout(Long userId) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(
                         ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getHttpStatus(),
                         ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()
@@ -278,9 +277,9 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public EmotionAvgDTO getMyEmotionSummary(String email) {
+    public EmotionAvgDTO getMyEmotionSummary(Long userId) {
         // 1) 사용자 조회
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(
                 ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
 
@@ -323,7 +322,7 @@ public class MemberService {
 
     @Transactional
     public MemberEmotionSummaryResponseDTO saveInitialEmotionSummary(MemberEmotionSummaryRequestDTO dto) {
-        Member member = memberRepository.findById(dto.getMemberId())
+        Member member = memberRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
         EmotionType rep = findMaxEmotion(
@@ -361,31 +360,21 @@ public class MemberService {
 
     @Transactional
     public MemberEmotionSummaryResponseDTO updateEmotionSummary(
+            Long userId,
             MemberEmotionSummaryRequestDTO dto
     ) {
-        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        return updateEmotionSummary(email, dto);
-    }
-
-    @Transactional
-    public MemberEmotionSummaryResponseDTO updateEmotionSummary(
-            String email,
-            MemberEmotionSummaryRequestDTO dto
-    ) {
-        // 1) 시큐리티 컨텍스트에서 인증 정보 꺼내기
-        // 2) 이메일로 Member 조회
-        Member member = memberRepository.findByEmail(email)
+        // 사용자 조회
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() ->
-                    new EntityNotFoundException("Member not found for email=" + email)
+                    new EntityNotFoundException("Member not found for id=" + userId)
                 );
-        Long memberId = member.getId();
+        Long currentUserId = member.getId();
 
         // 3) 기존 로직 그대로
-        MemberEmotionSummary summary = memberEmotionSummaryRepository.findById(memberId)
+        MemberEmotionSummary summary = memberEmotionSummaryRepository.findById(currentUserId)
             .orElseThrow(() ->
                 new EntityNotFoundException(
-                    "MemberEmotionSummary not found for id=" + memberId
+                    "MemberEmotionSummary not found for id=" + currentUserId
                 )
             );
 
@@ -431,10 +420,10 @@ public class MemberService {
      * MemberEmotionSummary를 갱신하고 그 DTO를 반환한다.
      */
     @Transactional
-    public MemberEmotionSummaryResponseDTO updateEmotionSummaryByLikedMovies(Long memberId) {
+    public MemberEmotionSummaryResponseDTO updateEmotionSummaryByLikedMovies(Long userId) {
         // 1) 좋아요 누른 영화 ID 목록 조회
         List<Long> likedMovieIds = movieLikeRepository
-            .findByMember_Id(memberId)
+            .findByMember_Id(userId)
             .stream()
             .map(ml -> ml.getMovie().getId())
             .toList();
@@ -455,10 +444,10 @@ public class MemberService {
 
         // 4) MemberEmotionSummary 엔티티 조회 또는 생성
         MemberEmotionSummary summary = memberEmotionSummaryRepository
-            .findById(memberId)
+            .findById(userId)
             .orElseGet(() -> {
                 MemberEmotionSummary s = MemberEmotionSummary.builder()
-                    .member(Member.builder().id(memberId).build()) // member만 식별자로 설정
+                    .member(Member.builder().id(userId).build()) // member만 식별자로 설정
                     .build();
                 return s;
             });
