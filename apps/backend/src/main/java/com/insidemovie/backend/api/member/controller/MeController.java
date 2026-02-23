@@ -4,6 +4,7 @@ import com.insidemovie.backend.api.member.dto.MemberInfoDto;
 import com.insidemovie.backend.api.member.dto.NicknameCheckResponseDTO;
 import com.insidemovie.backend.api.member.dto.NicknameUpdateRequestDTO;
 import com.insidemovie.backend.api.member.dto.PasswordUpdateRequestDTO;
+import com.insidemovie.backend.api.member.docs.MeApi;
 import com.insidemovie.backend.api.member.service.MemberProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-public class MeController {
+public class MeController implements MeApi {
     private final MemberProfileService memberProfileService;
 
     @GetMapping("/me")

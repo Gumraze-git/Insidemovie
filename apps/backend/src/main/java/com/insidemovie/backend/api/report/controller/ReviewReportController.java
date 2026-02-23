@@ -2,6 +2,7 @@ package com.insidemovie.backend.api.report.controller;
 
 import com.insidemovie.backend.api.report.dto.ReportCreateRequest;
 import com.insidemovie.backend.api.report.dto.ReportResponseDTO;
+import com.insidemovie.backend.api.report.docs.ReviewReportApi;
 import com.insidemovie.backend.api.report.service.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class ReviewReportController {
+public class ReviewReportController implements ReviewReportApi {
     private final ReportService reportService;
 
     @PostMapping("/reviews/{reviewId}/reports")

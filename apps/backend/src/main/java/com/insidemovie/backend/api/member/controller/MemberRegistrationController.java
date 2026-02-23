@@ -2,6 +2,7 @@ package com.insidemovie.backend.api.member.controller;
 
 import com.insidemovie.backend.api.member.dto.KakaoSignupRequestDto;
 import com.insidemovie.backend.api.member.dto.MemberSignupRequestDto;
+import com.insidemovie.backend.api.member.docs.MemberRegistrationApi;
 import com.insidemovie.backend.api.member.service.MemberRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-public class MemberRegistrationController {
+public class MemberRegistrationController implements MemberRegistrationApi {
     private final MemberRegistrationService memberRegistrationService;
 
     @PostMapping

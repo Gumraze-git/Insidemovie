@@ -3,6 +3,7 @@ package com.insidemovie.backend.api.auth.controller;
 import com.insidemovie.backend.api.auth.dto.AuthSessionResponse;
 import com.insidemovie.backend.api.auth.dto.KakaoSessionRequest;
 import com.insidemovie.backend.api.auth.dto.KakaoTokenExchangeRequest;
+import com.insidemovie.backend.api.auth.docs.AuthSessionApi;
 import com.insidemovie.backend.api.auth.service.AuthCookieService;
 import com.insidemovie.backend.api.auth.service.AuthSessionService;
 import com.insidemovie.backend.api.jwt.JwtProperties;
@@ -27,7 +28,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
-public class AuthSessionController {
+public class AuthSessionController implements AuthSessionApi {
     private final AuthSessionService authSessionService;
     private final AuthCookieService authCookieService;
     private final JwtProperties jwtProperties;

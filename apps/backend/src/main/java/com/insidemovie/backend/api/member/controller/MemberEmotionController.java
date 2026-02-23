@@ -3,6 +3,7 @@ package com.insidemovie.backend.api.member.controller;
 import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
 import com.insidemovie.backend.api.member.dto.emotion.MemberEmotionSummaryRequestDTO;
 import com.insidemovie.backend.api.member.dto.emotion.MemberEmotionSummaryResponseDTO;
+import com.insidemovie.backend.api.member.docs.MemberEmotionApi;
 import com.insidemovie.backend.api.member.service.MemberEmotionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-public class MemberEmotionController {
+public class MemberEmotionController implements MemberEmotionApi {
     private final MemberEmotionService memberEmotionService;
 
     @GetMapping("/me/emotion-summary")

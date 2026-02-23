@@ -4,6 +4,7 @@ import com.insidemovie.backend.api.movie.dto.MovieDetailResDto;
 import com.insidemovie.backend.api.movie.dto.boxoffice.BoxOfficeListDTO;
 import com.insidemovie.backend.api.movie.dto.boxoffice.DailyBoxOfficeResponseDTO;
 import com.insidemovie.backend.api.movie.dto.boxoffice.WeeklyBoxOfficeResponseDTO;
+import com.insidemovie.backend.api.movie.docs.BoxOfficeQueryApi;
 import com.insidemovie.backend.api.movie.service.BoxOfficeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 @RequestMapping("/api/v1/boxoffice")
 @RequiredArgsConstructor
 @Slf4j
-public class BoxOfficeQueryController {
+public class BoxOfficeQueryController implements BoxOfficeQueryApi {
     private final BoxOfficeService boxOfficeService;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
 

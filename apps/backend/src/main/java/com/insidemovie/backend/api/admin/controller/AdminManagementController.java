@@ -5,6 +5,7 @@ import com.insidemovie.backend.api.admin.dto.AdminMemberDTO;
 import com.insidemovie.backend.api.admin.dto.AdminMemberStatusUpdateRequest;
 import com.insidemovie.backend.api.admin.dto.AdminReportDTO;
 import com.insidemovie.backend.api.admin.dto.AdminReportStatusUpdateRequest;
+import com.insidemovie.backend.api.admin.docs.AdminManagementApi;
 import com.insidemovie.backend.api.admin.service.AdminService;
 import com.insidemovie.backend.api.report.service.ReportService;
 import com.insidemovie.backend.common.response.PageResult;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-public class AdminManagementController {
+public class AdminManagementController implements AdminManagementApi {
     private final AdminService adminService;
     private final ReportService reportService;
 

@@ -3,6 +3,7 @@ package com.insidemovie.backend.api.Email.controller;
 import com.insidemovie.backend.api.Email.Service.EmailService;
 import com.insidemovie.backend.api.Email.dto.EmailVerificationConfirmRequest;
 import com.insidemovie.backend.api.Email.dto.EmailVerificationSendRequest;
+import com.insidemovie.backend.api.Email.docs.EmailVerificationApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/email-verifications")
-public class EmailVerificationController {
+public class EmailVerificationController implements EmailVerificationApi {
     private final EmailService emailService;
 
     @PostMapping

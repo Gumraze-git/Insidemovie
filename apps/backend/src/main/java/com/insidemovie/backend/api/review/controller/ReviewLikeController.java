@@ -1,5 +1,6 @@
 package com.insidemovie.backend.api.review.controller;
 
+import com.insidemovie.backend.api.review.docs.ReviewLikeApi;
 import com.insidemovie.backend.api.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/reviews")
-public class ReviewLikeController {
+public class ReviewLikeController implements ReviewLikeApi {
     private final ReviewService reviewService;
 
     @PutMapping("/{reviewId}/likes/me")
