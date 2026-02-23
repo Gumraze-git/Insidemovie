@@ -37,7 +37,7 @@ class ApiContractIntegrationTest {
     @Test
     void signupShouldReturn201WithLocation() throws Exception {
         given(memberRegistrationService.signup(ArgumentMatchers.any(MemberSignupRequestDto.class)))
-                .willReturn(Map.of("memberId", 123L));
+                .willReturn(Map.of("userId", 123L));
 
         String body = """
                 {
@@ -48,17 +48,17 @@ class ApiContractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/v1/members")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", endsWith("/api/v1/members/123")))
-                .andExpect(jsonPath("$.memberId").value(123));
+                .andExpect(header().string("Location", endsWith("/api/v1/users/123")))
+                .andExpect(jsonPath("$.userId").value(123));
     }
 
     @Test
     void unauthorizedShouldReturnProblemDetail() throws Exception {
-        mockMvc.perform(get("/api/v1/members/me"))
+        mockMvc.perform(get("/api/v1/users/me"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))

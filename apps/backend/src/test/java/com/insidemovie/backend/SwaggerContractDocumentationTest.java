@@ -34,7 +34,7 @@ class SwaggerContractDocumentationTest {
     void shouldDocumentLocationHeaderForCreatedApis() throws Exception {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.paths['/api/v1/members'].post.responses['201'].headers.Location").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/users'].post.responses['201'].headers.Location").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/reviews/{reviewId}/likes/me'].put.responses['201'].headers.Location").exists());
     }
 
@@ -43,8 +43,8 @@ class SwaggerContractDocumentationTest {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paths['/api/v1/movies/popular'].get.security").doesNotExist())
-                .andExpect(jsonPath("$.paths['/api/v1/members/me'].get.security[0].cookieAuth").exists())
-                .andExpect(jsonPath("$.paths['/api/v1/members/me'].get.responses['401'].$ref")
+                .andExpect(jsonPath("$.paths['/api/v1/users/me'].get.security[0].cookieAuth").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/users/me'].get.responses['401'].$ref")
                         .value("#/components/responses/Problem401"));
     }
 }

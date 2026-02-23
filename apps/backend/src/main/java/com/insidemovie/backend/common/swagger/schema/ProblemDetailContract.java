@@ -23,7 +23,7 @@ public class ProblemDetailContract {
     @Schema(description = "Detail message", example = "Authentication is required")
     private String detail;
 
-    @Schema(description = "Request URI", example = "/api/v1/members/me")
+    @Schema(description = "Request URI", example = "/api/v1/users/me")
     private String instance;
 
     @Schema(description = "Domain error code", example = "UNAUTHORIZED")
