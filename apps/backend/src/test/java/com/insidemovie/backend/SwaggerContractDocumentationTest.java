@@ -54,6 +54,7 @@ class SwaggerContractDocumentationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.components.schemas.MovieDetailResDto.properties.voteAverage").doesNotExist())
                 .andExpect(jsonPath("$.components.schemas.MovieSearchResDto.properties.voteAverage").doesNotExist())
+                .andExpect(jsonPath("$.components.schemas.SearchMovieResponseDTO.properties.voteAverage").doesNotExist())
                 .andExpect(jsonPath("$.components.schemas.DailyBoxOfficeResponseDTO.properties.voteAverage").doesNotExist())
                 .andExpect(jsonPath("$.components.schemas.WeeklyBoxOfficeResponseDTO.properties.voteAverage").doesNotExist());
     }

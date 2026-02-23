@@ -3,7 +3,6 @@ package com.insidemovie.backend.api.movie.dto.tmdb;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
@@ -20,9 +19,6 @@ public class SearchMovieResponseDTO {
 
     @JsonProperty("backdrop_path")
     private String backDropPath;        // 배경 이미지
-
-    @JsonProperty("vote_average")
-    private Double voteAverage;         // 평균 평점
 
     @JsonProperty("vote_count")
     private Integer voteCount;
