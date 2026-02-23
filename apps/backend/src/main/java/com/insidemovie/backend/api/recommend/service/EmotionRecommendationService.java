@@ -5,6 +5,7 @@ import com.insidemovie.backend.api.movie.entity.MovieEmotionSummary;
 import com.insidemovie.backend.api.movie.repository.MovieEmotionSummaryRepository;
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
 import com.insidemovie.backend.api.recommend.dto.EmotionRequestDTO;
+import com.insidemovie.backend.api.recommend.dto.MovieRecommendationApiResponseDto;
 import com.insidemovie.backend.api.recommend.dto.MovieRecommendationDTO;
 import com.insidemovie.backend.api.recommend.dto.MovieSimilarityResDto;
 import com.insidemovie.backend.api.review.repository.ReviewRepository;
@@ -20,7 +21,6 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -36,20 +36,19 @@ public class EmotionRecommendationService {
 
     // 사용자의 감정 벡터를 기반으로 영화 추천 리스트 반환
     public List<MovieRecommendationDTO> recommendByEmotion(EmotionRequestDTO userEmotion) {
-        MovieSimilarityResDto[] responseArray = fastApiRestClient.post()
-                .uri("/recommend/emotion")
+        MovieRecommendationApiResponseDto response = fastApiRestClient.post()
+                .uri("/api/v1/movie-recommendations")
                 .body(userEmotion)
                 .retrieve()
-                .body(MovieSimilarityResDto[].class);
+                .body(MovieRecommendationApiResponseDto.class);
 
-        if (responseArray == null) {
+        if (response == null || response.getItems() == null) {
             throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
         }
 
-        List<MovieSimilarityResDto> response = Arrays.asList(responseArray);
         List<MovieRecommendationDTO> recommends = new ArrayList<>();
 
-        for (MovieSimilarityResDto recommendMovie : response) {
+        for (MovieSimilarityResDto recommendMovie : response.getItems()) {
             Movie movie = movieRepository.findById(recommendMovie.getMovieId())
                     .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
             MovieEmotionSummary movieEmotion = movieEmotionSummaryRepository.findByMovieId(movie.getId())

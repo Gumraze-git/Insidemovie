@@ -1,11 +1,18 @@
 package com.insidemovie.backend.api.review.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-
 public class PredictRequestDTO {
-    private String text;
+    private final String text;
+    private final String aggregation;
+
+    public PredictRequestDTO(String text) {
+        this(text, "overall_avg");
+    }
+
+    public PredictRequestDTO(String text, String aggregation) {
+        this.text = text;
+        this.aggregation = aggregation;
+    }
 }

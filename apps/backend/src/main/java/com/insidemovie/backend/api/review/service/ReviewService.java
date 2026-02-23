@@ -84,9 +84,9 @@ public class ReviewService {
 
         // 감정 분석
         try {
-            PredictRequestDTO request = new PredictRequestDTO(savedReview.getContent());
+            PredictRequestDTO request = new PredictRequestDTO(savedReview.getContent(), "overall_avg");
             PredictResponseDTO response = fastApiRestClient.post()
-                    .uri("/predict/overall_avg")
+                    .uri("/api/v1/emotion-predictions")
                     .body(request)
                     .retrieve()
                     .body(PredictResponseDTO.class);
@@ -182,9 +182,9 @@ public class ReviewService {
 
         // 새로운 감정 분석 요청
         try {
-            PredictRequestDTO request = new PredictRequestDTO(reviewUpdateDTO.getContent());
+            PredictRequestDTO request = new PredictRequestDTO(reviewUpdateDTO.getContent(), "overall_avg");
             PredictResponseDTO response = fastApiRestClient.post()
-                    .uri("/predict/overall_avg")
+                    .uri("/api/v1/emotion-predictions")
                     .body(request)
                     .retrieve()
                     .body(PredictResponseDTO.class);
