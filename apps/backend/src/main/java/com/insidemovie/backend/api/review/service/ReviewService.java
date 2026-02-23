@@ -5,7 +5,7 @@ import com.insidemovie.backend.api.member.entity.Member;
 import com.insidemovie.backend.api.member.entity.MemberEmotionSummary;
 import com.insidemovie.backend.api.member.repository.MemberEmotionSummaryRepository;
 import com.insidemovie.backend.api.member.repository.MemberRepository;
-import com.insidemovie.backend.api.member.service.MemberService;
+import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
 import com.insidemovie.backend.api.movie.entity.Movie;
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
@@ -51,7 +51,7 @@ public class ReviewService {
     @Qualifier("fastApiRestClient")
     private final RestClient fastApiRestClient;
     private final EmotionRepository emotionRepository;
-    private final MemberService memberService;
+    private final MemberPolicyService memberPolicyService;
     private final MovieService movieService;
     private final MemberEmotionSummaryRepository memberEmotionSummaryRepository;
     private final MovieEmotionSummaryService movieEmotionSummaryService;
@@ -60,8 +60,7 @@ public class ReviewService {
     @Transactional
     public Long createReview(Long movieId, ReviewCreateDTO reviewCreateDTO, String memberEmail) {
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
@@ -161,8 +160,7 @@ public class ReviewService {
     @Transactional
     public void modifyReview(Long reviewId, ReviewUpdateDTO reviewUpdateDTO, String memberEmail) {
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -221,8 +219,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId, String memberEmail) {
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -241,8 +238,7 @@ public class ReviewService {
     @Transactional
     public void toggleReviewLike(Long reviewId, String memberEmail) {
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -260,6 +256,37 @@ public class ReviewService {
                     .build();
             reviewLikeRepository.save(newLike);
             reviewRepository.incrementLikeCount(reviewId);
+        }
+    }
+
+    @Transactional
+    public boolean createReviewLike(Long reviewId, String memberEmail) {
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
+
+        Optional<ReviewLike> existing = reviewLikeRepository.findByReview_IdAndMember_Id(reviewId, member.getId());
+        if (existing.isPresent()) {
+            return false;
+        }
+
+        ReviewLike newLike = ReviewLike.builder()
+                .review(review)
+                .member(member)
+                .build();
+        reviewLikeRepository.save(newLike);
+        reviewRepository.incrementLikeCount(reviewId);
+        return true;
+    }
+
+    @Transactional
+    public void deleteReviewLike(Long reviewId, String memberEmail) {
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Optional<ReviewLike> existing = reviewLikeRepository.findByReview_IdAndMember_Id(reviewId, member.getId());
+        if (existing.isPresent()) {
+            reviewLikeRepository.delete(existing.get());
+            reviewRepository.decrementLikeCount(reviewId);
         }
     }
 

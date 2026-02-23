@@ -9,12 +9,13 @@ import com.insidemovie.backend.api.match.repository.MatchRepository;
 import com.insidemovie.backend.api.match.repository.MovieMatchRepository;
 import com.insidemovie.backend.api.match.repository.VoteRepository;
 import com.insidemovie.backend.api.member.entity.Member;
-import com.insidemovie.backend.api.member.repository.MemberRepository;
+import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.movie.dto.MovieDetailSimpleResDto;
 import com.insidemovie.backend.api.movie.dto.emotion.MovieEmotionResDTO;
 import com.insidemovie.backend.api.movie.entity.Movie;
 import com.insidemovie.backend.api.movie.entity.MovieEmotionSummary;
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
+import com.insidemovie.backend.common.exception.ConflictException;
 import com.insidemovie.backend.api.review.repository.ReviewRepository;
 import com.insidemovie.backend.common.exception.InternalServerException;
 import com.insidemovie.backend.common.exception.NotFoundException;
@@ -42,7 +43,7 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final MovieRepository movieRepository;
     private final VoteRepository voteRepository;
-    private final MemberRepository memberRepository;
+    private final MemberPolicyService memberPolicyService;
     private final Random random = new Random();
     private final ReviewRepository reviewRepository;
 
@@ -115,10 +116,9 @@ public class MatchService {
 
     // 대결 투표
     @Transactional
-    public void voteMatch(Long movieId, String memberEmail) {
+    public Long voteMatch(Long movieId, String memberEmail) {
         // 사용자 조회
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
 
         // 영화 조회
         Movie movie = movieRepository.findById(movieId)
@@ -135,7 +135,7 @@ public class MatchService {
         // 투표 여부 확인
         Boolean isVoted = voteRepository.existsByMatchIdAndMemberId(lastMatch.getId(), member.getId());
         if (isVoted) {
-            throw new IllegalStateException(ErrorStatus.DUPLICATE_VOTE_EXCEPTION.getMessage());
+            throw new ConflictException(ErrorStatus.DUPLICATE_VOTE_EXCEPTION.getMessage());
         }
 
         movieMatch.setVoteCount(movieMatch.getVoteCount() + 1);
@@ -145,7 +145,8 @@ public class MatchService {
                 .match(lastMatch)
                 .movie(movie)
                 .build();
-        voteRepository.save(vote);
+        Vote saved = voteRepository.save(vote);
+        return saved.getId();
     }
 
     // 영화 대결 조회

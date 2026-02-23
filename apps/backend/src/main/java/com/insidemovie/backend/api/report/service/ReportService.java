@@ -1,7 +1,7 @@
 package com.insidemovie.backend.api.report.service;
 
 import com.insidemovie.backend.api.member.entity.Member;
-import com.insidemovie.backend.api.member.repository.MemberRepository;
+import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.report.dto.ReportResponseDTO;
 import com.insidemovie.backend.api.report.entity.Report;
 import com.insidemovie.backend.api.constant.ReportReason;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final MemberRepository memberRepository;
+    private final MemberPolicyService memberPolicyService;
     private final ReviewRepository reviewRepository;
 
     // 리뷰 신고
@@ -31,8 +31,7 @@ public class ReportService {
     public ReportResponseDTO reportReview(String reporterEmail, Long reviewId, ReportReason reason) {
 
         // 신고자 조회
-        Member reporter = memberRepository.findByEmail(reporterEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member reporter = memberPolicyService.getActiveMemberByEmail(reporterEmail);
 
         // 리뷰 조회
         Review review = reviewRepository.findById(reviewId)
@@ -63,6 +62,13 @@ public class ReportService {
         );
     }
 
+    @Transactional
+    public ReportResponseDTO getReportById(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REPORT_EXCEPTION.getMessage()));
+        return ReportResponseDTO.fromEntity(report);
+    }
+
     // 신고 수용 처리
     @Transactional
     public void acceptReport(Long reportId) {
@@ -91,6 +97,15 @@ public class ReportService {
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REPORT_EXCEPTION.getMessage()));
 
         report.updateStatus(ReportStatus.UNPROCESSED);
+    }
+
+    @Transactional
+    public void updateReportStatus(Long reportId, ReportStatus status) {
+        switch (status) {
+            case ACCEPTED -> acceptReport(reportId);
+            case REJECTED -> rejectReport(reportId);
+            case UNPROCESSED -> unprocessedReport(reportId);
+        }
     }
 
 }

@@ -1,0 +1,89 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:insidemovie-test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+  batch:
+    jdbc:
+      initialize-schema: never
+  fastapi:
+    base-url: http://localhost:8000
+    url: http://localhost:8000/recommend/emotion
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: test-kakao-client-id
+            client-secret: test-kakao-client-secret
+            client-name: kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:5173/login/oauth2/code/kakao
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  mail:
+    host: localhost
+    port: 25
+    username: test@example.com
+    password: test
+
+jwt:
+  secret: test-jwt-secret-test-jwt-secret-test-jwt-secret-1234567890
+  access-exp-ms: 3600000
+  refresh-exp-ms: 1209600000
+  cookie:
+    access-name: ACCESS_TOKEN
+    refresh-name: REFRESH_TOKEN
+    same-site: Lax
+    secure: false
+  access:
+    header: Authorization
+  refresh:
+    header: Authorization-Refresh
+
+tmdb:
+  api:
+    key: test-tmdb-key
+    base-url: https://api.themoviedb.org/3
+    language: ko-KR
+  image:
+    base-url: https://image.tmdb.org/t/p/
+    poster-size: original
+
+kobis:
+  api:
+    key: test-kobis-key
+    base-url: http://www.kobis.or.kr/kobisopenapi/webservice/rest
+
+scheduler:
+  cron:
+    daily: "0 30 16 * * *"
+    weekly: "0 30 16 * * MON"
+    request_movie: "0 42 19 * * MON"
+  zone: "Asia/Seoul"
+
+movie:
+  seed-enabled: false
+  update-enabled: false
+
+match:
+  cron:
+    weekly: "0 30 16 * * MON"
+
+kakao:
+  client:
+    id: test-kakao-client-id
+    secret: test-kakao-client-secret
