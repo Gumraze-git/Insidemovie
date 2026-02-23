@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MemberInfoDto {
-    private Long memberId;
+    private Long userId;
     private String email;
     private String nickname;
     private Integer reportCount;

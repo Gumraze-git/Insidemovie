@@ -13,24 +13,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "Me", description = "Current member profile APIs")
+@Tag(name = "Me", description = "Current user profile APIs")
 @ApiCommonErrorResponses
 public interface MeApi {
 
     @Operation(summary = "Get my profile")
     @ApiCookieAuth
     @ApiResponse(responseCode = "200", description = "OK")
-    ResponseEntity<MemberInfoDto> getMe(@AuthenticationPrincipal UserDetails userDetails);
+    ResponseEntity<MemberInfoDto> getMe(@AuthenticationPrincipal Jwt jwt);
 
     @Operation(summary = "Update my profile")
     @ApiCookieAuth
     @ApiResponse(responseCode = "200", description = "OK")
     ResponseEntity<MemberInfoDto> updateProfile(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody NicknameUpdateRequestDTO request
     );
 
@@ -38,7 +38,7 @@ public interface MeApi {
     @ApiCookieAuth
     @ApiNoContent
     ResponseEntity<Void> updatePassword(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody PasswordUpdateRequestDTO request
     );
 
@@ -46,4 +46,3 @@ public interface MeApi {
     @ApiResponse(responseCode = "200", description = "OK")
     ResponseEntity<NicknameCheckResponseDTO> checkNicknameDuplicate(@RequestParam String nickname);
 }
-

@@ -116,9 +116,9 @@ public class MatchService {
 
     // 대결 투표
     @Transactional
-    public Long voteMatch(Long movieId, String memberEmail) {
+    public Long voteMatch(Long movieId, Long userId) {
         // 사용자 조회
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         // 영화 조회
         Movie movie = movieRepository.findById(movieId)

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * JWT 발급 및 검증 유틸리티.
  *
  * <p>Access/Refresh 토큰 생성, 토큰 파싱, 인증 객체 생성, 유효성 검증을 담당한다.
- * {@code sub}에는 memberId 문자열이 들어가며, {@code auth} 클레임으로 권한을 저장한다.
+ * {@code sub}에는 userId 문자열이 들어가며, {@code auth} 클레임으로 권한을 저장한다.
  */
 @Component
 @Slf4j
@@ -45,27 +45,27 @@ public class JwtProvider {
     }
 
     /**
-     * memberId 기반 Access 토큰을 생성한다.
+     * userId 기반 Access 토큰을 생성한다.
      *
-     * @param memberId 사용자 식별자
+     * @param userId 사용자 식별자
      * @param authorities 사용자 권한 목록
      * @return 서명된 Access 토큰 문자열
      */
-    public String generateAccessToken(Long memberId, List<? extends GrantedAuthority> authorities) {
+    public String generateAccessToken(Long userId, List<? extends GrantedAuthority> authorities) {
         List<String> roles = authorities.stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
-        return buildAccessToken(memberId.toString(), roles);
+        return buildAccessToken(userId.toString(), roles);
     }
 
     /**
-     * memberId 기반 Refresh 토큰을 생성한다.
+     * userId 기반 Refresh 토큰을 생성한다.
      *
-     * @param memberId 사용자 식별자
+     * @param userId 사용자 식별자
      * @return 서명된 Refresh 토큰 문자열
      */
-    public String generateRefreshToken(Long memberId) {
-        return buildRefreshToken(memberId.toString());
+    public String generateRefreshToken(Long userId) {
+        return buildRefreshToken(userId.toString());
     }
 
     private String buildAccessToken(String subject, List<String> roles) {

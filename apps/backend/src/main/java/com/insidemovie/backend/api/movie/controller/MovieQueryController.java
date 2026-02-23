@@ -10,10 +10,11 @@ import com.insidemovie.backend.api.movie.dto.tmdb.SearchMovieWrapperDTO;
 import com.insidemovie.backend.api.movie.docs.MovieQueryApi;
 import com.insidemovie.backend.api.movie.service.MovieDetailService;
 import com.insidemovie.backend.api.movie.service.MovieService;
+import com.insidemovie.backend.common.config.security.CurrentUserIdResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,15 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class MovieQueryController implements MovieQueryApi {
     private final MovieService movieService;
     private final MovieDetailService movieDetailService;
+    private final CurrentUserIdResolver currentUserIdResolver;
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailResDto> getMovieDetail(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        MovieDetailResDto dto = userDetails == null
+        MovieDetailResDto dto = jwt == null
                 ? movieDetailService.getMovieDetail(id)
-                : movieDetailService.getMovieDetail(id, userDetails.getUsername());
+                : movieDetailService.getMovieDetail(id, currentUserIdResolver.resolve(jwt));
         return ResponseEntity.ok(dto);
     }
 

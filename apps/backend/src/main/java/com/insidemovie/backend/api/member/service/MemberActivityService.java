@@ -17,15 +17,15 @@ public class MemberActivityService {
     private final MovieLikeService movieLikeService;
     private final MovieService movieService;
 
-    public PageResDto<ReviewResponseDTO> getMyReviews(String email, int page, int pageSize) {
-        return reviewService.getMyReviews(email, page, pageSize);
+    public PageResDto<ReviewResponseDTO> getMyReviews(Long userId, int page, int pageSize) {
+        return reviewService.getMyReviews(userId, page, pageSize);
     }
 
-    public PageResDto<MyMovieResponseDTO> getMyLikedMovies(String email, int page, int pageSize) {
-        return movieLikeService.getMyMovies(email, page, pageSize);
+    public PageResDto<MyMovieResponseDTO> getMyLikedMovies(Long userId, int page, int pageSize) {
+        return movieLikeService.getMyMovies(userId, page, pageSize);
     }
 
-    public PageResDto<MovieSearchResDto> getMyWatchedMovies(String email, int page, int pageSize) {
-        return movieService.getMyWatchedMovies(email, page, pageSize);
+    public PageResDto<MovieSearchResDto> getMyWatchedMovies(Long userId, int page, int pageSize) {
+        return movieService.getMyWatchedMovies(userId, page, pageSize);
     }
 }

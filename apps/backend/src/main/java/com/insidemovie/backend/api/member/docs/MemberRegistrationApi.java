@@ -16,12 +16,11 @@ import java.util.Map;
 @ApiCommonErrorResponses
 public interface MemberRegistrationApi {
 
-    @Operation(summary = "Sign up by email", description = "Create a new member account.")
+    @Operation(summary = "Sign up by email", description = "Create a new user account.")
     @ApiCreatedWithLocation
     ResponseEntity<Map<String, Object>> signup(@Valid @RequestBody MemberSignupRequestDto request);
 
-    @Operation(summary = "Sign up with Kakao", description = "Create a new Kakao social member account.")
+    @Operation(summary = "Sign up with Kakao", description = "Create a new Kakao social user account.")
     @ApiCreatedWithLocation
     ResponseEntity<Map<String, Object>> kakaoSignup(@Valid @RequestBody KakaoSignupRequestDto request);
 }
-

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Review Like", description = "Review like/unlike APIs")
@@ -21,14 +21,14 @@ public interface ReviewLikeApi {
     @ApiNoContent
     ResponseEntity<Void> likeReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 
     @Operation(summary = "Unlike review")
     @ApiNoContent
     ResponseEntity<Void> unlikeReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal Jwt jwt
     );
 }
 

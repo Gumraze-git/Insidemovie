@@ -29,8 +29,8 @@ public class AdminManagementController implements AdminManagementApi {
     private final AdminService adminService;
     private final ReportService reportService;
 
-    @GetMapping("/members")
-    public ResponseEntity<PageResult<AdminMemberDTO>> getMembers(
+    @GetMapping("/users")
+    public ResponseEntity<PageResult<AdminMemberDTO>> getUsers(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
@@ -39,15 +39,15 @@ public class AdminManagementController implements AdminManagementApi {
         return ResponseEntity.ok(PageResult.of(memberPage));
     }
 
-    @PatchMapping("/members/{memberId}")
-    public ResponseEntity<Void> updateMemberStatus(
-            @PathVariable Long memberId,
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity<Void> updateUserStatus(
+            @PathVariable Long userId,
             @Valid @RequestBody AdminMemberStatusUpdateRequest request
     ) {
         if (request.getBanned()) {
-            adminService.banMember(memberId);
+            adminService.banMember(userId);
         } else {
-            adminService.unbanMember(memberId);
+            adminService.unbanMember(userId);
         }
         return ResponseEntity.ok().build();
     }

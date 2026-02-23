@@ -10,13 +10,14 @@ import com.insidemovie.backend.api.jwt.JwtProperties;
 import com.insidemovie.backend.api.member.dto.MemberLoginRequestDto;
 import com.insidemovie.backend.api.member.dto.MemberLoginResponseDto;
 import com.insidemovie.backend.api.member.dto.TokenResponseDto;
+import com.insidemovie.backend.common.config.security.CurrentUserIdResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,7 @@ public class AuthSessionController implements AuthSessionApi {
     private final AuthSessionService authSessionService;
     private final AuthCookieService authCookieService;
     private final JwtProperties jwtProperties;
+    private final CurrentUserIdResolver currentUserIdResolver;
 
     @PostMapping("/sessions")
     public ResponseEntity<AuthSessionResponse> createSession(@RequestBody MemberLoginRequestDto request) {
@@ -64,8 +66,8 @@ public class AuthSessionController implements AuthSessionApi {
     }
 
     @DeleteMapping("/sessions/current")
-    public ResponseEntity<Void> deleteCurrentSession(@AuthenticationPrincipal UserDetails userDetails) {
-        authSessionService.logout(userDetails.getUsername());
+    public ResponseEntity<Void> deleteCurrentSession(@AuthenticationPrincipal Jwt jwt) {
+        authSessionService.logout(currentUserIdResolver.resolve(jwt));
         return ResponseEntity.noContent()
                 .headers(authCookieService.clearAuthCookies())
                 .build();

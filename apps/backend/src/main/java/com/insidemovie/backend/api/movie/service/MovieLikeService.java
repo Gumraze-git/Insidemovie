@@ -3,7 +3,6 @@ package com.insidemovie.backend.api.movie.service;
 import com.insidemovie.backend.api.constant.EmotionType;
 import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
 import com.insidemovie.backend.api.member.entity.Member;
-import com.insidemovie.backend.api.member.repository.MemberRepository;
 import com.insidemovie.backend.api.member.service.MemberService;
 import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.movie.dto.MyMovieResponseDTO;
@@ -34,7 +33,6 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class MovieLikeService {
-    private final MemberRepository memberRepository;
     private final MovieLikeRepository movieLikeRepository;
     private final MovieRepository movieRepository;
     private final MovieService movieService;
@@ -43,11 +41,10 @@ public class MovieLikeService {
     private final MemberPolicyService memberPolicyService;
 
     // 좋아요 한 영화 목록 조회
-    public PageResDto<MyMovieResponseDTO> getMyMovies(String memberEmail, Integer page, Integer pageSize) {
+    public PageResDto<MyMovieResponseDTO> getMyMovies(Long userId, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
         // 사용자 조회
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getMemberById(userId);
 
         // 영화 목록 조회
         Page<MovieLike> myMovies = movieLikeRepository.findByMember(member, pageable);
@@ -91,8 +88,8 @@ public class MovieLikeService {
     }
 
     @Transactional
-    public void toggleMovieLike(Long movieId, String memberEmail) {
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+    public void toggleMovieLike(Long movieId, Long userId) {
+        Member member = memberPolicyService.getActiveMemberById(userId);
         Movie movie = movieRepository.findById(movieId)
             .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
 
@@ -110,8 +107,8 @@ public class MovieLikeService {
     }
 
     @Transactional
-    public boolean createMovieLike(Long movieId, String memberEmail) {
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+    public boolean createMovieLike(Long movieId, Long userId) {
+        Member member = memberPolicyService.getActiveMemberById(userId);
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
 
@@ -129,8 +126,8 @@ public class MovieLikeService {
     }
 
     @Transactional
-    public void deleteMovieLike(Long movieId, String memberEmail) {
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+    public void deleteMovieLike(Long movieId, Long userId) {
+        Member member = memberPolicyService.getActiveMemberById(userId);
         Optional<MovieLike> existing = movieLikeRepository.findByMovie_IdAndMember_Id(movieId, member.getId());
         existing.ifPresent(movieLikeRepository::delete);
         memberService.updateEmotionSummaryByLikedMovies(member.getId());

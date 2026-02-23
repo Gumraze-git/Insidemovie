@@ -4,7 +4,6 @@ import com.insidemovie.backend.api.constant.EmotionType;
 import com.insidemovie.backend.api.member.entity.Member;
 import com.insidemovie.backend.api.member.entity.MemberEmotionSummary;
 import com.insidemovie.backend.api.member.repository.MemberEmotionSummaryRepository;
-import com.insidemovie.backend.api.member.repository.MemberRepository;
 import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
 import com.insidemovie.backend.api.movie.entity.Movie;
@@ -46,7 +45,6 @@ public class ReviewService {
 
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRepository reviewRepository;
-    private final MemberRepository memberRepository;
     private final MovieRepository movieRepository;
     @Qualifier("fastApiRestClient")
     private final RestClient fastApiRestClient;
@@ -58,9 +56,9 @@ public class ReviewService {
 
     // 리뷰 작성
     @Transactional
-    public Long createReview(Long movieId, ReviewCreateDTO reviewCreateDTO, String memberEmail) {
+    public Long createReview(Long movieId, ReviewCreateDTO reviewCreateDTO, Long userId) {
 
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
@@ -140,13 +138,12 @@ public class ReviewService {
 
     // 내 리뷰 단건 조회
     @Transactional
-    public ReviewResponseDTO getMyReview(Long movieId, String memberEmail) {
-        if (memberEmail == null || memberEmail.isBlank()) {
+    public ReviewResponseDTO getMyReview(Long movieId, Long userId) {
+        if (userId == null) {
             throw new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage());
         }
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getMemberById(userId);
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
 
@@ -158,9 +155,9 @@ public class ReviewService {
 
     // 리뷰 수정
     @Transactional
-    public void modifyReview(Long reviewId, ReviewUpdateDTO reviewUpdateDTO, String memberEmail) {
+    public void modifyReview(Long reviewId, ReviewUpdateDTO reviewUpdateDTO, Long userId) {
 
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -217,9 +214,9 @@ public class ReviewService {
 
     // 리뷰 삭제
     @Transactional
-    public void deleteReview(Long reviewId, String memberEmail) {
+    public void deleteReview(Long reviewId, Long userId) {
 
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -236,9 +233,9 @@ public class ReviewService {
 
     // 좋아요 토글
     @Transactional
-    public void toggleReviewLike(Long reviewId, String memberEmail) {
+    public void toggleReviewLike(Long reviewId, Long userId) {
 
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -260,8 +257,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public boolean createReviewLike(Long reviewId, String memberEmail) {
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+    public boolean createReviewLike(Long reviewId, Long userId) {
+        Member member = memberPolicyService.getActiveMemberById(userId);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_REVIEW_EXCEPTION.getMessage()));
@@ -281,8 +278,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReviewLike(Long reviewId, String memberEmail) {
-        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+    public void deleteReviewLike(Long reviewId, Long userId) {
+        Member member = memberPolicyService.getActiveMemberById(userId);
         Optional<ReviewLike> existing = reviewLikeRepository.findByReview_IdAndMember_Id(reviewId, member.getId());
         if (existing.isPresent()) {
             reviewLikeRepository.delete(existing.get());
@@ -292,11 +289,10 @@ public class ReviewService {
 
     // 내가 작성한 리뷰 목록
     @Transactional
-    public PageResDto<ReviewResponseDTO> getMyReviews(String memberEmail, Integer page, Integer pageSize) {
+    public PageResDto<ReviewResponseDTO> getMyReviews(Long userId, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        Member member = memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getMemberById(userId);
 
         Page<Review> myReviews = reviewRepository.findByMember(member, pageable);
         Long currentUserId = member.getId();
@@ -355,7 +351,7 @@ public class ReviewService {
                 .createdAt(review.getCreatedAt())
                 .likeCount(review.getLikeCount())
                 .nickname(review.getMember().getNickname())
-                .memberId(review.getMember().getId())
+                .userId(review.getMember().getId())
                 .memberEmotion(memberEmotionType.name())
                 .movieId(review.getMovie().getId())
                 .myReview(myReview)
