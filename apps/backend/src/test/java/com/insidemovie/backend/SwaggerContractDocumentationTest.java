@@ -47,5 +47,14 @@ class SwaggerContractDocumentationTest {
                 .andExpect(jsonPath("$.paths['/api/v1/users/me'].get.responses['401'].$ref")
                         .value("#/components/responses/Problem401"));
     }
-}
 
+    @Test
+    void shouldNotExposeLegacyVoteAverageFieldInMovieSchemas() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.components.schemas.MovieDetailResDto.properties.voteAverage").doesNotExist())
+                .andExpect(jsonPath("$.components.schemas.MovieSearchResDto.properties.voteAverage").doesNotExist())
+                .andExpect(jsonPath("$.components.schemas.DailyBoxOfficeResponseDTO.properties.voteAverage").doesNotExist())
+                .andExpect(jsonPath("$.components.schemas.WeeklyBoxOfficeResponseDTO.properties.voteAverage").doesNotExist());
+    }
+}
