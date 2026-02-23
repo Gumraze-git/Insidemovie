@@ -6,7 +6,6 @@ import fearIcon from "@assets/character/fear_icon.png";
 import disgustIcon from "@assets/character/disgust_icon.png";
 import bingbongIcon from "@assets/character/bingbong_icon.png";
 import StarFull from "@assets/star_full.svg?react";
-import TMDB from "@assets/TMDB.svg?react";
 import DefaultImage from "@assets/defaultImage.svg?react";
 import Down from "@assets/down.svg?react";
 import Up from "@assets/up.svg?react";
@@ -46,7 +45,6 @@ const BoxOfficeItem: React.FC<BoxOfficeItemProps> = ({
     audiAcc,
     mainEmotion,
     mainEmotionValue,
-    voteAverage,
     ratingAvg,
 }) => {
     const navigate = useNavigate();
@@ -109,10 +107,6 @@ const BoxOfficeItem: React.FC<BoxOfficeItemProps> = ({
                         <div className="flex items-center text-xs font-light text-white">
                             <StarFull className="w-6 h-6" />
                             <p>{ratingAvg}</p>
-                        </div>
-                        <div className="flex items-center text-xs font-light text-white">
-                            <TMDB className="w-6 h-6" />
-                            <p>{voteAverage}</p>
                         </div>
                     </div>
                 </div>

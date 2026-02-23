@@ -1,6 +1,5 @@
 import React from "react";
 import StarFull from "@assets/star_full.svg?react";
-import TMDB from "@assets/TMDB.svg?react";
 
 interface WinnerItemProps {
     posterImg: string;
@@ -16,7 +15,6 @@ interface WinnerItemProps {
 const WinnerItem: React.FC<WinnerItemProps> = ({
     posterImg,
     posterName,
-    starValue,
     ratingAvg,
     winnerWeek,
     onClick,
@@ -42,12 +40,6 @@ const WinnerItem: React.FC<WinnerItemProps> = ({
                         {Number.isInteger(Number(ratingAvg))
                             ? String(Number(ratingAvg))
                             : Number(ratingAvg).toFixed(1)}
-                    </span>
-                    <TMDB className="w-4 h-4 ml-3" />
-                    <span className="ml-1 text-sm">
-                        {Number.isInteger(Number(starValue))
-                            ? String(Number(starValue))
-                            : Number(starValue).toFixed(1)}
                     </span>
                 </div>
             </div>
