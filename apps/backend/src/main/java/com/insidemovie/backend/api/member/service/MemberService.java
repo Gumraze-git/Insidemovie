@@ -26,7 +26,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -364,10 +363,17 @@ public class MemberService {
     public MemberEmotionSummaryResponseDTO updateEmotionSummary(
             MemberEmotionSummaryRequestDTO dto
     ) {
-        // 1) 시큐리티 컨텍스트에서 인증 정보 꺼내기
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
+        return updateEmotionSummary(email, dto);
+    }
 
+    @Transactional
+    public MemberEmotionSummaryResponseDTO updateEmotionSummary(
+            String email,
+            MemberEmotionSummaryRequestDTO dto
+    ) {
+        // 1) 시큐리티 컨텍스트에서 인증 정보 꺼내기
         // 2) 이메일로 Member 조회
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() ->

@@ -5,6 +5,7 @@ import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
 import com.insidemovie.backend.api.member.entity.Member;
 import com.insidemovie.backend.api.member.repository.MemberRepository;
 import com.insidemovie.backend.api.member.service.MemberService;
+import com.insidemovie.backend.api.member.service.MemberPolicyService;
 import com.insidemovie.backend.api.movie.dto.MyMovieResponseDTO;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
 import com.insidemovie.backend.api.movie.entity.Movie;
@@ -39,6 +40,7 @@ public class MovieLikeService {
     private final MovieService movieService;
     private final ReviewRepository reviewRepository;
     private final MemberService memberService;
+    private final MemberPolicyService memberPolicyService;
 
     // 좋아요 한 영화 목록 조회
     public PageResDto<MyMovieResponseDTO> getMyMovies(String memberEmail, Integer page, Integer pageSize) {
@@ -90,8 +92,7 @@ public class MovieLikeService {
 
     @Transactional
     public void toggleMovieLike(Long movieId, String memberEmail) {
-        Member member = memberRepository.findByEmail(memberEmail)
-            .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
         Movie movie = movieRepository.findById(movieId)
             .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
 
@@ -105,6 +106,33 @@ public class MovieLikeService {
                 .build());
         }
 
+        memberService.updateEmotionSummaryByLikedMovies(member.getId());
+    }
+
+    @Transactional
+    public boolean createMovieLike(Long movieId, String memberEmail) {
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
+
+        Optional<MovieLike> existing = movieLikeRepository.findByMovie_IdAndMember_Id(movieId, member.getId());
+        if (existing.isPresent()) {
+            return false;
+        }
+
+        movieLikeRepository.save(MovieLike.builder()
+                .movie(movie)
+                .member(member)
+                .build());
+        memberService.updateEmotionSummaryByLikedMovies(member.getId());
+        return true;
+    }
+
+    @Transactional
+    public void deleteMovieLike(Long movieId, String memberEmail) {
+        Member member = memberPolicyService.getActiveMemberByEmail(memberEmail);
+        Optional<MovieLike> existing = movieLikeRepository.findByMovie_IdAndMember_Id(movieId, member.getId());
+        existing.ifPresent(movieLikeRepository::delete);
         memberService.updateEmotionSummaryByLikedMovies(member.getId());
     }
 }

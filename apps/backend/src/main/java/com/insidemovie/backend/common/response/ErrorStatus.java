@@ -5,6 +5,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public enum ErrorStatus {
@@ -56,8 +62,21 @@ public enum ErrorStatus {
 
     private final HttpStatus httpStatus;
     private final String message;
+    private static final Map<String, ErrorStatus> BY_MESSAGE = Arrays.stream(values())
+            .collect(Collectors.toUnmodifiableMap(ErrorStatus::getMessage, Function.identity()));
 
     public int getStatusCode() {
         return this.httpStatus.value();
+    }
+
+    public String getCode() {
+        return name();
+    }
+
+    public static Optional<ErrorStatus> fromMessage(String message) {
+        if (message == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(BY_MESSAGE.get(message));
     }
 }
