@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Snackbar, Alert } from "@mui/material";
 import MovieItem from "../../components/MovieItem";
 import Button from "../../components/Button";
@@ -42,29 +42,36 @@ const WeekMatch: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     // Error snackbar for duplicate vote
     const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-    const { getWeeklyMatchMovie, getPastMatchMovie, voteMatch } = matchApi();
+    const { getWeeklyMatchMovie, getPastMatchMovie, voteMatch } = useMemo(
+        () => matchApi(),
+        [],
+    );
+
+    const fetchWeeklyMatchMovie = useCallback(async () => {
+        try {
+            const res = await getWeeklyMatchMovie();
+            setMovieList(res.data);
+        } catch (e) {
+            console.error("금주의 영화 대결 조회 에러: ", e);
+        }
+    }, [getWeeklyMatchMovie]);
+
+    const fetchPastMatchMovie = useCallback(async () => {
+        try {
+            const res = await getPastMatchMovie();
+            setPastWinners(res.data);
+        } catch (e) {
+            console.error("역대 우승 영화 조회 에러:", e);
+        }
+    }, [getPastMatchMovie]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const res = await getWeeklyMatchMovie();
-                setMovieList(res.data);
-            } catch (e) {
-                console.error("금주의 영화 대결 조회 에러: ", e);
-            }
-        })();
-    }, []);
+        void fetchWeeklyMatchMovie();
+    }, [fetchWeeklyMatchMovie]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const res = await getPastMatchMovie();
-                setPastWinners(res.data);
-            } catch (e) {
-                console.error("역대 우승 영화 조회 에러:", e);
-            }
-        })();
-    }, []);
+        void fetchPastMatchMovie();
+    }, [fetchPastMatchMovie]);
 
     return (
         <div>

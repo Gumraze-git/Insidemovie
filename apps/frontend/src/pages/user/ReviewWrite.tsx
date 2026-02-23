@@ -72,7 +72,7 @@ const ReviewWrite: React.FC = () => {
                 // no existing review
             }
         })();
-    }, [movieId]);
+    }, [movieId, movieIdNumber]);
 
     // 제출
     const handleSubmit = async () => {
