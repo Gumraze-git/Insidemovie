@@ -1,7 +1,6 @@
 import axios from "./axiosInstance";
 
 export const recommendApi = () => {
-    // 맞춤 영화 조회
     const getRecommendMovie = async ({
         joy,
         anger,
@@ -9,7 +8,7 @@ export const recommendApi = () => {
         disgust,
         sadness,
     }) => {
-        return await axios.post("/api/v1/recommend/emotion", {
+        return await axios.post("/api/v1/movie-recommendations/by-emotion", {
             joy,
             anger,
             fear,

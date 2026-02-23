@@ -1,24 +1,22 @@
 import axios from "./axiosInstance";
 
 export const boxofficeApi = () => {
-    // 주간 박스오피스 조회
     const getWeeklyBoxOffice = async () => {
         return await axios.get("/api/v1/boxoffice/weekly");
     };
 
-    // 주간 박스오피스 영화 상세 조회
-    const getWeeklyBoxOfficeDetail = async () => {
-        return await axios.get("/api/v1/boxoffice/weekly/detail");
+    const getWeeklyBoxOfficeDetail = async ({ movieId, weekGb = "0" }) => {
+        return await axios.get(`/api/v1/boxoffice/weekly/movies/${movieId}`, {
+            params: { weekGb },
+        });
     };
 
-    // 일간 박스오피스 조회
     const getDailyBoxOffice = async () => {
         return await axios.get("/api/v1/boxoffice/daily");
     };
 
-    // 일간 박스오피스 영화 상세 조회
-    const getDailyBoxOfficeDetail = async () => {
-        return await axios.get("/api/v1/boxoffice/daily/detail");
+    const getDailyBoxOfficeDetail = async ({ movieId }) => {
+        return await axios.get(`/api/v1/boxoffice/daily/movies/${movieId}`);
     };
 
     return {
