@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MyPage from "@assets/my_page.svg?react";
 import Logout from "@assets/logout.svg?react";
@@ -18,7 +18,7 @@ import MovieIcon from "@assets/movie_icon.svg?react";
 import MatchIcon from "@assets/match_icon.svg?react";
 
 interface UserInfo {
-    memberId: number;
+    userId: number;
     email: string;
     nickname: string;
     reportCount: number;
@@ -50,6 +50,17 @@ const Header: React.FC = () => {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    const fetchProfile = useCallback(() => {
+        memberApi()
+            .profile()
+            .then((res) => {
+                setUserInfo(res.data);
+            })
+            .catch(() => {
+                setUserInfo(null);
+            });
+    }, []);
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 0);
@@ -59,17 +70,6 @@ const Header: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const fetchProfile = () => {
-            memberApi()
-                .profile()
-                .then((res) => {
-                    setUserInfo(res.data.data);
-                })
-                .catch((err) => {
-                    console.error("Failed to load user info", err);
-                });
-        };
-
         fetchProfile();
 
         const handleProfileUpdated = () => {
@@ -77,11 +77,13 @@ const Header: React.FC = () => {
         };
 
         window.addEventListener("profileUpdated", handleProfileUpdated);
+        window.addEventListener("authChanged", handleProfileUpdated);
 
         return () => {
             window.removeEventListener("profileUpdated", handleProfileUpdated);
+            window.removeEventListener("authChanged", handleProfileUpdated);
         };
-    }, []);
+    }, [fetchProfile]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -241,14 +243,10 @@ const Header: React.FC = () => {
                 onConfirm={async () => {
                     try {
                         await memberApi().logout();
-                        localStorage.removeItem("accessToken");
-                        localStorage.removeItem("refreshToken");
-                        localStorage.removeItem("authority");
                         setMenuOpen(false);
                         setLogoutDialogOpen(false);
+                        window.dispatchEvent(new Event("authChanged"));
                         navigate("/", { replace: true });
-                        window.location.replace("/");
-                        window.location.reload();
                     } catch (err) {
                         console.error("Logout API failed", err);
                     }

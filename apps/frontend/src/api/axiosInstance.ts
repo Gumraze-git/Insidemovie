@@ -1,55 +1,53 @@
-import axios from "axios";
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const baseURL = "";
+
 const axiosInstance = axios.create({
-    baseURL: baseURL,
+    baseURL,
+    withCredentials: true,
 });
 
-const token = localStorage.getItem("refreshToken");
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+    _retry?: boolean;
+};
 
-const reissue = async (refreshToken: string | null) => {
-    return axios.post(`${baseURL}/api/v1/member/reissue`, null, {
-        headers: {
-            "Authorization-Refresh": `Bearer ${refreshToken}`,
-        },
+let refreshPromise: Promise<void> | null = null;
+
+const refreshSession = async (): Promise<void> => {
+    await axios.post(`${baseURL}/api/v1/auth/sessions/refresh`, null, {
+        withCredentials: true,
     });
 };
 
-const getToken = async (): Promise<void> => {
-    try {
-        const res = await reissue(token);
-        if (res.data.status !== 200) {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-        } else {
-            const accessToken: string = res.data.data.accessToken;
-            const refreshToken: string = res.data.data.refreshToken;
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
-        }
-    } catch (error) {
-        console.error("Error during token reissue:", error);
-    }
-};
-
-axiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
 axiosInstance.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-            console.log(error.response);
+    async (error: AxiosError) => {
+        const status = error.response?.status;
+        const originalRequest = error.config as RetryableRequestConfig | undefined;
+
+        if (!originalRequest || status !== 401 || originalRequest._retry) {
+            return Promise.reject(error);
         }
-        if (error.response?.status === 401) {
-            getToken();
+
+        const requestUrl = originalRequest.url ?? "";
+        if (requestUrl.includes("/api/v1/auth/sessions")) {
+            return Promise.reject(error);
         }
-        return Promise.reject(error);
+
+        originalRequest._retry = true;
+
+        if (!refreshPromise) {
+            refreshPromise = refreshSession().finally(() => {
+                refreshPromise = null;
+            });
+        }
+
+        try {
+            await refreshPromise;
+            return axiosInstance(originalRequest);
+        } catch (refreshError) {
+            return Promise.reject(refreshError);
+        }
     },
 );
 
