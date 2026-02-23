@@ -67,7 +67,7 @@ export default function MainGrid() {
             }
         };
         fetchData();
-    }, []);
+    }, [navigate]);
 
     if (!dashboardState) {
         return <div className="text-white text-center">Loading...</div>;

@@ -40,7 +40,7 @@ export default function ReportBoard({ filtered = false }: ReportBoardProps) {
             }
         };
         fetchData();
-    }, []);
+    }, [navigate]);
     const rows: GridRowsProp = mapReportsToRows(reportList);
 
     const handleStatusChange = (reportId: number, newStatus: ReportStatus) => {

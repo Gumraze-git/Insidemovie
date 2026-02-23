@@ -36,7 +36,7 @@ export default function ReportBoard() {
             }
         };
         fetchData();
-    }, []);
+    }, [navigate]);
     const rows: GridRowsProp = mapReportsToRows(reportList);
 
     const handleStatusChange = (reportId: number, newStatus: ReportStatus) => {

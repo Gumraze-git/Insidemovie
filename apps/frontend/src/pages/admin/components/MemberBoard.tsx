@@ -35,7 +35,7 @@ export default function MemberBoard() {
             }
         };
         fetchData();
-    }, []);
+    }, [navigate]);
     const rows: GridRowsProp = mapMembersToRows(memberList);
     if (!memberList) {
         return [];
