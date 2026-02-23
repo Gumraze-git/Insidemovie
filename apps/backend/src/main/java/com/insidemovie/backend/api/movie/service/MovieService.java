@@ -538,7 +538,7 @@ public class MovieService {
     public PageResDto<MovieSearchResDto> getRecommendedMoviesByPopularity(GenreType genreType, Integer page, Integer pageSize){
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<Movie> moviePage = movieRepository.findMoviesByGenreTypeOrderByVoteAverageDesc(genreType, pageable);
+        Page<Movie> moviePage = movieRepository.findMoviesByGenreTypeOrderByPopularityDesc(genreType, pageable);
         if (moviePage.isEmpty()) {
             throw new NotFoundException("해당 장르의 영화가 없습니다: " + genreType.name());
         }
