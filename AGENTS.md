@@ -21,6 +21,13 @@
 - 관련 이슈를 링크합니다.
 - 변경한 앱 기준 최소 검증을 완료합니다.
 
+## PR and Issue Template Policy
+
+- PR 생성 시 루트 `/.github/PULL_REQUEST_TEMPLATE.md`를 사용합니다.
+- PR 본문은 템플릿의 `Summary`, `Issue` 섹션 구조를 유지합니다.
+- 이슈 생성 시 루트 `/.github/ISSUE_TEMPLATE/conventional-request.yml`를 사용합니다.
+- `gh` CLI로 PR/이슈를 생성하는 경우에도 동일 템플릿 섹션/필드를 반영합니다.
+
 ## App Entrypoints and Commands
 
 | App | Path | Install | Local Run | Validation |
