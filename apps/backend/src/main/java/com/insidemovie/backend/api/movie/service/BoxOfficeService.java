@@ -301,7 +301,6 @@ public class BoxOfficeService {
                 // — 영화 메타정보 —
                 String title       = (movie != null) ? movie.getTitle()      : e.getMovieName();
                 String posterPath  = (movie != null) ? movie.getPosterPath() : null;
-                Double voteAverage = (movie != null) ? movie.getVoteAverage(): 0.0;
 
                 // — 평점 평균 조회 & 반올림 (기존 코드 그대로) —
                 Double rawRatingAvg = (movieId != null)
@@ -335,7 +334,6 @@ public class BoxOfficeService {
                     e,
                     title,
                     posterPath,
-                    voteAverage,
                     ratingValue,
                     mainEmotion,
                     mainValue
@@ -400,7 +398,6 @@ public class BoxOfficeService {
                 // --- 영화 메타정보
                 String title       = movie != null ? movie.getTitle()       : e.getMovieNm();
                 String posterPath  = movie != null ? movie.getPosterPath()  : null;
-                Double voteAverage = movie != null ? movie.getVoteAverage() : 0.0;
 
                 // --- 사용자 평점 평균 조회 & 반올림
                 Double rawRatingAvg = movieId != null
@@ -432,7 +429,6 @@ public class BoxOfficeService {
                     e,
                     title,
                     posterPath,
-                    voteAverage,
                     ratingAvg,
                     mainEmotion,
                     mainValue
@@ -634,7 +630,6 @@ public class BoxOfficeService {
         dto.setOverview(movie.getOverview());
         dto.setPosterPath(movie.getPosterPath());
         dto.setBackdropPath(movie.getBackdropPath());
-        dto.setVoteAverage(movie.getVoteAverage());
         dto.setOriginalLanguage(movie.getOriginalLanguage());
         dto.setIsLike(false); // TODO: 좋아요 연동
 

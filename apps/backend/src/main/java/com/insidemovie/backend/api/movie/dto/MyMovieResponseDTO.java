@@ -1,6 +1,5 @@
 package com.insidemovie.backend.api.movie.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.insidemovie.backend.api.constant.EmotionType;
 import lombok.*;
 
@@ -16,7 +15,6 @@ public class MyMovieResponseDTO {
     private Long movieId;
     private String posterPath;
     private String title;
-    private Double voteAverage;
     private EmotionType mainEmotion;
     private Double mainEmotionValue;
     private BigDecimal ratingAvg;

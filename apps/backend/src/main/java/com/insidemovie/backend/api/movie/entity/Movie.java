@@ -52,7 +52,6 @@ public class Movie {
     private String ottProviders;         // OTT 제공
     private String posterPath;           // 포스터 이미지 경로
     private String backdropPath;         // 배경 이미지 경로
-    private Double voteAverage;          // 평균 평점
     private Integer voteCount;           // 평점 투표 수
     private String rating;               // 영화 등급
     private LocalDate releaseDate;       // 개봉일
@@ -82,10 +81,6 @@ public class Movie {
     // 배경이미지 수정
     public void updateBackDropPath(String backdropPath) {
         this.backdropPath = backdropPath;
-    }
-    // 평균평점 수정
-    public void updateVoteAverage(Double voteAverage) {
-        this.voteAverage = voteAverage;
     }
     // 장르 수정
     //public void updateGenreIds(List<Long> genreIds) {this.genreIds = genreIds;}

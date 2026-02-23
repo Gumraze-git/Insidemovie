@@ -16,7 +16,6 @@ public class MovieSearchResDto {
     private Long id;
     private String posterPath;
     private String title;
-    private Double voteAverage;
     private LocalDate releaseDate;
     private EmotionType mainEmotion;
     private Double mainEmotionValue;

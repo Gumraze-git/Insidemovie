@@ -189,16 +189,10 @@ public class MovieService {
         String fullPoster   = imageBaseUrl + posterSize + detail.getPosterPath();
         String fullBackdrop = imageBaseUrl + posterSize + detail.getBackdropPath();
 
-        double avg = detail.getVoteAverage() == null ? 0 : detail.getVoteAverage();
-        double rounded = BigDecimal.valueOf(avg)
-                .setScale(2, RoundingMode.HALF_UP)
-                .doubleValue();
-
         movie.updateTitle(detail.getTitle());
         movie.updateOverview(detail.getOverview());
         movie.updatePosterPath(fullPoster);
         movie.updateBackDropPath(fullBackdrop);
-        movie.updateVoteAverage(rounded);
         movie.setVoteCount(detail.getVoteCount());
         movie.updateOriginalLanguage(detail.getOriginalLanguage());
         movie.updateReleaseDate(detail.getReleaseDate());
@@ -290,7 +284,6 @@ public class MovieService {
             || !Objects.equals(movie.getOverview(), dto.getOverview())
             || !Objects.equals(movie.getPosterPath(), dto.getPosterPath())
             || !Objects.equals(movie.getBackdropPath(), dto.getBackDropPath())
-            || !Objects.equals(movie.getVoteAverage(), dto.getVoteAverage())
             //|| !Objects.equals(movie.getGenreIds(), dto.getGenreIds())
             || !Objects.equals(movie.getOriginalLanguage(), dto.getOriginalLanguage())
             || !Objects.equals(movie.getReleaseDate(),
@@ -365,7 +358,6 @@ public class MovieService {
         movieSearchResDto.setId(movie.getId());
         movieSearchResDto.setTitle(movie.getTitle());
         movieSearchResDto.setPosterPath(movie.getPosterPath());
-        movieSearchResDto.setVoteAverage(movie.getVoteAverage());
         movieSearchResDto.setMainEmotion(mainEmotion);
         movieSearchResDto.setMainEmotionValue(mainEmotionValue);
         movieSearchResDto.setRatingAvg(rounded);
@@ -492,7 +484,6 @@ public class MovieService {
         dto.setOverview(movie.getOverview());
         dto.setPosterPath(movie.getPosterPath());
         dto.setBackDropPath(movie.getBackdropPath());
-        dto.setVoteAverage(movie.getVoteAverage());
         dto.setVoteCount(movie.getVoteCount());
         dto.setReleaseDate(movie.getReleaseDate());
         dto.setOriginalLanguage(movie.getOriginalLanguage());
@@ -536,7 +527,6 @@ public class MovieService {
             dto.setId(movie.getId());
             dto.setTitle(movie.getTitle());
             dto.setPosterPath(movie.getPosterPath());
-            dto.setVoteAverage(movie.getVoteAverage());
             dto.setReleaseDate(movie.getReleaseDate());
             dto.setMainEmotion(mainEmotion);
             dto.setMainEmotionValue(mainEmotionValue);
@@ -577,7 +567,6 @@ public class MovieService {
             resDto.setId(movie.getId());
             resDto.setTitle(movie.getTitle());
             resDto.setPosterPath(movie.getPosterPath());
-            resDto.setVoteAverage(movie.getVoteAverage());
             resDto.setReleaseDate(movie.getReleaseDate());
             resDto.setMainEmotion(mainEmotion);
             resDto.setMainEmotionValue(mainEmotionValue);
@@ -623,7 +612,6 @@ public class MovieService {
                     .id(movie.getId())
                     .posterPath(movie.getPosterPath())
                     .title(movie.getTitle())
-                    .voteAverage(movie.getVoteAverage())
                     .mainEmotion(mainEmotion)
                     .mainEmotionValue(mainEmotionValue)
                     .ratingAvg(rounded)

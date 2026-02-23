@@ -186,7 +186,6 @@ public class MatchService {
                     .id(movie.getId())
                     .title(movie.getTitle())
                     .posterPath(movie.getPosterPath())
-                    .voteAverage(movie.getVoteAverage())
                 //     .emotion(emotionDto)
                     .ratingAvg(rounded)
                     .build();
@@ -228,7 +227,6 @@ public class MatchService {
                     .id(movie.getId())
                     .title(movie.getTitle())
                     .posterPath(movie.getPosterPath())
-                    .voteAverage(movie.getVoteAverage())
                     .ratingAvg(rounded)
                 //     .emotion(emotionDto)
                     .build();

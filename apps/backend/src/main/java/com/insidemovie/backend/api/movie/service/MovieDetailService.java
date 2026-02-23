@@ -83,7 +83,6 @@ public class MovieDetailService {
         dto.setOverview(movie.getOverview());
         dto.setPosterPath(movie.getPosterPath());
         dto.setBackdropPath(movie.getBackdropPath());
-        dto.setVoteAverage(movie.getVoteAverage());
         dto.setOriginalLanguage(movie.getOriginalLanguage());
         dto.setIsLike(isLike);
         dto.setGenre(genreNames);
