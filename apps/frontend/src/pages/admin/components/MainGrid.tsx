@@ -12,7 +12,7 @@ import StatCard, { type StatCardProps } from "./StatCard";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../../api/axiosInstance";
 import type { filteredCumulativeData } from "../../../types/dashboardData";
 
 export default function MainGrid() {
@@ -24,19 +24,10 @@ export default function MainGrid() {
     const [dashboardState, setDashboardState] =
         useState<filteredCumulativeData | null>(null);
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-        // console.log("토큰 : ", token);
         const fetchData = async () => {
             try {
-                const res = await axios.get(
-                    "/api/v1/admin/dashboard",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    },
-                );
-                const allData = res.data.data;
+                const res = await axios.get("/api/v1/admin/dashboard");
+                const allData = res.data;
                 if (!allData) {
                     console.error("allData 없음");
                     return;

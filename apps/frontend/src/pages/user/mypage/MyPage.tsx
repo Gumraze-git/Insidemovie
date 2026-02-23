@@ -20,9 +20,10 @@ import angryImg from "@assets/character/angry.png";
 import fearImg from "@assets/character/fear.png";
 import disgustImg from "@assets/character/disgust.png";
 import bingdbongImg from "@assets/character/bingbong.png";
+import { getProblemMessage } from "../../../utils/problemDetail";
 
 interface UserInfo {
-    memberId: number;
+    userId: number;
     email: string;
     nickname: string;
     reportCount: number;
@@ -90,8 +91,8 @@ const MyPage: React.FC = () => {
         memberApi()
             .profile()
             .then((res) => {
-                setUserInfo(res.data.data);
-                setEditedNickname(res.data.data.nickname);
+                setUserInfo(res.data);
+                setEditedNickname(res.data.nickname);
             })
             .catch((err) => {
                 console.error("Failed to load user info", err);
@@ -113,11 +114,11 @@ const MyPage: React.FC = () => {
                             memberApi()
                                 .getMyAverageEmotions()
                                 .then((res) => {
-                                    setJoyValue(res.data.data.joy);
-                                    setSadValue(res.data.data.sadness);
-                                    setAngryValue(res.data.data.anger);
-                                    setFearValue(res.data.data.fear);
-                                    setDisgustValue(res.data.data.disgust);
+                                    setJoyValue(res.data.joy);
+                                    setSadValue(res.data.sadness);
+                                    setAngryValue(res.data.anger);
+                                    setFearValue(res.data.fear);
+                                    setDisgustValue(res.data.disgust);
                                     setIsEmotionModalOpen(true);
                                 });
                         }}
@@ -372,24 +373,12 @@ const MyPage: React.FC = () => {
                 showCancel={true}
                 onCancel={() => setIsEmotionModalOpen(false)}
                 onConfirm={async () => {
-                    const emotionMap = {
-                        JOY: joyValue,
-                        SADNESS: sadValue,
-                        ANGER: angryValue,
-                        FEAR: fearValue,
-                        DISGUST: disgustValue,
-                    };
-                    const repEmotion = Object.entries(emotionMap).reduce(
-                        (a, b) => (b[1] > emotionMap[a] ? b[0] : a),
-                        "JOY",
-                    );
                     await memberApi().editEmotions({
                         joy: joyValue,
                         sadness: sadValue,
                         anger: angryValue,
                         fear: fearValue,
                         disgust: disgustValue,
-                        repEmotion,
                     });
                     setIsEmotionModalOpen(false);
                     window.location.reload();
@@ -433,8 +422,10 @@ const MyPage: React.FC = () => {
                             setIsPwdSuccessOpen(true);
                         } catch (err) {
                             setErrorMessage(
-                                err.response?.data?.message ||
+                                getProblemMessage(
+                                    err,
                                     "비밀번호 변경에 실패했습니다.",
+                                ),
                             );
                             setIsErrorOpen(true);
                             setIsConfirmOpen(false);
@@ -463,8 +454,10 @@ const MyPage: React.FC = () => {
                                 );
                             } catch (err) {
                                 setErrorMessage(
-                                    err.response?.data?.message ||
+                                    getProblemMessage(
+                                        err,
                                         "이미 사용중인 닉네임입니다.",
+                                    ),
                                 );
                                 setIsErrorOpen(true);
                             } finally {

@@ -11,8 +11,8 @@ interface Movie {
     posterPath: string;
     title: string;
     voteAverage: number;
-    mainEmotion: string;
-    emotionValue: number;
+    mainEmotion?: string;
+    emotionValue?: number;
     releaseDate: string;
     ratingAvg: number;
 }
@@ -25,8 +25,8 @@ interface Winner {
         posterPath: string;
         title: string;
         voteAverage: number;
-        mainEmotion: string;
-        emotionValue: number;
+        mainEmotion?: string;
+        emotionValue?: number;
         releaseDate: string;
         matchDate: string;
         ratingAvg: number;
@@ -40,8 +40,6 @@ const WeekMatch: React.FC = () => {
     // Selection & notification state
     const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    // Login status
-    const isLogin = Boolean(localStorage.getItem("accessToken"));
     // Error snackbar for duplicate vote
     const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
     const { getWeeklyMatchMovie, getPastMatchMovie, voteMatch } = matchApi();
@@ -50,7 +48,7 @@ const WeekMatch: React.FC = () => {
         (async () => {
             try {
                 const res = await getWeeklyMatchMovie();
-                setMovieList(res.data.data);
+                setMovieList(res.data);
             } catch (e) {
                 console.error("금주의 영화 대결 조회 에러: ", e);
             }
@@ -61,7 +59,7 @@ const WeekMatch: React.FC = () => {
         (async () => {
             try {
                 const res = await getPastMatchMovie();
-                setPastWinners(res.data.data);
+                setPastWinners(res.data);
             } catch (e) {
                 console.error("역대 우승 영화 조회 에러:", e);
             }
@@ -96,10 +94,13 @@ const WeekMatch: React.FC = () => {
                                                     }
                                                     posterName={poster.title}
                                                     emotionIcon={
-                                                        poster.mainEmotion
+                                                        (
+                                                            poster.mainEmotion ??
+                                                            "none"
+                                                        ).toLowerCase()
                                                     }
                                                     emotionValue={
-                                                        poster.emotionValue
+                                                        poster.emotionValue ?? 0
                                                     }
                                                     starValue={
                                                         poster.voteAverage
@@ -140,10 +141,6 @@ const WeekMatch: React.FC = () => {
                                 }
                                 disabled={!selectedMovieId}
                                 onClick={async () => {
-                                    if (!isLogin) {
-                                        navigate("/login");
-                                        return;
-                                    }
                                     if (selectedMovieId) {
                                         try {
                                             await voteMatch({
@@ -152,6 +149,13 @@ const WeekMatch: React.FC = () => {
                                             setSnackbarOpen(true);
                                         } catch (e) {
                                             console.error("투표 에러:", e);
+                                            if (
+                                                e.response?.status === 401 ||
+                                                e.response?.status === 403
+                                            ) {
+                                                navigate("/login");
+                                                return;
+                                            }
                                             setErrorSnackbarOpen(true);
                                         }
                                     }
@@ -175,10 +179,13 @@ const WeekMatch: React.FC = () => {
                                             posterImg={movie.movie.posterPath}
                                             posterName={movie.movie.title}
                                             emotionIcon={
-                                                movie.movie.mainEmotion
+                                                (
+                                                    movie.movie.mainEmotion ??
+                                                    "none"
+                                                ).toLowerCase()
                                             }
                                             emotionValue={
-                                                movie.movie.emotionValue
+                                                movie.movie.emotionValue ?? 0
                                             }
                                             starValue={movie.movie.voteAverage}
                                             winnerWeek={movie.matchDate}

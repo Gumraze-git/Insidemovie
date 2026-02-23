@@ -39,8 +39,8 @@ interface ReviewItemProps {
     modify?: boolean;
     myLike?: boolean;
     nickname: string;
-    memberId: string;
-    movieId: string;
+    userId: number;
+    movieId: number;
     profile: string;
     emotion: Emotion;
     isReported: boolean;
@@ -73,15 +73,10 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
     spoiler = false,
     createdAt,
     likeCount,
-    myReview = false,
     myLike = false,
     nickname,
-    memberId,
-    movieId,
     profile,
     emotion,
-    isReported,
-    isConcealed,
 }) => {
     // Guard repEmotion when emotion prop might be null
     const repEmotion = emotion?.repEmotion ?? "none";
@@ -124,8 +119,6 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
             setToastMessage("신고 중 오류가 발생했습니다");
         } finally {
             setIsReportDialogOpen(false);
-
-            setIsReportDialogOpen(false);
             setToastOpen(true);
         }
     };
@@ -133,7 +126,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
     const handleLikeToggle = async () => {
         try {
             if (liked) {
-                await reviewApi().likeReview({ reviewId });
+                await reviewApi().unlikeReview({ reviewId });
                 setLikeCountState((c) => c - 1);
             } else {
                 await reviewApi().likeReview({ reviewId });

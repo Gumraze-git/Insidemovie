@@ -16,8 +16,8 @@ interface Movie {
     posterPath: string;
     title: string;
     voteAverage: number;
-    mainEmotion: string;
-    emotionValue: number;
+    mainEmotion?: string;
+    emotionValue?: number;
     releaseDate: string;
     ratingAvg: number;
 }
@@ -30,8 +30,8 @@ interface Winner {
         posterPath: string;
         title: string;
         voteAverage: number;
-        mainEmotion: string;
-        emotionValue: number;
+        mainEmotion?: string;
+        emotionValue?: number;
         releaseDate: string;
         matchDate: string;
         ratingAvg: number;
@@ -47,7 +47,7 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
         (async () => {
             try {
                 const res = await matchApi().getWeeklyMatchMovie();
-                setMovieList(res.data.data);
+                setMovieList(res.data);
             } catch (e) {
                 console.error("금주의 영화 대결 조회 에러: ", e);
             }
@@ -58,7 +58,7 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
         (async () => {
             try {
                 const res = await matchApi().getPastMatchMovie();
-                setPastWinners(res.data.data);
+                setPastWinners(res.data);
             } catch (e) {
                 console.error("역대 우승 영화 조회 에러:", e);
             }
@@ -88,8 +88,8 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
                                         movieId={poster.id}
                                         posterImg={poster.posterPath}
                                         posterName={poster.title}
-                                        emotionIcon={poster.mainEmotion}
-                                        emotionValue={poster.emotionValue}
+                                        emotionIcon={(poster.mainEmotion ?? "none").toLowerCase()}
+                                        emotionValue={poster.emotionValue ?? 0}
                                         starValue={poster.voteAverage}
                                         ratingAvg={poster.ratingAvg}
                                     />
@@ -125,8 +125,8 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
                                     key={i}
                                     posterImg={movie.movie.posterPath}
                                     posterName={movie.movie.title}
-                                    emotionIcon={movie.movie.mainEmotion}
-                                    emotionValue={movie.movie.emotionValue}
+                                    emotionIcon={(movie.movie.mainEmotion ?? "none").toLowerCase()}
+                                    emotionValue={movie.movie.emotionValue ?? 0}
                                     starValue={movie.movie.voteAverage}
                                     ratingAvg={movie.movie.ratingAvg}
                                     winnerWeek={movie.matchDate}

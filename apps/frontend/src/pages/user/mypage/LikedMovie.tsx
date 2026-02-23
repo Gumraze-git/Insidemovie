@@ -36,7 +36,7 @@ const LikedMovie: React.FC = () => {
                     page,
                     pageSize,
                 });
-                const { content, totalPages: tp } = res.data.data;
+                const { content, totalPages: tp } = res.data;
                 setTotalPages(tp);
                 const lastFlag = page >= tp - 1;
                 setIsLastPage(lastFlag);

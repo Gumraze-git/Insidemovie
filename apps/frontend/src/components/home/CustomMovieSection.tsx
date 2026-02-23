@@ -57,7 +57,7 @@ const CustomMovieSection: React.FC<CustomMovieSectionProps> = ({
                     fear: 50,
                     disgust: 50,
                 });
-                setRecommendList(res.data.data);
+                setRecommendList(res.data);
                 setIsLoading(false);
             } catch (e) {
                 console.error("맞춤 영화 추천 에러!! : ", e);
@@ -92,8 +92,8 @@ const CustomMovieSection: React.FC<CustomMovieSectionProps> = ({
             console.log(
                 `requestData: joy - ${joyNorm}, sad - ${sadNorm}, angry - ${angryNorm}, fear - ${fearNorm}, disgust - ${disgustNorm}`,
             );
-            setRecommendList(res.data.data);
-            console.log(res.data.data);
+            setRecommendList(res.data);
+            console.log(res.data);
         } catch (e) {
             console.error("맞춤 영화 추천 에러!! : ", e);
             setRecommendList([]);

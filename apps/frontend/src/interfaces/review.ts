@@ -9,8 +9,8 @@ export interface Review {
     modify?: boolean;
     myLike?: boolean;
     nickname: string;
-    memberId: string;
-    movieId: string;
+    userId: number;
+    movieId: number;
     memberEmotion: string;
     emotion: Emotion;
     isReported: boolean;

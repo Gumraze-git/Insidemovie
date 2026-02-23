@@ -33,8 +33,8 @@ interface MyReviewItemProps {
     modify?: boolean;
     myLike?: boolean;
     nickname: string;
-    memberId: string;
-    movieId: string;
+    userId: number;
+    movieId: number;
     profile: string;
     emotion: Emotion;
     isReported: boolean;
@@ -56,19 +56,12 @@ const MyReviewItem: React.FC<MyReviewItemProps> = ({
     reviewId,
     content,
     rating,
-    spoiler = false,
     createdAt,
     likeCount,
-    myReview = false,
-    modify = false,
-    myLike = false,
     nickname,
-    memberId,
     movieId,
     profile,
     emotion,
-    isReported,
-    isConcealed,
     isMypage = false,
 }) => {
     const repEmotion = emotion?.repEmotion ?? "none";

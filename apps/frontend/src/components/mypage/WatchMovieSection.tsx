@@ -54,7 +54,7 @@ const WatchMovieSection: React.FC<WatchMovieSectionProps> = ({
                     page: 0,
                     pageSize: 10,
                 });
-                setMovieList(res.data.data.content);
+                setMovieList(res.data.content);
             } catch (e) {
                 console.error("맞춤 영화 조회 에러!! : ", e);
             }
