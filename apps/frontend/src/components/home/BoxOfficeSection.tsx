@@ -67,7 +67,6 @@ const BoxOfficeSection: React.FC<CustomBoxOfficeSectionProps> = ({
                                       audiAcc={movie.base.audiAcc}
                                       mainEmotion={movie.mainEmotion.toLowerCase()}
                                       mainEmotionValue={movie.mainEmotionValue}
-                                      voteAverage={movie.voteAverage}
                                       ratingAvg={movie.ratingAvg}
                                   />
                               ))}
@@ -98,7 +97,6 @@ const BoxOfficeSection: React.FC<CustomBoxOfficeSectionProps> = ({
                                       audiAcc={movie.base.audiAcc}
                                       mainEmotion={movie.mainEmotion.toLowerCase()}
                                       mainEmotionValue={movie.mainEmotionValue}
-                                      voteAverage={movie.voteAverage}
                                       ratingAvg={movie.ratingAvg}
                                   />
                               ))}

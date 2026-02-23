@@ -6,7 +6,6 @@ interface WinnerItemProps {
     posterName: string;
     emotionIcon: string;
     emotionValue: number;
-    starValue: number;
     ratingAvg: number;
     winnerWeek: string;
     onClick?: () => void;

@@ -46,7 +46,6 @@ const BoxOfficeMovie: React.FC = () => {
                                 audiAcc={movie.base.audiAcc}
                                 mainEmotion={movie.mainEmotion.toLowerCase()}
                                 mainEmotionValue={movie.mainEmotionValue}
-                                voteAverage={movie.voteAverage}
                                 ratingAvg={movie.ratingAvg}
                             />
                         ))}
@@ -68,7 +67,6 @@ const BoxOfficeMovie: React.FC = () => {
                                 audiAcc={movie.base.audiAcc}
                                 mainEmotion={movie.mainEmotion.toLowerCase()}
                                 mainEmotionValue={movie.mainEmotionValue}
-                                voteAverage={movie.voteAverage}
                                 ratingAvg={movie.ratingAvg}
                             />
                         ))}

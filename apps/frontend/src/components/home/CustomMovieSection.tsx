@@ -13,7 +13,6 @@ interface Movie {
     movieId: number;
     title: string;
     posterPath: string;
-    voteAverage: number;
     dominantEmotion: string;
     dominantEmotionRatio: number;
     ratingAvg: number;
@@ -129,7 +128,6 @@ const CustomMovieSection: React.FC<CustomMovieSectionProps> = ({
                                       emotionValue={
                                           movie.dominantEmotionRatio || 0
                                       }
-                                      starValue={movie.voteAverage}
                                       ratingAvg={movie.ratingAvg}
                                   />
                               ))}

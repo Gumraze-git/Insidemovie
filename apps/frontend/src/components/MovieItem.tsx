@@ -16,7 +16,6 @@ interface MovieItemProps {
     emotionIcon: string;
     emotionValue: number;
     ratingAvg: number;
-    starValue: number;
     className?: string;
 }
 

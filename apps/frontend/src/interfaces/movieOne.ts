@@ -4,7 +4,6 @@ export interface MovieOne {
     overview: string;
     posterPath: string;
     backdropPath: string;
-    voteAverage: number;
     originalLanguage: string;
     isLike: boolean | null;
     genre: string[];

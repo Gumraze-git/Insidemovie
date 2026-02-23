@@ -21,7 +21,6 @@ interface BoxOfficeItemProps {
     audiAcc: string;
     mainEmotion: string;
     mainEmotionValue: number;
-    voteAverage: number;
     ratingAvg: number;
 }
 
