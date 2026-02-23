@@ -27,7 +27,7 @@ public class ReviewResponseDTO {
     private String nickname;
     private String memberEmotion;
 
-    private Long memberId;  // 작성자 ID
+    private Long userId;  // 작성자 ID
     private Long movieId;
 
     private EmotionDTO emotion; // 감정 상태 DTO

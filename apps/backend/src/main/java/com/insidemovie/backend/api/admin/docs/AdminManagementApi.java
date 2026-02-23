@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 @ApiCommonErrorResponses
 public interface AdminManagementApi {
 
-    @Operation(summary = "Get member list")
+    @Operation(summary = "Get user list")
     @ApiResponse(responseCode = "200", description = "OK")
-    ResponseEntity<PageResult<AdminMemberDTO>> getMembers(
+    ResponseEntity<PageResult<AdminMemberDTO>> getUsers(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     );
 
-    @Operation(summary = "Update member banned status")
+    @Operation(summary = "Update user banned status")
     @ApiResponse(responseCode = "200", description = "OK")
-    ResponseEntity<Void> updateMemberStatus(
-            @PathVariable Long memberId,
+    ResponseEntity<Void> updateUserStatus(
+            @PathVariable Long userId,
             @Valid @RequestBody AdminMemberStatusUpdateRequest request
     );
 
@@ -55,4 +55,3 @@ public interface AdminManagementApi {
     @ApiResponse(responseCode = "200", description = "OK")
     ResponseEntity<AdminDashboardDTO> getDashboard();
 }
-

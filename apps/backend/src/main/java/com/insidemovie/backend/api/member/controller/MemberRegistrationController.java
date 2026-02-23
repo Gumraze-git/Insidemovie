@@ -18,17 +18,17 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/members")
+@RequestMapping("/api/v1/users")
 public class MemberRegistrationController implements MemberRegistrationApi {
     private final MemberRegistrationService memberRegistrationService;
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> signup(@Valid @RequestBody MemberSignupRequestDto request) {
         Map<String, Object> result = memberRegistrationService.signup(request);
-        Long memberId = ((Number) result.get("memberId")).longValue();
+        Long userId = ((Number) result.get("userId")).longValue();
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(memberId)
+                .buildAndExpand(userId)
                 .toUri();
         return ResponseEntity.created(location).body(result);
     }
@@ -39,9 +39,9 @@ public class MemberRegistrationController implements MemberRegistrationApi {
                 request.getAccessToken(),
                 request.getNickname()
         );
-        Long memberId = ((Number) result.get("memberId")).longValue();
-        URI location = ServletUriComponentsBuilder.fromPath("/api/v1/members/{id}")
-                .buildAndExpand(memberId)
+        Long userId = ((Number) result.get("userId")).longValue();
+        URI location = ServletUriComponentsBuilder.fromPath("/api/v1/users/{id}")
+                .buildAndExpand(userId)
                 .toUri();
         return ResponseEntity.created(location).body(result);
     }

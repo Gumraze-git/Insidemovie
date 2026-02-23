@@ -8,8 +8,8 @@ import lombok.Data;
 
 @Data
 public class MemberEmotionSummaryRequestDTO {
-    @JsonProperty("memberId")
-    private Long memberId;
+    @JsonProperty("userId")
+    private Long userId;
 
     @NotNull @Min(0) @Max(100)
     private Float joy;

@@ -61,16 +61,16 @@ public class AdminService {
 
     // 회원 정지
     @Transactional
-    public void banMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public void banMember(Long userId) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
         member.setBanned(true);  // 정지 처리
     }
 
     // 회원 정지 해제
     @Transactional
-    public void unbanMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public void unbanMember(Long userId) {
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MEMBERID_EXCEPTION.getMessage()));
         member.setBanned(false); // 정지 해제
     }

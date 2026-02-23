@@ -44,13 +44,13 @@ public class SecurityConfig {
     };
 
     private static final String[] PUBLIC_POST_ENDPOINTS = {
-            "/api/v1/members",
-            "/api/v1/members/social/kakao",
+            "/api/v1/users",
+            "/api/v1/users/social/kakao",
             "/api/v1/auth/sessions",
             "/api/v1/auth/sessions/refresh",
             "/api/v1/auth/providers/kakao/token-exchanges",
             "/api/v1/auth/providers/kakao/sessions",
-            "/api/v1/members/*/emotion-summary",
+            "/api/v1/users/*/emotion-summary",
             "/api/v1/movie-recommendations/by-emotion",
             "/api/v1/email-verifications",
             "/api/v1/email-verifications/confirm"
@@ -68,7 +68,7 @@ public class SecurityConfig {
             "/api/v1/matches/current",
             "/api/v1/matches/winners",
             "/api/v1/boxoffice/**",
-            "/api/v1/members/nickname-availability"
+            "/api/v1/users/nickname-availability"
     };
 
     private static final List<String> CORS_ALLOWED_ORIGINS = List.of(
