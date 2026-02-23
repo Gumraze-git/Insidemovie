@@ -24,6 +24,23 @@ concurrency:
 jobs:
   backend-build-test:
     runs-on: ubuntu-latest
+    env:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:insidemovie_ci;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      JWT_SECRET: ci-secret-key-ci-secret-key-ci-secret-key-ci
+      JWT_ACCESS_EXP_MS: "3600000"
+      JWT_REFRESH_EXP_MS: "1209600000"
+      EMAIL_USERNAME: ci@example.com
+      EMAIL_PASSWORD: ci-password
+      KAKAO_CLIENT_ID: ci-kakao-id
+      KAKAO_CLIENT_SECRET: ci-kakao-secret
+      TMDB_API_KEY: ci-tmdb-key
+      KOBIS_API_KEY: ci-kobis-key
     defaults:
       run:
         working-directory: apps/backend
