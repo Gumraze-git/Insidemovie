@@ -8,6 +8,7 @@ import Logo from "@assets/insidemovie_white.png";
 import KakaoIcon from "@assets/kakao.png";
 import { memberApi } from "../../../api/memberApi";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
+import { getProblemMessage } from "../../../utils/problemDetail";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -27,19 +28,16 @@ const Login: React.FC = () => {
     const handleLogin = async () => {
         try {
             const response = await memberApi().login({ email, password });
-            const { accessToken, refreshToken, authority } = response.data.data;
+            const role =
+                response.data.authority ??
+                (await memberApi().profile()).data.authority;
 
-            if (accessToken && refreshToken) {
-                localStorage.setItem("accessToken", accessToken);
-                localStorage.setItem("refreshToken", refreshToken);
-                localStorage.setItem("authority", authority);
+            window.dispatchEvent(new Event("authChanged"));
 
-                const target = authority === "ROLE_ADMIN" ? "/admin" : "/";
-                navigate(target, { replace: true });
-                window.location.replace(target);
-            } else throw new Error("토큰이 존재하지 않습니다.");
+            const target = role === "ROLE_ADMIN" ? "/admin" : "/";
+            navigate(target, { replace: true });
         } catch (error) {
-            setMessage(error.response?.data?.message || error);
+            setMessage(getProblemMessage(error, "로그인에 실패했습니다."));
             setIsDialogOpen(true);
         }
     };
@@ -50,7 +48,7 @@ const Login: React.FC = () => {
             const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
             window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
         } catch (error) {
-            alert(error.response?.data?.message);
+            setMessage(getProblemMessage(error, "카카오 로그인 요청에 실패했습니다."));
             setIsDialogOpen(true);
         }
     };

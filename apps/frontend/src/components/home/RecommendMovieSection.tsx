@@ -85,7 +85,7 @@ const RecommendMovieSection: React.FC<RecommendMovieSectionProps> = ({
                     page: 0,
                     pageSize: 10,
                 });
-                setMovieList(res.data.data.content);
+                setMovieList(res.data.content);
             } catch (e) {
                 console.error("장르별 영화 조회 에러!! : ", e);
                 setMovieList([]);

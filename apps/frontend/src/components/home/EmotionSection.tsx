@@ -53,7 +53,7 @@ const EmotionSection: React.FC<CharacterCarouselSectionProps> = ({
         const loadEmotions = async () => {
             try {
                 const res = await memberApi().getMyAverageEmotions();
-                const data = res.data.data;
+                const data = res.data;
                 // API returns decimals between 0 and 1
                 const joy100 = Math.round(data.joy);
                 const sad100 = Math.round(data.sadness);

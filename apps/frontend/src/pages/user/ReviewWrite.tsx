@@ -55,11 +55,11 @@ const ReviewWrite: React.FC = () => {
                 const detailRes = await movieApi().getMovieDetail({
                     movieId: movieIdNumber,
                 });
-                setMovieInfo(detailRes.data.data);
+                setMovieInfo(detailRes.data);
                 const myRes = await reviewApi().getMyReview({
                     movieId: movieIdNumber,
                 });
-                const myData = myRes.data.data;
+                const myData = myRes.data;
                 setIsEditMode(true);
                 setReviewId(myData.reviewId);
                 setContent(myData.content);
@@ -72,7 +72,7 @@ const ReviewWrite: React.FC = () => {
                 // no existing review
             }
         })();
-    }, [movieId]);
+    }, [movieId, movieIdNumber]);
 
     // 제출
     const handleSubmit = async () => {

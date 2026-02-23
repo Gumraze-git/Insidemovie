@@ -2,7 +2,7 @@ import * as React from "react";
 import Chip from "@mui/material/Chip";
 import type { GridColDef } from "@mui/x-data-grid";
 import type { ReportStatus, ReportType } from "../../../../types/reportStatus";
-import axios from "axios";
+import axios from "../../../../api/axiosInstance";
 import type { JSX } from "react";
 
 export const statusDisplayMap: Record<
@@ -108,25 +108,10 @@ export const renderButtonSimple = (
     handleStatusChange: (id: number, newStatus: ReportStatus) => void,
 ) => {
     const handleClick = async (newStatus: ReportStatus) => {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-            console.error("토큰이 없습니다.");
-            return;
-        }
-        let statusParam = "";
-        if (newStatus === "REJECTED") {
-            statusParam = "reject";
-        } else if (newStatus === "ACCEPTED") {
-            statusParam = "accept";
-        } else if (newStatus === "UNPROCESSED") {
-            statusParam = "unprocessed";
-        }
-
         try {
             await axios.patch(
-                `/api/v1/admin/reports/${reportId}/${statusParam}`,
+                `/api/v1/admin/reports/${reportId}`,
                 { status: newStatus },
-                { headers: { Authorization: `Bearer ${token}` } },
             );
             handleStatusChange(reportId, newStatus);
         } catch (err) {
@@ -171,29 +156,17 @@ export const renderButtonSimple = (
     }
 };
 export const renderMemberButton = (
-    memberId: number,
+    userId: number,
     currentStatus: boolean,
     handleBannedChange: (id: number, newStatus: boolean) => void,
 ): JSX.Element => {
-    const handleMemberClick = async (newStatus: boolean) => {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-            console.error("토큰이 없습니다.");
-            return;
-        }
-        let statusParam = "";
-        if (newStatus === true) {
-            statusParam = "ban";
-        } else if (newStatus === false) {
-            statusParam = "unban";
-        }
+    const handleUserClick = async (newStatus: boolean) => {
         try {
             await axios.patch(
-                `/api/v1/admin/members/${memberId}/${statusParam}`,
+                `/api/v1/admin/users/${userId}`,
                 { banned: newStatus },
-                { headers: { Authorization: `Bearer ${token}` } },
             );
-            handleBannedChange(memberId, newStatus);
+            handleBannedChange(userId, newStatus);
         } catch (err) {
             console.error("상태 변경 실패 : ", err);
         }
@@ -205,7 +178,7 @@ export const renderMemberButton = (
             variant="outlined"
             size="small"
             clickable
-            onClick={() => handleMemberClick(!currentStatus)}
+            onClick={() => handleUserClick(!currentStatus)}
         />
     );
 };
@@ -362,7 +335,7 @@ export function getColumns(
 }
 
 export function getMemberColumns(
-    handleStatus: (memberId: number, newStatus: boolean) => void,
+    handleStatus: (userId: number, newStatus: boolean) => void,
 ): GridColDef[] {
     return [
         {

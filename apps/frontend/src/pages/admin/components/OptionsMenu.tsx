@@ -34,10 +34,7 @@ export default function OptionsMenu() {
     const handleLogout = async () => {
         try {
             await memberApi().logout();
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("authority");
-
+            window.dispatchEvent(new Event("authChanged"));
             window.location.replace("/");
         } catch (err) {
             console.error("Logout failed", err);
@@ -72,11 +69,6 @@ export default function OptionsMenu() {
                     },
                 }}
             >
-                {/*<MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose}>Add another account</MenuItem>
-                <Divider />*/}
                 <MenuItem onClick={handleLogout}>
                     <ListItemText>로그아웃</ListItemText>
                     <ListItemIcon>

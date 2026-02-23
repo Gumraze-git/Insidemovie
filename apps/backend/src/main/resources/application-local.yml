@@ -26,3 +26,8 @@ spring:
   fastapi:
     base-url: "http://localhost:8000"
     url: "http://localhost:8000/recommend/emotion"
+
+jwt:
+  cookie:
+    same-site: Lax
+    secure: false

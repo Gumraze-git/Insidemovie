@@ -21,7 +21,7 @@ const MyReviewSection: React.FC<ReviewSectionProps> = ({ className = "" }) => {
                     page: 0,
                     pageSize: 3,
                 });
-                const { content } = res.data.data;
+                const { content } = res.data;
                 setReviewList(content);
             } catch (e) {
                 console.error("맞춤 영화 조회 에러!! : ", e);
@@ -51,7 +51,7 @@ const MyReviewSection: React.FC<ReviewSectionProps> = ({ className = "" }) => {
                         modify={review.modify}
                         myLike={review.myLike}
                         nickname={review.nickname}
-                        memberId={review.memberId}
+                        userId={review.userId}
                         movieId={review.movieId}
                         profile={review.memberEmotion}
                         emotion={review.emotion}

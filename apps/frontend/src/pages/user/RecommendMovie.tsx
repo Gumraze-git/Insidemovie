@@ -49,7 +49,6 @@ const RecommendMovie: React.FC = () => {
     const [sortType, setSortType] = useState<"rating" | "latest">("rating");
 
     const [isLoading, setIsLoading] = useState(false);
-    const [isLastPage, setIsLastPage] = useState(false);
     const observer = useRef<IntersectionObserver | null>(null);
 
     useEffect(() => {
@@ -72,7 +71,7 @@ const RecommendMovie: React.FC = () => {
                     content,
                     totalPages: tp,
                     totalElements: te,
-                } = res.data.data;
+                } = res.data;
                 if (isMobile) {
                     setMovieList((prev) =>
                         page === 0 ? content : [...prev, ...content],
@@ -82,7 +81,6 @@ const RecommendMovie: React.FC = () => {
                 }
                 setTotalPages(tp);
                 setTotalElements(te);
-                setIsLastPage(page >= tp - 1);
             } catch (e) {
                 console.error("장르별 조회 에러: ", e);
                 setMovieList([]);

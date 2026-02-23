@@ -59,7 +59,7 @@ const Search: React.FC = () => {
                     content,
                     totalPages: tp,
                     totalElements: te,
-                } = res.data.data;
+                } = res.data;
                 setTotalPages(tp);
                 setTotalElements(te);
                 setIsLastPage(page >= tp - 1);

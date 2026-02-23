@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface EmotionSliderProps {
     name: string; // 감정 이름 (예: "기쁨")
@@ -22,23 +22,30 @@ const EmotionSlider: React.FC<EmotionSliderProps> = ({
     const [isDragging, setIsDragging] = useState(false);
     const currentValueRef = useRef<number>(value);
 
-    const handleMouseMove = (e: MouseEvent) => {
-        if (!boxRef.current) return;
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (!boxRef.current) return;
 
-        const rect = boxRef.current.getBoundingClientRect();
-        const offsetY = e.clientY - rect.top;
-        const newValue = Math.max(
-            0,
-            Math.min(100, ((rect.height - offsetY) / rect.height) * 100),
-        );
-        // Round to nearest multiple of 5
-        const stepValue = newValue;
-        // Only emit when changed
-        if (stepValue !== value) {
-            onChange(stepValue);
-        }
-        currentValueRef.current = stepValue;
-    };
+            const rect = boxRef.current.getBoundingClientRect();
+            const offsetY = e.clientY - rect.top;
+            const newValue = Math.max(
+                0,
+                Math.min(100, ((rect.height - offsetY) / rect.height) * 100),
+            );
+            // Round to nearest multiple of 5
+            const stepValue = newValue;
+            // Only emit when changed
+            if (stepValue !== value) {
+                onChange(stepValue);
+            }
+            currentValueRef.current = stepValue;
+        },
+        [onChange, value],
+    );
+
+    useEffect(() => {
+        currentValueRef.current = value;
+    }, [value]);
 
     useEffect(() => {
         const handleMouseUp = () => {
@@ -55,7 +62,7 @@ const EmotionSlider: React.FC<EmotionSliderProps> = ({
             window.removeEventListener("mouseup", handleMouseUp);
             window.removeEventListener("mousemove", handleMouseMoveGlobal);
         };
-    }, [isDragging, onChangeEnd]);
+    }, [handleMouseMove, isDragging, onChangeEnd]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         setIsDragging(true);

@@ -23,10 +23,7 @@ export default function SideMenuMobile({
     const handleLogout = async () => {
         try {
             await memberApi().logout();
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("authority");
-
+            window.dispatchEvent(new Event("authChanged"));
             window.location.replace("/");
         } catch (err) {
             console.error("Logout failed", err);
@@ -78,7 +75,6 @@ export default function SideMenuMobile({
                     <MenuContent />
                     <Divider />
                 </Stack>
-                {/* <CardAlert /> */}
                 <Stack sx={{ p: 2 }}>
                     <Button
                         variant="outlined"

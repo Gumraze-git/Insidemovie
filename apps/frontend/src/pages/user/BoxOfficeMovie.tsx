@@ -12,10 +12,10 @@ const BoxOfficeMovie: React.FC = () => {
         (async () => {
             try {
                 const resDaily = await boxofficeApi().getDailyBoxOffice();
-                setDailyMovieList(resDaily.data.data.items);
+                setDailyMovieList(resDaily.data.items);
 
                 const resWeekly = await boxofficeApi().getWeeklyBoxOffice();
-                setWeeklyMovieList(resWeekly.data.data.items);
+                setWeeklyMovieList(resWeekly.data.items);
             } catch (e) {
                 console.error("박스오피스 조회 에러!! : ", e);
             }

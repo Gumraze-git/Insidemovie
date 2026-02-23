@@ -3,7 +3,7 @@ import { DataGrid, type GridRowsProp } from "@mui/x-data-grid";
 import { getMemberColumns } from "../internals/data/gridData";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../../api/axiosInstance";
 import type { Member } from "../../../types/member";
 import { useNavigate } from "react-router-dom";
 import { mapMembersToRows } from "../../../services/mapMembersToRows";
@@ -19,19 +19,10 @@ export default function MemberBoard() {
     const appliedMode = mode === "system" ? systemMode : mode;
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-        // console.log("토큰 : ", token);
         const fetchData = async () => {
             try {
-                const res = await axios.get(
-                    "/api/v1/admin/members?page=0&size=20",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    },
-                );
-                const allData = res.data.data.content;
+                const res = await axios.get("/api/v1/admin/users?page=0&size=20");
+                const allData = res.data.content;
                 if (!allData) {
                     console.error("allData 없음");
                     return;
@@ -44,15 +35,15 @@ export default function MemberBoard() {
             }
         };
         fetchData();
-    }, []);
+    }, [navigate]);
     const rows: GridRowsProp = mapMembersToRows(memberList);
     if (!memberList) {
         return [];
     }
 
-    const handleBannedChange = (memberId: number, newStatus: boolean) => {
+    const handleBannedChange = (userId: number, newStatus: boolean) => {
         const updated = memberList.map((r) =>
-            r.id === memberId ? { ...r, banned: newStatus } : r,
+            r.id === userId ? { ...r, banned: newStatus } : r,
         );
         setMemberList(updated ?? []);
     };

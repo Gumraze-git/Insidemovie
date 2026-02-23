@@ -10,6 +10,7 @@ import Logo from "@assets/insidemovie_white.png";
 import { movieApi } from "../../../api/movieApi";
 import { memberApi } from "../../../api/memberApi";
 import { ConfirmDialog } from "../../../components/ConfirmDialog";
+import { getProblemMessage } from "../../../utils/problemDetail";
 
 import joyIcon from "@assets/character/joy_icon.png";
 import sadIcon from "@assets/character/sad_icon.png";
@@ -178,7 +179,7 @@ const Signup: React.FC = () => {
                 };
 
                 responses.forEach((res) => {
-                    const d = res.data.data;
+                    const d = res.data;
                     totals.joy += Number(d.joy) || 0;
                     totals.anger += Number(d.anger) || 0;
                     totals.sadness += Number(d.sadness) || 0;
@@ -214,12 +215,14 @@ const Signup: React.FC = () => {
         memberApi()
             .checkNickname({ nickname: value })
             .then((res) => {
-                const { duplicated } = res.data.data;
+                const { duplicated } = res.data;
                 if (duplicated) setNicknameError("이미 사용중인 닉네임입니다.");
                 else setNicknameError("");
             })
             .catch((error) => {
-                setNicknameError(error.response?.data?.message);
+                setNicknameError(
+                    getProblemMessage(error, "닉네임 검증에 실패했습니다."),
+                );
             });
     };
 
@@ -246,7 +249,7 @@ const Signup: React.FC = () => {
                         page: 0,
                         pageSize: 8,
                     });
-                    const mapped = res.data.data.results.map((m) => ({
+                    const mapped = res.data.results.map((m) => ({
                         id: m.id,
                         posterPath: m.poster_path,
                         title: m.title,
@@ -261,7 +264,7 @@ const Signup: React.FC = () => {
                         page,
                         pageSize: 10,
                     });
-                    const { content, last } = res.data.data;
+                    const { content, last } = res.data;
                     setSearchResults((prev) =>
                         page === 0 ? content : [...prev, ...content],
                     );
@@ -297,11 +300,11 @@ const Signup: React.FC = () => {
                 accessToken,
                 nickname,
             });
-            const { memberId } = response.data.data;
+            const { userId } = response.data;
 
             // 2) 초기 감정 상태 등록
             await memberApi().registerEmotions({
-                memberId,
+                userId,
                 joy: emotionAverages.joy,
                 sadness: emotionAverages.sad,
                 anger: emotionAverages.angry,
@@ -315,9 +318,7 @@ const Signup: React.FC = () => {
             setIsDialogOpen(true);
         } catch (error) {
             setDialogTitle("회원가입 실패");
-            setMessage(
-                error.response?.data?.message || "회원가입에 실패했습니다.",
-            );
+            setMessage(getProblemMessage(error, "회원가입에 실패했습니다."));
             setDialogIsRedButton(true);
             setIsDialogOpen(true);
         }

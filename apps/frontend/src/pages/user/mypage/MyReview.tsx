@@ -24,7 +24,7 @@ const MyReview: React.FC = () => {
             setIsLoading(true);
             try {
                 const res = await memberApi().getMyReviews({ page, pageSize });
-                const { content, totalPages: tp } = res.data.data;
+                const { content, totalPages: tp } = res.data;
                 setTotalPages(tp);
                 const lastFlag = page >= tp - 1;
                 setIsLastPage(lastFlag);
@@ -95,7 +95,7 @@ const MyReview: React.FC = () => {
                                         modify={review.modify}
                                         myLike={review.myLike}
                                         nickname={review.nickname}
-                                        memberId={review.memberId}
+                                        userId={review.userId}
                                         movieId={review.movieId}
                                         profile={review.memberEmotion}
                                         emotion={review.emotion}

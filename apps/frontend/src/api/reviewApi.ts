@@ -1,7 +1,6 @@
 import axios from "./axiosInstance";
 
 export const reviewApi = () => {
-    // 리뷰 목록 조회
     const getReviewList = async ({ movieId, sort, page, size }) => {
         return await axios.get(`/api/v1/movies/${movieId}/reviews`, {
             params: {
@@ -13,17 +12,18 @@ export const reviewApi = () => {
         });
     };
 
-    // 내 리뷰 단건 조회
     const getMyReview = async ({ movieId }) => {
-        return await axios.get(`/api/v1/movies/${movieId}/reviews/my-review`);
+        return await axios.get(`/api/v1/movies/${movieId}/reviews/mine`);
     };
 
-    // 리뷰 좋아요 토글
     const likeReview = async ({ reviewId }) => {
-        return await axios.post(`/api/v1/reviews/${reviewId}/like`);
+        return await axios.put(`/api/v1/reviews/${reviewId}/likes/me`);
     };
 
-    // 리뷰 등록
+    const unlikeReview = async ({ reviewId }) => {
+        return await axios.delete(`/api/v1/reviews/${reviewId}/likes/me`);
+    };
+
     const createReview = async ({
         movieId,
         content,
@@ -39,7 +39,6 @@ export const reviewApi = () => {
         });
     };
 
-    // 리뷰 수정
     const modifyReview = async ({
         reviewId,
         content,
@@ -47,7 +46,7 @@ export const reviewApi = () => {
         spoiler,
         watchedAt,
     }) => {
-        return await axios.put(`/api/v1/reviews/${reviewId}`, {
+        return await axios.patch(`/api/v1/reviews/${reviewId}`, {
             content,
             rating,
             spoiler,
@@ -55,15 +54,13 @@ export const reviewApi = () => {
         });
     };
 
-    // 리뷰 삭제
     const deleteReview = async ({ reviewId }) => {
         return await axios.delete(`/api/v1/reviews/${reviewId}`);
     };
 
-    // 리뷰 신고
     const reportReview = async ({ reviewId, reason }) => {
-        return await axios.post(`/api/v1/report/${reviewId}`, null, {
-            params: { reason },
+        return await axios.post(`/api/v1/reviews/${reviewId}/reports`, {
+            reason,
         });
     };
 
@@ -71,6 +68,7 @@ export const reviewApi = () => {
         getReviewList,
         getMyReview,
         likeReview,
+        unlikeReview,
         createReview,
         modifyReview,
         deleteReview,

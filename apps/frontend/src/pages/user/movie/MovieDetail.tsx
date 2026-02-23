@@ -69,9 +69,6 @@ const MovieDetail: React.FC = () => {
         "POPULAR" | "LATEST" | "OLDEST"
     >("POPULAR");
 
-    // Determine login status based on stored access token
-    const isLogin = Boolean(localStorage.getItem("accessToken"));
-
     // Mobile infinite scroll / desktop pagination
     const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
     const [isLoading, setIsLoading] = useState(false);
@@ -85,18 +82,18 @@ const MovieDetail: React.FC = () => {
                 const detailRes = await movieApi().getMovieDetail({
                     movieId: movieIdNumber,
                 });
-                setMovieInfo(detailRes.data.data);
+                setMovieInfo(detailRes.data);
                 // 영화 감정 조회
                 const emotionRes = await movieApi().getMovieEmotions({
                     movieId: movieIdNumber,
                 });
-                setEmotionStats(emotionRes.data.data);
+                setEmotionStats(emotionRes.data);
                 // 내 리뷰 단건 조회
                 try {
                     const myRes = await reviewApi().getMyReview({
                         movieId: movieIdNumber,
                     });
-                    setMyReview(myRes.data.data);
+                    setMyReview(myRes.data);
                 } catch {
                     setMyReview(null);
                 } finally {
@@ -110,7 +107,7 @@ const MovieDetail: React.FC = () => {
                     page: reviewPage,
                     size: 10,
                 });
-                const { content, totalPages: tp, last } = listRes.data.data;
+                const { content, totalPages: tp, last } = listRes.data;
                 if (isMobile && reviewPage > 0) {
                     setReviewList((prev) => [...prev, ...content]);
                 } else {
@@ -160,7 +157,7 @@ const MovieDetail: React.FC = () => {
         if (!movieInfo) return;
         try {
             if (movieInfo.isLike) {
-                await movieApi().likeMovie({ movieId: movieIdNumber });
+                await movieApi().unlikeMovie({ movieId: movieIdNumber });
             } else {
                 await movieApi().likeMovie({ movieId: movieIdNumber });
             }
@@ -170,6 +167,9 @@ const MovieDetail: React.FC = () => {
             );
         } catch (e) {
             console.error("좋아요 토글 실패:", e);
+            if (e.response?.status === 401 || e.response?.status === 403) {
+                navigate("/login");
+            }
         }
     };
 
@@ -427,7 +427,7 @@ const MovieDetail: React.FC = () => {
                                 modify={myReview.modify}
                                 myLike={myReview.myLike}
                                 nickname={myReview.nickname}
-                                memberId={myReview.memberId}
+                                userId={myReview.userId}
                                 movieId={myReview.movieId}
                                 profile={myReview.memberEmotion}
                                 emotion={myReview.emotion}
@@ -440,13 +440,9 @@ const MovieDetail: React.FC = () => {
                             <div className="flex justify-center mt-10 p-10 rounded-3xl border border-white/20">
                                 <Button
                                     text="리뷰 작성 하기"
-                                    onClick={() => {
-                                        if (!isLogin) {
-                                            navigate("/login");
-                                            return;
-                                        }
-                                        navigate(`/review-write/${movieId}`);
-                                    }}
+                                    onClick={() =>
+                                        navigate(`/review-write/${movieId}`)
+                                    }
                                 />
                             </div>
                         ))}
@@ -497,7 +493,7 @@ const MovieDetail: React.FC = () => {
                                             myReview={review.myReview}
                                             myLike={review.myLike}
                                             nickname={review.nickname}
-                                            memberId={review.memberId}
+                                            userId={review.userId}
                                             movieId={review.movieId}
                                             profile={review.memberEmotion}
                                             emotion={review.emotion}
