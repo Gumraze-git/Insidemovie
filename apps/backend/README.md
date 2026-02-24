@@ -8,3 +8,11 @@
 
 - `make seed-movie-genres`
 - `make seed-movie-genres-dry-run`
+
+## movie 메타데이터 백필
+
+영화 상세의 포스터/배경/시놉시스 누락은 KMDb 연동으로 보강합니다.
+누락건만 대상으로 동작하며, 재실행해도 중복 업데이트 없이 안전하게 반복 가능합니다.
+
+- `make seed-movie-metadata`
+- `make seed-movie-metadata-dry-run`
