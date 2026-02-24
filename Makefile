@@ -9,7 +9,10 @@ DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 	restart-frontend restart-backend-spring restart-backend-ai \
 	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai \
 	seed-movie-genres seed-movie-genres-dry-run \
-	seed-movie-metadata seed-movie-metadata-dry-run
+	seed-movie-metadata seed-movie-metadata-dry-run \
+	data-backfill data-backfill-dry-run \
+	seed-reviews-ai seed-reviews-ai-dry-run \
+	seed-matches seed-matches-dry-run
 
 help:
 	@echo "사용 가능한 타겟:"
@@ -41,6 +44,12 @@ help:
 	@echo "  make seed-movie-genres-dry-run - DB 저장 없이 movie_genre 백필 dry-run 실행"
 	@echo "  make seed-movie-metadata       - KMDb 기반 영화 메타(포스터/시놉시스/배경) 누락 백필 실행"
 	@echo "  make seed-movie-metadata-dry-run - DB 저장 없이 영화 메타 누락 백필 dry-run 실행"
+	@echo "  make data-backfill            - 계정/영화/리뷰-AI/대결 데이터를 통합 증분 시드"
+	@echo "  make data-backfill-dry-run    - 통합 시드 dry-run"
+	@echo "  make seed-reviews-ai          - 일반계정 리뷰+AI 감정 데이터만 증분 시드"
+	@echo "  make seed-reviews-ai-dry-run  - 리뷰+AI 감정 데이터 dry-run"
+	@echo "  make seed-matches             - 영화 대결/대결 이력 데이터만 증분 시드"
+	@echo "  make seed-matches-dry-run     - 영화 대결/대결 이력 데이터 dry-run"
 
 prepare-model:
 	@./scripts/ensure-ai-model.sh
@@ -122,19 +131,87 @@ build-toolbox:
 seed-movie-genres:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=false
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=false
 
 seed-movie-genres-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=true
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=true
 
 seed-movie-metadata:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=false
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=false
 
 seed-movie-metadata-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=true
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=true
+
+data-backfill:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=false
+
+data-backfill-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=true
+
+seed-reviews-ai:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=false \
+		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-genres=false \
+		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-reviews=true \
+		--demo.data.backfill.include-matches=false
+
+seed-reviews-ai-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=true \
+		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-genres=false \
+		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-reviews=true \
+		--demo.data.backfill.include-matches=false
+
+seed-matches:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=false \
+		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-genres=false \
+		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-reviews=false \
+		--demo.data.backfill.include-matches=true
+
+seed-matches-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql ai
+	$(DC) run --rm --no-deps backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=true \
+		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-genres=false \
+		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-reviews=false \
+		--demo.data.backfill.include-matches=true

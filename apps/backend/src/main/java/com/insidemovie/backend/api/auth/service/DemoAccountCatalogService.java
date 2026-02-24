@@ -62,6 +62,18 @@ public class DemoAccountCatalogService {
         return accountDefinitions;
     }
 
+    public List<DemoAccountDefinition> getGeneralAccountDefinitions() {
+        return accountDefinitions.stream()
+                .filter(definition -> CATEGORY_GENERAL.equals(definition.category()))
+                .toList();
+    }
+
+    public List<DemoAccountDefinition> getOnboardingAccountDefinitions() {
+        return accountDefinitions.stream()
+                .filter(definition -> CATEGORY_ONBOARDING.equals(definition.category()))
+                .toList();
+    }
+
     public List<DemoAccountOptionResponse> getAccountOptions() {
         return accountDefinitions.stream()
                 .map(definition -> DemoAccountOptionResponse.builder()

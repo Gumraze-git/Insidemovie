@@ -38,6 +38,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 특정 회원이 작성한 리뷰 개수를 반환
     long countByMember(Member member);
 
+    @Query("SELECT r.movie.id FROM Review r WHERE r.member.id = :memberId")
+    List<Long> findMovieIdsByMemberId(@Param("memberId") Long memberId);
+
     // 리뷰 좋아요 수 증가
     @Modifying
     @Transactional
