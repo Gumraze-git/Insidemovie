@@ -4,6 +4,7 @@ import MovieItem from "../../components/MovieItem";
 import Tag from "../../components/Tag";
 import { Pagination } from "@mui/material";
 import { Select, MenuItem } from "@mui/material";
+import { getProblemMessage } from "../../utils/problemDetail";
 
 interface Movie {
     id: number;
@@ -47,13 +48,15 @@ const RecommendMovie: React.FC = () => {
     // Sort type: 'rating' for 평점순, 'latest' for 최신순
     const [sortType, setSortType] = useState<"rating" | "latest">("rating");
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const observer = useRef<IntersectionObserver | null>(null);
 
     useEffect(() => {
         const fetchByGenre = async () => {
             try {
                 setIsLoading(true);
+                setErrorMessage(null);
                 const res =
                     sortType === "rating"
                         ? await movieApi().getPopularMoviesByGenre({
@@ -83,6 +86,14 @@ const RecommendMovie: React.FC = () => {
             } catch (e) {
                 console.error("장르별 조회 에러: ", e);
                 setMovieList([]);
+                setTotalPages(0);
+                setTotalElements(0);
+                setErrorMessage(
+                    getProblemMessage(
+                        e,
+                        "추천 데이터 준비 중입니다. 잠시 후 다시 시도해 주세요.",
+                    ),
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -123,6 +134,7 @@ const RecommendMovie: React.FC = () => {
     const handleTagClick = (label: string) => {
         setSelectedTag(label);
         setPage(0);
+        setErrorMessage(null);
     };
 
     const handlePageChange = (
@@ -178,14 +190,28 @@ const RecommendMovie: React.FC = () => {
                             </Select>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4 mb-20 mx-5 md:mx-0">
-                            {movieList.length === 0
-                                ? Array.from({ length: 20 }).map((_, idx) => (
+                            {isLoading &&
+                                Array.from({ length: 20 }).map((_, idx) => (
                                       <div
                                           key={idx}
                                           className="w-[200px] h-[280px] mx-1 my-3 bg-gray-700 animate-pulse rounded-lg"
                                       />
-                                  ))
-                                : movieList.map((poster, idx) => (
+                                  ))}
+                            {!isLoading && errorMessage && (
+                                <div className="col-span-full rounded-xl border border-box_bg_white p-4 text-sm text-white">
+                                    {errorMessage}
+                                </div>
+                            )}
+                            {!isLoading &&
+                                !errorMessage &&
+                                movieList.length === 0 && (
+                                    <div className="col-span-full rounded-xl border border-box_bg_white p-4 text-sm text-white">
+                                        추천 데이터가 없습니다.
+                                    </div>
+                                )}
+                            {!isLoading &&
+                                !errorMessage &&
+                                movieList.map((poster, idx) => (
                                       <div
                                           key={poster.id}
                                           ref={
