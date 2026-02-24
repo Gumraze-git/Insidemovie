@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,6 +50,8 @@ public class MovieService {
     private final MovieEmotionSummaryRepository movieEmotionSummaryRepository;
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
+    private final MovieGenreBackfillService movieGenreBackfillService;
+    private final AtomicBoolean genreBackfillAttempted = new AtomicBoolean(false);
 
     /**
      * TMDB 연동 제거 이후 legacy scheduler 호환용 no-op 메서드.
@@ -253,82 +256,45 @@ public class MovieService {
     public PageResDto<MovieSearchResDto> getRecommendedMoviesByLatest(GenreType genreType, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<Movie> moviePage = movieRepository.findMoviesByGenreTypeOrderByReleaseDateDesc(genreType, pageable);
+        Page<Movie> moviePage;
+        if (isGenreDataEmpty()) {
+            triggerGenreBackfillOnce();
+        }
+
+        if (isGenreDataEmpty()) {
+            log.warn("[RecommendFallback] movie_genre is empty. Fallback to releaseDate sort.");
+            moviePage = movieRepository.findAllByOrderByReleaseDateDesc(pageable);
+        } else {
+            moviePage = movieRepository.findMoviesByGenreTypeOrderByReleaseDateDesc(genreType, pageable);
+        }
+
         if (moviePage.isEmpty()) {
             throw new NotFoundException("해당 장르의 영화가 없습니다: " + genreType.name());
         }
 
-        return new PageResDto<>(moviePage.map(movie -> {
-            MovieSearchResDto dto = new MovieSearchResDto();
-            EmotionAvgDTO avg = getMovieEmotionSummary(movie.getId());
-            EmotionType mainEmotion = avg.getRepEmotionType();
-
-            double mainEmotionValue = switch (mainEmotion) {
-                case JOY -> avg.getJoy();
-                case SADNESS -> avg.getSadness();
-                case ANGER -> avg.getAnger();
-                case FEAR -> avg.getFear();
-                case DISGUST -> avg.getDisgust();
-                case NONE -> 0.0;
-            };
-            Double ratingAvg = reviewRepository.findAverageByMovieId(movie.getId());
-            BigDecimal rounded;
-            if (ratingAvg == null || ratingAvg == 0.00) {
-                rounded = BigDecimal.ZERO.setScale(2);
-            } else {
-                rounded = BigDecimal.valueOf(ratingAvg).setScale(2, RoundingMode.HALF_UP);
-            }
-
-            dto.setId(movie.getId());
-            dto.setTitle(movie.getTitle());
-            dto.setPosterPath(movie.getPosterPath());
-            dto.setReleaseDate(movie.getReleaseDate());
-            dto.setMainEmotion(mainEmotion);
-            dto.setMainEmotionValue(mainEmotionValue);
-            dto.setRatingAvg(rounded);
-            return dto;
-        }));
+        return new PageResDto<>(moviePage.map(this::convertEntityToRecommendedDto));
     }
 
     public PageResDto<MovieSearchResDto> getRecommendedMoviesByPopularity(GenreType genreType, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<Movie> moviePage = movieRepository.findMoviesByGenreTypeOrderByPopularityDesc(genreType, pageable);
+        Page<Movie> moviePage;
+        if (isGenreDataEmpty()) {
+            triggerGenreBackfillOnce();
+        }
+
+        if (isGenreDataEmpty()) {
+            log.warn("[RecommendFallback] movie_genre is empty. Fallback to popularity sort.");
+            moviePage = movieRepository.findAllByOrderByPopularityDesc(pageable);
+        } else {
+            moviePage = movieRepository.findMoviesByGenreTypeOrderByPopularityDesc(genreType, pageable);
+        }
+
         if (moviePage.isEmpty()) {
             throw new NotFoundException("해당 장르의 영화가 없습니다: " + genreType.name());
         }
 
-        Page<MovieSearchResDto> dto = moviePage.map(movie -> {
-            MovieSearchResDto resDto = new MovieSearchResDto();
-            EmotionAvgDTO avg = getMovieEmotionSummary(movie.getId());
-            EmotionType mainEmotion = avg.getRepEmotionType();
-
-            double mainEmotionValue = switch (mainEmotion) {
-                case JOY -> avg.getJoy();
-                case SADNESS -> avg.getSadness();
-                case ANGER -> avg.getAnger();
-                case FEAR -> avg.getFear();
-                case DISGUST -> avg.getDisgust();
-                case NONE -> 0.0;
-            };
-            Double ratingAvg = reviewRepository.findAverageByMovieId(movie.getId());
-            BigDecimal rounded;
-            if (ratingAvg == null || ratingAvg == 0.00) {
-                rounded = BigDecimal.ZERO.setScale(2);
-            } else {
-                rounded = BigDecimal.valueOf(ratingAvg).setScale(2, RoundingMode.HALF_UP);
-            }
-            resDto.setId(movie.getId());
-            resDto.setTitle(movie.getTitle());
-            resDto.setPosterPath(movie.getPosterPath());
-            resDto.setReleaseDate(movie.getReleaseDate());
-            resDto.setMainEmotion(mainEmotion);
-            resDto.setMainEmotionValue(mainEmotionValue);
-            resDto.setRatingAvg(rounded);
-            return resDto;
-        });
-
-        return new PageResDto<>(dto);
+        return new PageResDto<>(moviePage.map(this::convertEntityToRecommendedDto));
     }
 
     public PageResDto<MovieSearchResDto> getMyWatchedMovies(Long userId, Integer page, Integer pageSize) {
@@ -379,5 +345,33 @@ public class MovieService {
     public int fetchTotalPages(String type) {
         log.warn("[Deprecated] TMDB 연동 제거로 fetchTotalPages는 0을 반환합니다. type={}", type);
         return 0;
+    }
+
+    private MovieSearchResDto convertEntityToRecommendedDto(Movie movie) {
+        MovieSearchResDto dto = convertEntityToDto(movie);
+        dto.setReleaseDate(movie.getReleaseDate());
+        return dto;
+    }
+
+    private boolean isGenreDataEmpty() {
+        return movieGenreRepository.count() == 0;
+    }
+
+    private void triggerGenreBackfillOnce() {
+        if (!genreBackfillAttempted.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            MovieGenreBackfillReport report = movieGenreBackfillService.backfill(false);
+            log.info("[RecommendFallback] auto genre backfill completed requested={} succeeded={} failed={} ignored={} mappedRows={} finalRows={}",
+                    report.getRequestedMovies(),
+                    report.getSucceededMovies(),
+                    report.getFailedMovies(),
+                    report.getIgnoredMovies(),
+                    report.getMappedGenreRows(),
+                    report.getFinalGenreRows());
+        } catch (Exception e) {
+            log.warn("[RecommendFallback] auto genre backfill failed: {}", e.getMessage());
+        }
     }
 }
