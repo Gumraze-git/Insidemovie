@@ -22,10 +22,18 @@ make up
 ## 자주 쓰는 명령
 
 - 전체 실행: `make up`
-- AI 제외 실행: `make up-core`
+- 프론트 개발서버(HMR): `make up-frontend-dev`
+- 백엔드(Spring)만 재기동: `make up-backend-spring`
 - 중지: `make down`
 - 로그: `make logs`
 - DB 볼륨 초기화 후 재기동: `make reset-db`
+
+## movie_genre 백필
+
+추천 영화(`/recommend`)는 `movie_genre` 데이터를 사용합니다. 초기 데이터가 비어 있을 경우 아래 명령으로 KOBIS movieInfo 기반 장르 백필을 수행할 수 있습니다.
+
+- 실제 반영: `make seed-movie-genres`
+- 시뮬레이션: `make seed-movie-genres-dry-run`
 
 ## 에러 대응
 

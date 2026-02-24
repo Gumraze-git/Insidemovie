@@ -7,7 +7,8 @@ DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-frontend-dev up-backend-spring up-backend-ai \
 	restart-frontend restart-backend-spring restart-backend-ai \
-	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai
+	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai \
+	seed-movie-genres seed-movie-genres-dry-run
 
 help:
 	@echo "사용 가능한 타겟:"
@@ -35,6 +36,8 @@ help:
 	@echo "  make clean         - 스택 중지 후 미사용 이미지 정리"
 	@echo "  make reset-db      - DB 볼륨 초기화 후 스택 재기동"
 	@echo "  make build-toolbox - 루트 유틸리티 Docker 이미지 빌드"
+	@echo "  make seed-movie-genres       - KOBIS movieInfo 기반 movie_genre 백필 실행"
+	@echo "  make seed-movie-genres-dry-run - DB 저장 없이 movie_genre 백필 dry-run 실행"
 
 prepare-model:
 	@./scripts/ensure-ai-model.sh
@@ -112,3 +115,13 @@ reset-db:
 
 build-toolbox:
 	docker build -t insidemovie-toolbox:local .
+
+seed-movie-genres:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=false
+
+seed-movie-genres-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=true
