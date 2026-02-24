@@ -16,3 +16,21 @@
 
 - `make seed-movie-metadata`
 - `make seed-movie-metadata-dry-run`
+
+## 통합 데모 데이터 백필
+
+백엔드/AI를 띄운 뒤 데모 필수 데이터를 증분으로 채웁니다.
+
+- `make data-backfill`
+- `make data-backfill-dry-run`
+
+포함 범위:
+- 데모 계정(온보딩 5 + 일반 30) 시드 보장
+- movie_genre 백필
+- movie 메타데이터(포스터/배경/시놉시스) 누락 백필
+- 일반 계정 리뷰 + AI 감정 결과 생성
+- 영화 대결 이력(닫힌 매치 8 + 현재 진행 1) 시드
+
+단일 영역 디버그:
+- `make seed-reviews-ai`
+- `make seed-matches`
