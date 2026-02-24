@@ -54,15 +54,6 @@ jwt:
   refresh:
     header: Authorization-Refresh
 
-tmdb:
-  api:
-    key: test-tmdb-key
-    base-url: https://api.themoviedb.org/3
-    language: ko-KR
-  image:
-    base-url: https://image.tmdb.org/t/p/
-    poster-size: original
-
 kobis:
   api:
     key: test-kobis-key

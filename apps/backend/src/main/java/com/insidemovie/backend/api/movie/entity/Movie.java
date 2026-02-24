@@ -23,15 +23,12 @@ public class Movie {
     @Column(name = "kofic_id", unique = true)
     private String koficId;             // kofic 영화 코드
 
-    @Column(name = "tmdb_id", unique = true)
-    private Long tmdbMovieId;            // tmdb 영화 코드
-
     @Lob
 //    @Column(columnDefinition = "TEXT")
     private String overview;            // 영화 개요
 
     @Column(name = "popularity")
-    private Double popularity;          // tmdb 자체 인기도
+    private Double popularity;          // 외부 지표 기반 인기도
 
     @Column(name = "original_language")
     private String originalLanguage;     // 국가

@@ -17,7 +17,7 @@ import java.time.LocalDate;
     },
     indexes = {
         @Index(name = "idx_daily_target_rank", columnList = "target_date, movie_rank"),
-        @Index(name = "idx_daily_tmdb", columnList = "tmdb_id")
+        @Index(name = "idx_daily_movie_cd", columnList = "movie_cd")
     }
 )
 @Getter @Setter
@@ -28,9 +28,9 @@ public class DailyBoxOfficeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TMDB 영화 (nullable: 아직 매핑 전일 수 있음)
+    // KOBIS movieCd 기준 Movie 매핑 (nullable: 아직 매핑 전일 수 있음)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "tmdb_id", referencedColumnName = "tmdb_id",
+    @JoinColumn(name = "movie_cd", referencedColumnName = "kofic_id", insertable = false, updatable = false,
                 foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Movie movie;
 

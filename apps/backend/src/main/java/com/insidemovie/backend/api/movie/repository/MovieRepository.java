@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Optional<Movie> findByTmdbMovieId(Long tmdbMovieId);
+    Optional<Movie> findByKoficId(String koficId);
     Page<Movie> findAllByOrderByPopularityDesc(Pageable pageable);
 
     @Query("""

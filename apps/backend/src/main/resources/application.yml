@@ -61,18 +61,6 @@ springdoc:
   swagger-ui:
     path: /api-doc
 
-tmdb:
-  api:
-    # TMDB API 키
-    key: ${tmdb.api.key}
-    # TMDB 베이스 URL
-    base-url: https://api.themoviedb.org/3
-    # 응답 언어 설정 (한국어)
-    language: ko-KR
-  image:
-    base-url: https://image.tmdb.org/t/p/
-    poster-size: original
-
 kobis:
   api:
     #영화진흥원 API 키
@@ -89,7 +77,7 @@ scheduler:
 
 movie:
   seed-enabled: false # 시딩 끝나면 false
-  update-enabled: true #시딩 끝나면 true
+  update-enabled: false # TMDB 연동 제거로 업데이트 스케줄러 비활성화
 
 match:
   cron:

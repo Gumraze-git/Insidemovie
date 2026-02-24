@@ -1,7 +1,12 @@
-package com.insidemovie.backend.api.movie.dto.tmdb;
+package com.insidemovie.backend.api.movie.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDate;
 
 @Getter
@@ -12,28 +17,25 @@ import java.time.LocalDate;
 public class SearchMovieResponseDTO {
     private Long id;
     private String title;
-    private String overview; //줄거리
+    private String overview;
 
     @JsonProperty("poster_path")
-    private String posterPath;          // 포스터
+    private String posterPath;
 
     @JsonProperty("backdrop_path")
-    private String backDropPath;        // 배경 이미지
+    private String backDropPath;
 
     @JsonProperty("vote_count")
     private Integer voteCount;
 
     @JsonProperty("release_date")
-    private LocalDate releaseDate;      // 개봉일
-
-//    @JsonProperty("genre_ids")
-//    private List<Integer> genreIds;     //장르
+    private LocalDate releaseDate;
 
     @JsonProperty("original_language")
-    private String originalLanguage;    // 국가
+    private String originalLanguage;
 
     @JsonProperty("popularity")
-    private Double popularity;          // 인기
+    private Double popularity;
 
     @JsonProperty("adult")
     private Boolean adult;
