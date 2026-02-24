@@ -16,6 +16,17 @@ import java.util.Optional;
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByKoficId(String koficId);
     List<Movie> findAllByKoficIdIsNotNull();
+    @Query("""
+      SELECT m
+      FROM Movie m
+      WHERE m.koficId IS NOT NULL
+        AND (
+          m.posterPath IS NULL OR m.posterPath = ''
+          OR m.backdropPath IS NULL OR m.backdropPath = ''
+          OR m.overview IS NULL OR m.overview = ''
+        )
+      """)
+    List<Movie> findAllByKoficIdIsNotNullAndMetadataMissing();
     Page<Movie> findAllByOrderByPopularityDesc(Pageable pageable);
     Page<Movie> findAllByOrderByReleaseDateDesc(Pageable pageable);
 

@@ -68,6 +68,11 @@ kobis:
     # 베이스 URL
     base-url: http://www.kobis.or.kr/kobisopenapi/webservice/rest
 
+kmdb:
+  api:
+    key: ${KMDB_API_KEY:dev-kmdb-api-key}
+    base-url: http://api.koreafilm.or.kr/openapi-data2/wisenut
+
 scheduler:
   cron:
     daily: "0 30 16 * * *"
@@ -79,6 +84,10 @@ movie:
   seed-enabled: false # 시딩 끝나면 false
   update-enabled: false # TMDB 연동 제거로 업데이트 스케줄러 비활성화
   genre:
+    backfill:
+      enabled: false
+      dry-run: false
+  metadata:
     backfill:
       enabled: false
       dry-run: false

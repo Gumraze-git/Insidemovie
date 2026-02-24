@@ -8,7 +8,8 @@ DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 	up-frontend up-frontend-dev up-backend-spring up-backend-ai \
 	restart-frontend restart-backend-spring restart-backend-ai \
 	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai \
-	seed-movie-genres seed-movie-genres-dry-run
+	seed-movie-genres seed-movie-genres-dry-run \
+	seed-movie-metadata seed-movie-metadata-dry-run
 
 help:
 	@echo "사용 가능한 타겟:"
@@ -38,6 +39,8 @@ help:
 	@echo "  make build-toolbox - 루트 유틸리티 Docker 이미지 빌드"
 	@echo "  make seed-movie-genres       - KOBIS movieInfo 기반 movie_genre 백필 실행"
 	@echo "  make seed-movie-genres-dry-run - DB 저장 없이 movie_genre 백필 dry-run 실행"
+	@echo "  make seed-movie-metadata       - KMDb 기반 영화 메타(포스터/시놉시스/배경) 누락 백필 실행"
+	@echo "  make seed-movie-metadata-dry-run - DB 저장 없이 영화 메타 누락 백필 dry-run 실행"
 
 prepare-model:
 	@./scripts/ensure-ai-model.sh
@@ -125,3 +128,13 @@ seed-movie-genres-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql
 	$(DC) run --rm --no-deps backend --movie.genre.backfill.enabled=true --movie.genre.backfill.dry-run=true
+
+seed-movie-metadata:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=false
+
+seed-movie-metadata-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=true
