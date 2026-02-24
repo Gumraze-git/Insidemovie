@@ -2,8 +2,8 @@ export interface MovieOne {
     id: number;
     title: string;
     overview: string;
-    posterPath: string;
-    backdropPath: string;
+    posterPath: string | null;
+    backdropPath: string | null;
     originalLanguage: string;
     isLike: boolean | null;
     genre: string[];

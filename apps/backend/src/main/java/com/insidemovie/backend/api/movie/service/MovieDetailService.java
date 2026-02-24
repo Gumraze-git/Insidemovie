@@ -26,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class MovieDetailService {
+    private static final String DEFAULT_OVERVIEW = "시놉시스 준비 중입니다.";
 
     private final ObjectMapper objectMapper;
     private final MovieRepository movieRepository;
@@ -80,7 +81,7 @@ public class MovieDetailService {
         dto.setId(movie.getId());
         dto.setTitle(movie.getTitle());
         dto.setTitleEn(movie.getTitleEn());
-        dto.setOverview(movie.getOverview());
+        dto.setOverview(hasText(movie.getOverview()) ? movie.getOverview().trim() : DEFAULT_OVERVIEW);
         dto.setPosterPath(movie.getPosterPath());
         dto.setBackdropPath(movie.getBackdropPath());
         dto.setOriginalLanguage(movie.getOriginalLanguage());
@@ -133,5 +134,9 @@ public class MovieDetailService {
         }
         // 그냥 단일 값
         return List.of(raw.trim());
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

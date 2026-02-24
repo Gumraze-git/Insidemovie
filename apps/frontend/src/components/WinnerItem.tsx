@@ -1,8 +1,9 @@
 import React from "react";
 import StarFull from "@assets/star_full.svg?react";
+import SafeImage from "./common/SafeImage";
 
 interface WinnerItemProps {
-    posterImg: string;
+    posterImg: string | null;
     posterName: string;
     emotionIcon: string;
     emotionValue: number;
@@ -23,7 +24,7 @@ const WinnerItem: React.FC<WinnerItemProps> = ({
             className="flex w-full rounded-3xl mb-3 bg-box_bg_white items-center cursor-pointer transform transition-all duration-200 hover:bg-box_bg_white/30"
             onClick={onClick}
         >
-            <img
+            <SafeImage
                 src={posterImg}
                 alt={posterName}
                 className="w-auto h-32 rounded-l-3xl object-cover me-4"

@@ -35,6 +35,17 @@ make up
 - 실제 반영: `make seed-movie-genres`
 - 시뮬레이션: `make seed-movie-genres-dry-run`
 
+## 영화 메타데이터 백필
+
+포스터/배경 이미지/시놉시스가 누락된 영화는 KMDb 기반으로 누락건만 보강할 수 있습니다.
+
+- 실제 반영: `make seed-movie-metadata`
+- 시뮬레이션: `make seed-movie-metadata-dry-run`
+
+필수 환경변수:
+- `KOBIS_API_KEY`
+- `KMDB_API_KEY`
+
 ## 에러 대응
 
 AI 컨테이너가 모델 로드 에러로 종료되면 아래 순서로 점검합니다.
