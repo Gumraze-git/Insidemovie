@@ -3,29 +3,29 @@ COMPOSE_FILE ?= docker-compose.yml
 PROJECT_NAME ?= insidemovie
 DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 
-.PHONY: help prepare-env prepare-model build up up-core down restart logs ps clean reset-db build-toolbox \
+.PHONY: help prepare-model build up down restart logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
-	up-frontend up-backend-spring up-backend-ai \
+	up-frontend up-frontend-dev up-backend-spring up-backend-ai \
 	restart-frontend restart-backend-spring restart-backend-ai \
-	logs-frontend logs-backend-spring logs-backend-ai
+	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai
 
 help:
 	@echo "사용 가능한 타겟:"
-	@echo "  make prepare-env   - env/backend.env가 없으면 예시 파일로 생성"
 	@echo "  make prepare-model - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build         - 모든 서비스 이미지 빌드"
 	@echo "  make up            - 모든 서비스 실행(백그라운드, 필요 시 빌드)"
-	@echo "  make up-core       - AI 제외(mysql/backend/frontend) 실행"
 	@echo "  make build-frontend      - frontend 이미지 빌드"
 	@echo "  make build-backend-spring - backend(Spring) 이미지 빌드"
 	@echo "  make build-backend-ai     - ai(FastAPI) 이미지 빌드"
-	@echo "  make up-frontend          - frontend만 재빌드/재기동"
+	@echo "  make up-frontend          - frontend(정적 nginx)만 재빌드/재기동"
+	@echo "  make up-frontend-dev      - frontend(Vite HMR) 개발 서버 실행"
 	@echo "  make up-backend-spring    - backend(Spring)만 재빌드/재기동"
 	@echo "  make up-backend-ai        - ai(FastAPI)만 재빌드/재기동"
 	@echo "  make restart-frontend       - frontend만 재시작"
 	@echo "  make restart-backend-spring - backend(Spring)만 재시작"
 	@echo "  make restart-backend-ai     - ai(FastAPI)만 재시작"
-	@echo "  make logs-frontend       - frontend 로그 확인"
+	@echo "  make logs-frontend       - frontend(정적 nginx) 로그 확인"
+	@echo "  make logs-frontend-dev   - frontend(Vite HMR) 로그 확인"
 	@echo "  make logs-backend-spring - backend(Spring) 로그 확인"
 	@echo "  make logs-backend-ai     - ai(FastAPI) 로그 확인"
 	@echo "  make down          - 컨테이너 중지 및 제거"
@@ -36,41 +36,36 @@ help:
 	@echo "  make reset-db      - DB 볼륨 초기화 후 스택 재기동"
 	@echo "  make build-toolbox - 루트 유틸리티 Docker 이미지 빌드"
 
-prepare-env:
-	@if [ ! -f env/backend.env ]; then \
-		cp env/backend.env.example env/backend.env; \
-		echo "Created env/backend.env from env/backend.env.example"; \
-	fi
-
 prepare-model:
 	@./scripts/ensure-ai-model.sh
 
-build: prepare-env prepare-model
+build: prepare-model
 	$(DC) build
 
-up: prepare-env prepare-model
+up: prepare-model
 	$(DC) up -d --build
 
-up-core: prepare-env
-	$(DC) up -d mysql
-	$(DC) up -d --no-deps backend frontend
-
-build-frontend: prepare-env
+build-frontend:
 	$(DC) build frontend
 
-build-backend-spring: prepare-env
+build-backend-spring:
 	$(DC) build backend
 
-build-backend-ai: prepare-env prepare-model
+build-backend-ai: prepare-model
 	$(DC) build ai
 
-up-frontend: prepare-env
+up-frontend:
 	$(DC) up -d --build --no-deps frontend
 
-up-backend-spring: prepare-env
+up-frontend-dev:
+	-$(DC) stop frontend
+	-$(DC) rm -f frontend
+	$(DC) --profile dev up -d frontend-dev
+
+up-backend-spring:
 	$(DC) up -d --build --no-deps backend
 
-up-backend-ai: prepare-env prepare-model
+up-backend-ai: prepare-model
 	$(DC) up -d --build --no-deps ai
 
 down:
@@ -94,6 +89,9 @@ logs:
 
 logs-frontend:
 	$(DC) logs -f --tail=200 frontend
+
+logs-frontend-dev:
+	$(DC) logs -f --tail=200 frontend-dev
 
 logs-backend-spring:
 	$(DC) logs -f --tail=200 backend
