@@ -8,6 +8,16 @@ export const memberApi = () => {
         });
     };
 
+    const getDemoAccounts = async () => {
+        return await axios.get("/api/v1/auth/demo-accounts");
+    };
+
+    const loginDemo = async ({ accountKey }) => {
+        return await axios.post("/api/v1/auth/demo-sessions", {
+            accountKey,
+        });
+    };
+
     const signup = async ({ email, password, checkedPassword, nickname }) => {
         return await axios.post("/api/v1/users", {
             email,
@@ -131,6 +141,8 @@ export const memberApi = () => {
 
     return {
         login,
+        getDemoAccounts,
+        loginDemo,
         signup,
         signupKakao,
         emailAuth,
