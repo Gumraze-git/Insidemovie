@@ -10,5 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "kobis.api")
 public class KobisApiProperties {
+    private String key;
     private String baseUrl;
 }

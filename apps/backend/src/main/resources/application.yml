@@ -64,7 +64,7 @@ springdoc:
 kobis:
   api:
     #영화진흥원 API 키
-    key: ${kobis.api.key}
+    key: ${KOBIS_API_KEY:dev-kobis-api-key}
     # 베이스 URL
     base-url: http://www.kobis.or.kr/kobisopenapi/webservice/rest
 
@@ -78,6 +78,10 @@ scheduler:
 movie:
   seed-enabled: false # 시딩 끝나면 false
   update-enabled: false # TMDB 연동 제거로 업데이트 스케줄러 비활성화
+  genre:
+    backfill:
+      enabled: false
+      dry-run: false
 
 match:
   cron:

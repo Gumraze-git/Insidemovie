@@ -41,7 +41,7 @@ spring:
     password: test
 
 jwt:
-  secret: test-jwt-secret-test-jwt-secret-test-jwt-secret-1234567890
+  secret: test-jwt-secret-hs512-test-only-change-me-2026-very-long-key-value
   access-exp-ms: 3600000
   refresh-exp-ms: 1209600000
   cookie:
