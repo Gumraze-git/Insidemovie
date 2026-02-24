@@ -32,5 +32,11 @@ public class MovieGenre {
         this.genreType = genreType;
     }
 
+    public static MovieGenre of(Movie movie, GenreType genreType) {
+        return MovieGenre.builder()
+                .movie(movie)
+                .genreType(genreType)
+                .build();
+    }
 
 }
