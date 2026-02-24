@@ -32,7 +32,7 @@ jobs:
       SPRING_DATASOURCE_PASSWORD: ""
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
-      JWT_SECRET: ci-secret-key-ci-secret-key-ci-secret-key-ci
+      JWT_SECRET: ci-secret-key-ci-secret-key-ci-secret-key-ci-secret-key-ci-secret-key-ci-2026
       JWT_ACCESS_EXP_MS: "3600000"
       JWT_REFRESH_EXP_MS: "1209600000"
       EMAIL_USERNAME: ci@example.com
@@ -41,6 +41,7 @@ jobs:
       KAKAO_CLIENT_SECRET: ci-kakao-secret
       TMDB_API_KEY: ci-tmdb-key
       KOBIS_API_KEY: ci-kobis-key
+      KMDB_API_KEY: ci-kmdb-key
     defaults:
       run:
         working-directory: apps/backend
