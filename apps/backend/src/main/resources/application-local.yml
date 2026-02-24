@@ -35,4 +35,4 @@ jwt:
 demo:
   accounts:
     enabled: true
-    seed-enabled: true
+    seed-enabled: false

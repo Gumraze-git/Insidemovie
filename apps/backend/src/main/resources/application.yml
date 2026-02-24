@@ -92,11 +92,22 @@ movie:
       enabled: false
       dry-run: false
 
-match:
-  cron:
-    weekly: "0 30 16 * * MON"
-
 demo:
   accounts:
-    enabled: false
+    enabled: true
     seed-enabled: false
+  data:
+    backfill:
+      enabled: false
+      dry-run: false
+      include-accounts: true
+      include-genres: true
+      include-metadata: true
+      include-reviews: true
+      include-matches: true
+      review:
+        target-per-account: 20
+        include-web-fallback: true
+      match:
+        closed-target-count: 8
+        current-vote-target: 10
