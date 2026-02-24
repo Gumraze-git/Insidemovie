@@ -8,10 +8,11 @@ import fearIcon from "@assets/character/fear_icon.png";
 import disgustIcon from "@assets/character/disgust_icon.png";
 import bingbongIcon from "@assets/character/bingbong_icon.png";
 import StarFull from "@assets/star_full.svg?react";
+import SafeImage from "./common/SafeImage";
 
 interface MovieItemProps {
     movieId: number;
-    posterImg: string;
+    posterImg: string | null;
     posterName: string;
     emotionIcon: string;
     emotionValue: number;
@@ -50,7 +51,7 @@ const MovieItem: React.FC<MovieItemProps> = ({
             <TransparentBox
                 className={`w-[180px] bg-box_bg_white rounded-xl shadow-md cursor-pointer flex flex-col transform transition-transform duration-200 hover:scale-105 ${className}`}
             >
-                <img
+                <SafeImage
                     src={posterImg}
                     alt="posterImage"
                     className="w-full h-64 object-cover rounded-t-xl"

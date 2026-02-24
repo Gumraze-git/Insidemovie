@@ -24,6 +24,7 @@ import Watcha from "@assets/watcha.png";
 import Wavve from "@assets/wavve.png";
 import AppleTVPlus from "@assets/appleTV+.png";
 import DisneyPlus from "@assets/disneyPlus.png";
+import SafeImage from "../../../components/common/SafeImage";
 
 const emotionMap = {
     joy: joyIcon,
@@ -183,24 +184,26 @@ const MovieDetail: React.FC = () => {
 
     return (
         <div className="relative">
-            <div className="absolute -top-[100px] left-0 w-full h-[840px] z-10">
-                <img
-                    src={movieInfo.backdropPath}
-                    alt="backdrop"
-                    className="w-full h-full object-cover opacity-50 blur-xs"
-                    style={{
-                        WebkitMaskImage:
-                            "linear-gradient(to top, transparent 0%, black 100%)",
-                        maskImage:
-                            "linear-gradient(to top, transparent 0%, black 100%)",
-                    }}
-                />
-            </div>
+            {movieInfo.backdropPath && movieInfo.backdropPath.trim().length > 0 && (
+                <div className="absolute -top-[100px] left-0 w-full h-[840px] z-10">
+                    <SafeImage
+                        src={movieInfo.backdropPath}
+                        alt="backdrop"
+                        className="w-full h-full object-cover opacity-50 blur-xs"
+                        style={{
+                            WebkitMaskImage:
+                                "linear-gradient(to top, transparent 0%, black 100%)",
+                            maskImage:
+                                "linear-gradient(to top, transparent 0%, black 100%)",
+                        }}
+                    />
+                </div>
+            )}
             <div className="flex justify-center relative z-10 pt-96 mx-5">
                 <div className="max-w-screen-lg w-full">
                     {/* 상단: 포스터 + 정보 */}
                     <div className="flex flex-col items-center md:items-start md:flex-row gap-10 text-white">
-                        <img
+                        <SafeImage
                             src={movieInfo.posterPath}
                             alt={movieInfo.title}
                             className="w-80 h-fit rounded-md"
@@ -404,7 +407,9 @@ const MovieDetail: React.FC = () => {
                         <div className="flex-1 bg-box_bg_white p-6 rounded-3xl text-white">
                             <h2 className="text-3xl  font-bold">시놉시스</h2>
                             <p className="text-sm text-gray-300 leading-relaxed mt-5">
-                                {movieInfo.overview}
+                                {movieInfo.overview?.trim()
+                                    ? movieInfo.overview
+                                    : "시놉시스 준비 중입니다."}
                             </p>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ import fearIcon from "@assets/character/fear_icon.png";
 import disgustIcon from "@assets/character/disgust_icon.png";
 import Button from "../Button";
 import { movieApi } from "../../api/movieApi";
+import SafeImage from "../common/SafeImage";
 
 export type EmotionKey = "joy" | "sad" | "angry" | "fear" | "disgust";
 
@@ -280,7 +281,7 @@ const MovieEmotionStep: React.FC<MovieEmotionStepProps> = ({
                         key={movie.id}
                         className="relative flex-shrink-0 transition-all duration-300 ease-in-out transform"
                     >
-                        <img
+                        <SafeImage
                             src={movie.posterPath}
                             alt={movie.title}
                             className="w-12 h-16 rounded"
@@ -329,7 +330,7 @@ const MovieEmotionStep: React.FC<MovieEmotionStepProps> = ({
                                     : "border-transparent"
                             }`}
                         >
-                            <img
+                            <SafeImage
                                 src={movie.posterPath}
                                 alt={movie.title}
                                 className="w-full object-contain"

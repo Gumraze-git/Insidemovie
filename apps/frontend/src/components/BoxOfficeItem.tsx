@@ -6,17 +6,17 @@ import fearIcon from "@assets/character/fear_icon.png";
 import disgustIcon from "@assets/character/disgust_icon.png";
 import bingbongIcon from "@assets/character/bingbong_icon.png";
 import StarFull from "@assets/star_full.svg?react";
-import DefaultImage from "@assets/defaultImage.svg?react";
 import Down from "@assets/down.svg?react";
 import Up from "@assets/up.svg?react";
 import { useNavigate } from "react-router-dom";
+import SafeImage from "./common/SafeImage";
 
 interface BoxOfficeItemProps {
     movieId: number;
     rank: string;
     rankInten: string;
     rankOldAndNew: string;
-    posterPath: string;
+    posterPath: string | null;
     title: string;
     audiAcc: string;
     mainEmotion: string;
@@ -78,15 +78,11 @@ const BoxOfficeItem: React.FC<BoxOfficeItemProps> = ({
                 </div>
             </div>
             <div className="flex w-full rounded-3xl bg-box_bg_white items-center cursor-pointer transform transition-all duration-200 hover:bg-box_bg_white/30">
-                {posterPath ? (
-                    <img
-                        src={posterPath}
-                        alt={title}
-                        className="w-auto h-32 rounded-l-3xl object-cover me-4"
-                    />
-                ) : (
-                    <DefaultImage className="w-auto h-32 rounded-l-3xl object-cover me-4" />
-                )}
+                <SafeImage
+                    src={posterPath}
+                    alt={title}
+                    className="w-auto h-32 rounded-l-3xl object-cover me-4"
+                />
 
                 <div className="flex flex-col gap-2 flex-1 text-white">
                     <div className="text-lg font-semibold">{title}</div>

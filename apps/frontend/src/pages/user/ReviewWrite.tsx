@@ -16,6 +16,7 @@ import { reviewApi } from "../../api/reviewApi";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import type { MovieOne } from "../../interfaces/movieOne";
 import { movieApi } from "../../api/movieApi";
+import SafeImage from "../../components/common/SafeImage";
 
 const ReviewWrite: React.FC = () => {
     const { movieId } = useParams<{ movieId: string }>();
@@ -141,7 +142,7 @@ const ReviewWrite: React.FC = () => {
                         </h1>
                     </div>
                     <div className="flex gap-10 text-white">
-                        <img
+                        <SafeImage
                             src={movieInfo.posterPath}
                             alt={movieInfo.title}
                             className="w-20 object-contain"
