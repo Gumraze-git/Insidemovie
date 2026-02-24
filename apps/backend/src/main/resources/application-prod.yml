@@ -21,3 +21,8 @@ spring:
   fastapi:
     base-url: "http://ai:8000"
     url: "http://ai:8000/recommend/emotion"
+
+demo:
+  accounts:
+    enabled: ${DEMO_ACCOUNTS_ENABLED:true}
+    seed-enabled: ${DEMO_ACCOUNTS_SEED_ENABLED:true}
