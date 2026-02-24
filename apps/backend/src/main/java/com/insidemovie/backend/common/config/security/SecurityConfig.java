@@ -48,6 +48,7 @@ public class SecurityConfig {
             "/api/v1/users/social/kakao",
             "/api/v1/auth/sessions",
             "/api/v1/auth/sessions/refresh",
+            "/api/v1/auth/demo-sessions",
             "/api/v1/auth/providers/kakao/token-exchanges",
             "/api/v1/auth/providers/kakao/sessions",
             "/api/v1/users/*/emotion-summary",
@@ -68,7 +69,8 @@ public class SecurityConfig {
             "/api/v1/matches/current",
             "/api/v1/matches/winners",
             "/api/v1/boxoffice/**",
-            "/api/v1/users/nickname-availability"
+            "/api/v1/users/nickname-availability",
+            "/api/v1/auth/demo-accounts"
     };
 
     private static final List<String> CORS_ALLOWED_ORIGINS = List.of(

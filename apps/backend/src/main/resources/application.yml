@@ -82,3 +82,8 @@ movie:
 match:
   cron:
     weekly: "0 30 16 * * MON"
+
+demo:
+  accounts:
+    enabled: false
+    seed-enabled: false
