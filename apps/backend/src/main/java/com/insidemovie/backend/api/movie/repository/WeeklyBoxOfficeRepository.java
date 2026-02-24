@@ -11,7 +11,7 @@ public interface WeeklyBoxOfficeRepository extends JpaRepository<WeeklyBoxOffice
 
     Optional<WeeklyBoxOfficeEntity> findByYearWeekTimeAndMovieCd(String yearWeekTime, String movieCd);
 
-    Optional<WeeklyBoxOfficeEntity> findByMovie_TmdbMovieIdAndYearWeekTime(Long tmdbMovieId, String yearWeekTime);
+    boolean existsByMovie_IdAndYearWeekTime(Long movieId, String yearWeekTime);
 
     @Query(value = """
         select * 

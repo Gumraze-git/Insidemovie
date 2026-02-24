@@ -12,7 +12,6 @@ interface Movie {
     title: string;
     mainEmotion: string;
     mainEmotionValue: number;
-    voteAverage: number;
     ratingAvg: number;
 }
 
@@ -102,7 +101,6 @@ const LikedMovie: React.FC = () => {
                                         posterName={poster.title}
                                         emotionIcon={poster.mainEmotion.toLowerCase()}
                                         emotionValue={poster.mainEmotionValue}
-                                        starValue={poster.voteAverage}
                                         ratingAvg={poster.ratingAvg}
                                     />
                                 ))}

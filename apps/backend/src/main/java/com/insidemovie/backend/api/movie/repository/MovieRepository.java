@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Optional<Movie> findByTmdbMovieId(Long tmdbMovieId);
+    Optional<Movie> findByKoficId(String koficId);
     Page<Movie> findAllByOrderByPopularityDesc(Pageable pageable);
 
     @Query("""
@@ -42,8 +42,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT mg.movie FROM MovieGenre mg WHERE mg.genreType = :genreType ORDER BY mg.movie.releaseDate DESC")
     Page<Movie> findMoviesByGenreTypeOrderByReleaseDateDesc(@Param("genreType") GenreType genreType, Pageable pageable);
 
-    @Query("SELECT mg.movie FROM MovieGenre mg WHERE mg.genreType = :genreType ORDER BY mg.movie.voteAverage DESC")
-    Page<Movie> findMoviesByGenreTypeOrderByVoteAverageDesc(@Param("genreType") GenreType genreType, Pageable pageable);
+    @Query("SELECT mg.movie FROM MovieGenre mg WHERE mg.genreType = :genreType ORDER BY mg.movie.popularity DESC")
+    Page<Movie> findMoviesByGenreTypeOrderByPopularityDesc(@Param("genreType") GenreType genreType, Pageable pageable);
 
     // 대결할 영화 - 댓글 30개 이상, 이전에 대결을 진행하지 않은 영화를 별점 순으로 3개
     // TODO: 30개 제한은 데이터 이슈로 뺐음
@@ -54,7 +54,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
         JOIN movie_emotion_summary me ON m.movie_id = me.movie_id
         WHERE me.dominant_emotion = :emotion
           AND (m.is_matched IS NULL OR m.is_matched = false)
-        ORDER BY m.vote_average DESC
+        ORDER BY COALESCE(m.popularity, 0) DESC
         LIMIT 3
         """, nativeQuery = true)
     List<Movie> findTop3ByEmotion(@Param("emotion") EmotionType emotion);

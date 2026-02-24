@@ -8,7 +8,6 @@ import fearIcon from "@assets/character/fear_icon.png";
 import disgustIcon from "@assets/character/disgust_icon.png";
 import bingbongIcon from "@assets/character/bingbong_icon.png";
 import StarFull from "@assets/star_full.svg?react";
-import TMDB from "@assets/TMDB.svg?react";
 
 interface MovieItemProps {
     movieId: number;
@@ -17,7 +16,6 @@ interface MovieItemProps {
     emotionIcon: string;
     emotionValue: number;
     ratingAvg: number;
-    starValue: number;
     className?: string;
 }
 
@@ -38,7 +36,6 @@ const MovieItem: React.FC<MovieItemProps> = ({
     emotionIcon = "bingbong",
     emotionValue = 0,
     ratingAvg = 0,
-    starValue = 0,
     className = "",
 }) => {
     const navigate = useNavigate();
@@ -73,10 +70,6 @@ const MovieItem: React.FC<MovieItemProps> = ({
                     <div className="flex items-center text-xs font-light text-white">
                         <StarFull className="w-4 h-4" />
                         <p>{Math.round(ratingAvg)}</p>
-                    </div>
-                    <div className="flex items-center text-xs font-light text-white">
-                        <TMDB className="w-4 h-4" />
-                        <p>{Math.round(starValue)}</p>
                     </div>
                 </div>
             </TransparentBox>

@@ -76,7 +76,6 @@ public class EmotionRecommendationService {
                     .movieId(movie.getId())
                     .title(movie.getTitle())
                     .posterPath(movie.getPosterPath())
-                    .voteAverage(movie.getVoteAverage())
                     .dominantEmotion(movieEmotion.getDominantEmotion())
                     .dominantEmotionRatio(dominantRatio)
                     .similarity(recommendMovie.getSimilarity())

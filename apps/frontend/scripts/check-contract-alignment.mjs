@@ -42,6 +42,10 @@ const bannedPatterns = [
         name: "legacy token localStorage usage",
         regex: /localStorage\.(?:getItem|setItem|removeItem)\("(?:accessToken|refreshToken)"\)/g,
     },
+    {
+        name: "legacy vote average field",
+        regex: /\bvoteAverage\b|\bvote_average\b/g,
+    },
 ];
 
 const findings = [];

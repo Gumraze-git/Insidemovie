@@ -5,8 +5,8 @@ import com.insidemovie.backend.api.member.dto.emotion.EmotionAvgDTO;
 import com.insidemovie.backend.api.movie.dto.MovieDetailResDto;
 import com.insidemovie.backend.api.movie.dto.MovieSearchResDto;
 import com.insidemovie.backend.api.movie.dto.PageResDto;
+import com.insidemovie.backend.api.movie.dto.SearchMovieWrapperDTO;
 import com.insidemovie.backend.api.movie.dto.emotion.MovieEmotionResDTO;
-import com.insidemovie.backend.api.movie.dto.tmdb.SearchMovieWrapperDTO;
 import com.insidemovie.backend.common.swagger.annotation.ApiCommonErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -75,4 +75,3 @@ public interface MovieQueryApi {
             @RequestParam int pageSize
     );
 }
-

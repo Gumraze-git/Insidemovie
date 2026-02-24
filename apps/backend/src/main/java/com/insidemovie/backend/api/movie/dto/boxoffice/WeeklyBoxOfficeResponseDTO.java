@@ -17,8 +17,6 @@ public class WeeklyBoxOfficeResponseDTO {
     private String title;
     @Schema(description = "포스터 경로")
     private String posterPath;
-    @Schema(description = "TMDB 평점 평균")
-    private Double voteAverage;
     @Schema(description = "리뷰 평점 평균")
     private Double ratingAvg;
     @Schema(description = "대표 감정")
@@ -32,7 +30,6 @@ public class WeeklyBoxOfficeResponseDTO {
             WeeklyBoxOfficeEntity e,
             String title,
             String posterPath,
-            Double voteAverage,
             Double ratingAvg,
             EmotionType mainEmotion,
             Double mainEmotionValue
@@ -59,10 +56,9 @@ public class WeeklyBoxOfficeResponseDTO {
                 .audiAcc(e.getAudiAcc())
                 .scrnCnt(e.getScrnCnt())
                 .showCnt(e.getShowCnt())
-                .build())
+            .build())
             .title(title)
             .posterPath(posterPath)
-            .voteAverage(voteAverage)
             .ratingAvg(ratingAvg)
             .mainEmotion(mainEmotion)
             .mainEmotionValue(mainEmotionValue)

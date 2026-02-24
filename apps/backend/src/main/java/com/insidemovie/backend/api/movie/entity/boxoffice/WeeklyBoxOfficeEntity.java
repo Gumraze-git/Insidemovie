@@ -15,7 +15,7 @@ import lombok.*;
     },
     indexes = {
         @Index(name = "idx_weekly_yearweek_rank", columnList = "year_week_time, movie_rank"),
-        @Index(name = "idx_weekly_tmdb", columnList = "tmdb_id")
+        @Index(name = "idx_weekly_movie_cd", columnList = "movie_cd")
     }
 )
 @Getter @Setter
@@ -27,7 +27,7 @@ public class WeeklyBoxOfficeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "tmdb_id", referencedColumnName = "tmdb_id",
+    @JoinColumn(name = "movie_cd", referencedColumnName = "kofic_id", insertable = false, updatable = false,
                 foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Movie movie;
 

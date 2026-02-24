@@ -13,7 +13,6 @@ public class MovieDetailSimpleResDto {
     private Long id;
     private String title;
     private String posterPath;
-    private Double voteAverage;
     private MovieEmotionResDTO emotion;
     private BigDecimal ratingAvg;
 }

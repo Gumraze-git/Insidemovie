@@ -15,7 +15,6 @@ interface Movie {
     id: number;
     posterPath: string;
     title: string;
-    voteAverage: number;
     mainEmotion?: string;
     emotionValue?: number;
     releaseDate: string;
@@ -29,7 +28,6 @@ interface Winner {
         id: number;
         posterPath: string;
         title: string;
-        voteAverage: number;
         mainEmotion?: string;
         emotionValue?: number;
         releaseDate: string;
@@ -90,7 +88,6 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
                                         posterName={poster.title}
                                         emotionIcon={(poster.mainEmotion ?? "none").toLowerCase()}
                                         emotionValue={poster.emotionValue ?? 0}
-                                        starValue={poster.voteAverage}
                                         ratingAvg={poster.ratingAvg}
                                     />
                                     {idx < 2 && (
@@ -127,7 +124,6 @@ const MatchSection: React.FC<MatchSectionProps> = ({ className = "" }) => {
                                     posterName={movie.movie.title}
                                     emotionIcon={(movie.movie.mainEmotion ?? "none").toLowerCase()}
                                     emotionValue={movie.movie.emotionValue ?? 0}
-                                    starValue={movie.movie.voteAverage}
                                     ratingAvg={movie.movie.ratingAvg}
                                     winnerWeek={movie.matchDate}
                                     onClick={() =>

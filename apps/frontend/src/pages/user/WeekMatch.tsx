@@ -10,7 +10,6 @@ interface Movie {
     id: number;
     posterPath: string;
     title: string;
-    voteAverage: number;
     mainEmotion?: string;
     emotionValue?: number;
     releaseDate: string;
@@ -24,7 +23,6 @@ interface Winner {
         id: number;
         posterPath: string;
         title: string;
-        voteAverage: number;
         mainEmotion?: string;
         emotionValue?: number;
         releaseDate: string;
@@ -109,9 +107,6 @@ const WeekMatch: React.FC = () => {
                                                     emotionValue={
                                                         poster.emotionValue ?? 0
                                                     }
-                                                    starValue={
-                                                        poster.voteAverage
-                                                    }
                                                     ratingAvg={poster.ratingAvg}
                                                 />
 
@@ -194,7 +189,6 @@ const WeekMatch: React.FC = () => {
                                             emotionValue={
                                                 movie.movie.emotionValue ?? 0
                                             }
-                                            starValue={movie.movie.voteAverage}
                                             winnerWeek={movie.matchDate}
                                             ratingAvg={movie.movie.ratingAvg}
                                             onClick={() =>

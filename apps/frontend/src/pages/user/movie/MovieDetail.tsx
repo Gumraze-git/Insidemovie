@@ -19,7 +19,6 @@ import Like from "@assets/like.svg?react";
 import Unlike from "@assets/unlike.svg?react";
 import { reviewApi } from "../../../api/reviewApi";
 import type { SelectChangeEvent } from "@mui/material/Select";
-import TMDB from "@assets/TMDB.svg?react";
 import Netflix from "@assets/netflix.png";
 import Watcha from "@assets/watcha.png";
 import Wavve from "@assets/wavve.png";
@@ -228,8 +227,6 @@ const MovieDetail: React.FC = () => {
                                     showValue={true}
                                     showOneStar={true}
                                 />
-                                <TMDB className="x-4 y-4 ml-4 mr-1" />
-                                {movieInfo.voteAverage}
                             </div>
                             <div className="flex gap-2 mt-4">
                                 {movieInfo.ottProviders.map((provider, idx) => {

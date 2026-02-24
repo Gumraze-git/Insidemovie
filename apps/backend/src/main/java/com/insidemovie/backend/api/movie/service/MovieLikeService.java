@@ -78,7 +78,6 @@ public class MovieLikeService {
                     .movieId(movie.getId())
                     .posterPath(movie.getPosterPath())
                     .title(movie.getTitle())
-                    .voteAverage(movie.getVoteAverage())
                     .mainEmotion(mainEmotion)
                     .mainEmotionValue(emainEmotionValue)
                     .ratingAvg(rounded)

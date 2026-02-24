@@ -84,7 +84,6 @@ const Signup: React.FC = () => {
             id: number;
             posterPath: string;
             title: string;
-            voteAverage: number;
         }>
     >([]);
     const [selectedMovies, setSelectedMovies] = useState<
@@ -92,7 +91,6 @@ const Signup: React.FC = () => {
             id: number;
             posterPath: string;
             title: string;
-            voteAverage: number;
         }>
     >([]);
 
@@ -322,7 +320,6 @@ const Signup: React.FC = () => {
                         id: m.id,
                         posterPath: m.poster_path,
                         title: m.title,
-                        voteAverage: m.vote_average,
                     }));
                     setSearchResults(mapped);
                     setHasMore(false);

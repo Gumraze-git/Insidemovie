@@ -2,7 +2,6 @@ export interface boxOffice {
     movieId: number | null;
     title: string;
     posterPath: string;
-    voteAverage: number;
     ratingAvg: number;
     mainEmotion: string;
     mainEmotionValue: number;

@@ -12,7 +12,7 @@ public interface DailyBoxOfficeRepository extends JpaRepository<DailyBoxOfficeEn
 
     Optional<DailyBoxOfficeEntity> findByTargetDateAndMovieCd(LocalDate targetDate, String movieCd);
 
-    Optional<DailyBoxOfficeEntity> findByMovie_TmdbMovieIdAndTargetDate(Long tmdbMovieId, LocalDate targetDate);
+    boolean existsByMovie_IdAndTargetDate(Long movieId, LocalDate targetDate);
 
     @Query("select max(d.targetDate) from DailyBoxOfficeEntity d")
     Optional<LocalDate> findLatestTargetDate();

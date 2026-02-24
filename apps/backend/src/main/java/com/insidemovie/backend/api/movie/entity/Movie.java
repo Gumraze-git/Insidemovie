@@ -23,15 +23,12 @@ public class Movie {
     @Column(name = "kofic_id", unique = true)
     private String koficId;             // kofic 영화 코드
 
-    @Column(name = "tmdb_id", unique = true)
-    private Long tmdbMovieId;            // tmdb 영화 코드
-
     @Lob
 //    @Column(columnDefinition = "TEXT")
     private String overview;            // 영화 개요
 
     @Column(name = "popularity")
-    private Double popularity;          // tmdb 자체 인기도
+    private Double popularity;          // 외부 지표 기반 인기도
 
     @Column(name = "original_language")
     private String originalLanguage;     // 국가
@@ -52,7 +49,6 @@ public class Movie {
     private String ottProviders;         // OTT 제공
     private String posterPath;           // 포스터 이미지 경로
     private String backdropPath;         // 배경 이미지 경로
-    private Double voteAverage;          // 평균 평점
     private Integer voteCount;           // 평점 투표 수
     private String rating;               // 영화 등급
     private LocalDate releaseDate;       // 개봉일
@@ -82,10 +78,6 @@ public class Movie {
     // 배경이미지 수정
     public void updateBackDropPath(String backdropPath) {
         this.backdropPath = backdropPath;
-    }
-    // 평균평점 수정
-    public void updateVoteAverage(Double voteAverage) {
-        this.voteAverage = voteAverage;
     }
     // 장르 수정
     //public void updateGenreIds(List<Long> genreIds) {this.genreIds = genreIds;}

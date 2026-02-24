@@ -13,7 +13,6 @@ interface Movie {
     title: string;
     mainEmotion: string;
     mainEmotionValue: number;
-    voteAverage: number;
     ratingAvg: number;
 }
 
@@ -163,7 +162,6 @@ const Search: React.FC = () => {
                                             emotionValue={
                                                 movie.mainEmotionValue
                                             }
-                                            starValue={movie.voteAverage}
                                             ratingAvg={movie.ratingAvg}
                                         />
                                     </div>
