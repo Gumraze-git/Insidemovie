@@ -130,7 +130,7 @@ const Login: React.FC = () => {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <TransparentBox
-                className="w-full m-5 md:m-0 md:w-[500px] h-[600px]"
+                className="w-full max-w-[500px] m-5 md:m-0"
                 padding="px-8 py-10"
             >
                 <img
@@ -190,7 +190,7 @@ const Login: React.FC = () => {
                         <p className="text-white text-xs opacity-80 mb-2">
                             임시 계정으로 로그인
                         </p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                             <select
                                 className="flex-1 rounded-full px-4 py-3 text-xs bg-box_bg_white text-white focus:outline-none"
                                 value={selectedDemoAccountKey}
@@ -245,7 +245,7 @@ const Login: React.FC = () => {
                     </div>
                 )}
 
-                <p className="text-white text-center text-xs mt-6 opacity-80">
+                <p className="text-white text-center text-xs mt-5 opacity-80">
                     계정이 없으신가요?{" "}
                     <span
                         className="text-movie_sub hover:underline cursor-pointer"
