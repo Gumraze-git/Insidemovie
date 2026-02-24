@@ -4,6 +4,7 @@ import {
     Routes,
     Route,
     useLocation,
+    useNavigate,
     Navigate,
 } from "react-router-dom";
 import Login from "./pages/user/social/Login";
@@ -26,33 +27,44 @@ import WatchedMovie from "./pages/user/mypage/WatchedMovie";
 import MyReview from "./pages/user/mypage/MyReview";
 import Search from "./pages/user/Search";
 import { memberApi } from "./api/memberApi";
+import Onboarding from "./pages/user/onboarding/Onboarding";
 
 const AppContent: React.FC = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const cleanedPath = location.pathname.replace(/\/$/, "");
 
     const hideHeader = [
         "/login",
         "/signup",
         "/signup-kakao",
+        "/onboarding",
         "/admin",
         "/admin/report",
         "/admin/member",
     ].includes(cleanedPath);
 
     const [authority, setAuthority] = React.useState<string | null>(null);
+    const [repEmotionType, setRepEmotionType] = React.useState<string | null>(
+        null,
+    );
     const [authLoaded, setAuthLoaded] = React.useState(false);
 
     const bootstrapSession = React.useCallback(async () => {
         try {
             const response = await memberApi().profile();
             setAuthority(response.data.authority ?? null);
+            setRepEmotionType(response.data.repEmotionType ?? null);
         } catch {
             setAuthority(null);
+            setRepEmotionType(null);
         } finally {
             setAuthLoaded(true);
         }
     }, []);
+
+    const requiresOnboarding =
+        authority === "ROLE_USER" && repEmotionType?.toUpperCase() === "NONE";
 
     React.useEffect(() => {
         void bootstrapSession();
@@ -67,6 +79,23 @@ const AppContent: React.FC = () => {
             window.removeEventListener("authChanged", onAuthChanged);
         };
     }, [bootstrapSession]);
+
+    React.useEffect(() => {
+        if (!authLoaded) {
+            return;
+        }
+
+        const bypassPaths = [
+            "/login",
+            "/signup",
+            "/signup-kakao",
+            "/onboarding",
+            "/login/oauth2/code/kakao",
+        ];
+        if (requiresOnboarding && !bypassPaths.includes(cleanedPath)) {
+            navigate("/onboarding", { replace: true });
+        }
+    }, [authLoaded, requiresOnboarding, cleanedPath, navigate]);
 
     if (!authLoaded) {
         return null;
@@ -100,6 +129,20 @@ const AppContent: React.FC = () => {
                         <Route path="/recommend" element={<RecommendMovie />} />
                         <Route path="/boxoffice" element={<BoxOfficeMovie />} />
                         <Route path="/weekmatch" element={<WeekMatch />} />
+                        <Route
+                            path="/onboarding"
+                            element={
+                                authority === "ROLE_USER" ? (
+                                    requiresOnboarding ? (
+                                        <Onboarding />
+                                    ) : (
+                                        <Navigate to="/" replace />
+                                    )
+                                ) : (
+                                    <Navigate to="/login" replace />
+                                )
+                            }
+                        />
                         <Route path="/movies/detail/:movieId" element={<MovieDetail />} />
                         <Route
                             path="/review-write/:movieId"
