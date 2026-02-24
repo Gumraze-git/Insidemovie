@@ -31,3 +31,8 @@ jwt:
   cookie:
     same-site: Lax
     secure: false
+
+demo:
+  accounts:
+    enabled: true
+    seed-enabled: true
