@@ -78,3 +78,8 @@ kakao:
   client:
     id: test-kakao-client-id
     secret: test-kakao-client-secret
+
+demo:
+  accounts:
+    enabled: false
+    seed-enabled: false
