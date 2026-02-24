@@ -80,8 +80,30 @@ services:
     networks:
       - insidemovie-net
 
+  frontend-dev:
+    image: node:24-slim
+    working_dir: /app
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Seoul
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_PROXY_TARGET: "http://backend:8080"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./apps/frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - insidemovie-net
+    profiles:
+      - dev
+
 volumes:
   mysql_data:
+  frontend_node_modules:
 
 networks:
   insidemovie-net:
