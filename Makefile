@@ -10,6 +10,7 @@ DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai \
 	seed-movie-genres seed-movie-genres-dry-run \
 	seed-movie-metadata seed-movie-metadata-dry-run \
+	audit-movie-posters audit-movie-posters-dry-run \
 	data-backfill data-backfill-dry-run \
 	seed-reviews-ai seed-reviews-ai-dry-run \
 	seed-matches seed-matches-dry-run
@@ -44,6 +45,8 @@ help:
 	@echo "  make seed-movie-genres-dry-run - DB 저장 없이 movie_genre 백필 dry-run 실행"
 	@echo "  make seed-movie-metadata       - KMDb 기반 영화 메타(포스터/시놉시스/배경) 누락 백필 실행"
 	@echo "  make seed-movie-metadata-dry-run - DB 저장 없이 영화 메타 누락 백필 dry-run 실행"
+	@echo "  make audit-movie-posters         - 포스터 누락 원인 감사 및 KMDb 기반 보강 실행"
+	@echo "  make audit-movie-posters-dry-run - DB 저장 없이 포스터 누락 원인 감사 dry-run 실행"
 	@echo "  make data-backfill            - 계정/영화/리뷰-AI/대결 데이터를 통합 증분 시드"
 	@echo "  make data-backfill-dry-run    - 통합 시드 dry-run"
 	@echo "  make seed-reviews-ai          - 일반계정 리뷰+AI 감정 데이터만 증분 시드"
@@ -147,6 +150,16 @@ seed-movie-metadata-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql
 	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=true
+
+audit-movie-posters:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=false
+
+audit-movie-posters-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=true
 
 data-backfill:
 	$(DC) build backend
