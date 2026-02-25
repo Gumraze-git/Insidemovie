@@ -1,0 +1,5 @@
+{"accountKey":"general-01","movieKoficId":"20261150","rating":4.5,"spoiler":false,"watchedAt":"2025-01-04T11:07:00","content":"첫 번째 테스트 리뷰 문장입니다."}
+{"accountKey":"general-01","movieKoficId":"20261208","rating":4.2,"spoiler":false,"watchedAt":"2025-01-05T11:07:00","content":"두 번째 테스트 리뷰 문장입니다."}
+{"accountKey":"general-02","movieKoficId":"20261150","rating":4.0,"spoiler":false,"watchedAt":"2025-01-06T11:07:00","content":"첫 번째 테스트 리뷰 문장입니다."}
+{"accountKey":"general-01","movieKoficId":"20261208","rating":4.0,"spoiler":false,"watchedAt":"2025-01-06T11:07:00","content":"세 번째 테스트 리뷰 문장입니다."}
+{"accountKey":"general-03","movieKoficId":"20261150","rating":4.0,"watchedAt":"broken-date","content":"잘못된 날짜"}

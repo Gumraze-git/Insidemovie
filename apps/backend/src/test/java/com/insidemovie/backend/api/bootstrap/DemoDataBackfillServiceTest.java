@@ -38,7 +38,8 @@ class DemoDataBackfillServiceTest {
     void runShouldAggregateReports() {
         DemoDataBackfillProperties.Review review = new DemoDataBackfillProperties.Review();
         review.setTargetPerAccount(20);
-        review.setIncludeWebFallback(true);
+        review.setFixturePath("seed/demo-reviews.v1.jsonl");
+        review.setMaxContentLen(260);
         DemoDataBackfillProperties.Match match = new DemoDataBackfillProperties.Match();
         match.setClosedTargetCount(8);
         match.setCurrentVoteTarget(10);
@@ -66,8 +67,14 @@ class DemoDataBackfillServiceTest {
                 .requestedMovies(50).succeededMovies(40).failedMovies(3).ignoredMovies(7)
                 .updatedPosterCount(25).updatedOverviewCount(20).updatedBackdropCount(18)
                 .build());
-        when(reviewAiSeedService.seed(false, 20, true)).thenReturn(ReviewAiSeedReport.builder()
-                .requestedReviews(600).createdReviews(580).skippedReviews(15).failedReviews(5).build());
+        when(reviewAiSeedService.seed(false, review)).thenReturn(ReviewAiSeedReport.builder()
+                .requestedReviews(600)
+                .createdReviews(580)
+                .skippedReviews(15)
+                .failedReviews(5)
+                .fixtureLoadedRows(600)
+                .fixtureInvalidRows(0)
+                .build());
         when(matchSeedService.seed(false, 8, 10)).thenReturn(MatchSeedReport.builder()
                 .closedMatchesCreated(8).currentMatchesCreated(1).votesCreated(250).build());
 
@@ -77,9 +84,10 @@ class DemoDataBackfillServiceTest {
         assertThat(report.getGenreMapped()).isEqualTo(120);
         assertThat(report.getMetadataUpdatedPoster()).isEqualTo(25);
         assertThat(report.getReviewsCreated()).isEqualTo(580);
+        assertThat(report.getReviewFixtureLoaded()).isEqualTo(600);
+        assertThat(report.getReviewFixtureInvalid()).isZero();
         assertThat(report.getEmotionsCreated()).isEqualTo(580);
         assertThat(report.getMatchesClosedCreated()).isEqualTo(8);
         assertThat(report.getCurrentCreated()).isEqualTo(1);
     }
 }
-

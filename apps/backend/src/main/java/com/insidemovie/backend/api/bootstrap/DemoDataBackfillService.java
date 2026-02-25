@@ -54,6 +54,8 @@ public class DemoDataBackfillService {
                 .createdReviews(0)
                 .skippedReviews(0)
                 .failedReviews(0)
+                .fixtureLoadedRows(0)
+                .fixtureInvalidRows(0)
                 .build();
 
         MatchSeedReport matchReport = MatchSeedReport.builder()
@@ -72,11 +74,7 @@ public class DemoDataBackfillService {
             metadataReport = movieMetadataBackfillService.backfill(dryRun);
         }
         if (properties.isIncludeReviews()) {
-            reviewReport = reviewAiSeedService.seed(
-                    dryRun,
-                    properties.getReview().getTargetPerAccount(),
-                    properties.getReview().isIncludeWebFallback()
-            );
+            reviewReport = reviewAiSeedService.seed(dryRun, properties.getReview());
         }
         if (properties.isIncludeMatches()) {
             matchReport = matchSeedService.seed(
@@ -97,6 +95,8 @@ public class DemoDataBackfillService {
                 .reviewsCreated(reviewReport.getCreatedReviews())
                 .reviewsSkipped(reviewReport.getSkippedReviews())
                 .reviewsFailed(reviewReport.getFailedReviews())
+                .reviewFixtureLoaded(reviewReport.getFixtureLoadedRows())
+                .reviewFixtureInvalid(reviewReport.getFixtureInvalidRows())
                 .emotionsCreated(reviewReport.getCreatedReviews())
                 .matchesClosedCreated(matchReport.getClosedMatchesCreated())
                 .currentCreated(matchReport.getCurrentMatchesCreated())
@@ -104,4 +104,3 @@ public class DemoDataBackfillService {
                 .build();
     }
 }
-

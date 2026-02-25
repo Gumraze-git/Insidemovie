@@ -6,7 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@EnableConfigurationProperties({FastApiProperties.class, KobisApiProperties.class, KmdbApiProperties.class})
+@EnableConfigurationProperties({
+        FastApiProperties.class,
+        KobisApiProperties.class,
+        KmdbApiProperties.class
+})
 public class RestClientConfig {
     @Bean
     public RestClient fastApiRestClient(

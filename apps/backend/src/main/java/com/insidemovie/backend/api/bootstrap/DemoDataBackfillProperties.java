@@ -22,7 +22,8 @@ public class DemoDataBackfillProperties {
     @Setter
     public static class Review {
         private int targetPerAccount = 20;
-        private boolean includeWebFallback = true;
+        private String fixturePath = "seed/demo-reviews.v1.jsonl";
+        private int maxContentLen = 260;
     }
 
     @Getter
@@ -32,4 +33,3 @@ public class DemoDataBackfillProperties {
         private int currentVoteTarget = 10;
     }
 }
-

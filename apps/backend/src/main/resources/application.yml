@@ -91,6 +91,10 @@ movie:
     backfill:
       enabled: false
       dry-run: false
+    poster:
+      audit:
+        enabled: false
+        dry-run: true
 
 demo:
   accounts:
@@ -107,7 +111,8 @@ demo:
       include-matches: true
       review:
         target-per-account: 20
-        include-web-fallback: true
+        fixture-path: seed/demo-reviews.v1.jsonl
+        max-content-len: 260
       match:
         closed-target-count: 8
         current-vote-target: 10
