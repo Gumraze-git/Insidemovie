@@ -25,7 +25,7 @@ public class DemoDataBackfillRunner implements ApplicationRunner {
         try {
             boolean dryRun = properties.isDryRun();
             DemoDataBackfillReport report = demoDataBackfillService.run(dryRun);
-            log.info("[DemoDataBackfill] completed dryRun={} accountsCreated={} accountsUpdated={} genreMapped={} metadataUpdatedPoster={} metadataUpdatedOverview={} metadataUpdatedBackdrop={} reviewsRequested={} reviewsCreated={} reviewsSkipped={} reviewsFailed={} emotionsCreated={} matchesClosedCreated={} currentCreated={} votesCreated={}",
+            log.info("[DemoDataBackfill] completed dryRun={} accountsCreated={} accountsUpdated={} genreMapped={} metadataUpdatedPoster={} metadataUpdatedOverview={} metadataUpdatedBackdrop={} reviewsRequested={} reviewsCreated={} reviewsSkipped={} reviewsFailed={} reviewFixtureLoaded={} reviewFixtureInvalid={} emotionsCreated={} matchesClosedCreated={} currentCreated={} votesCreated={}",
                     dryRun,
                     report.getAccountsCreated(),
                     report.getAccountsUpdated(),
@@ -37,6 +37,8 @@ public class DemoDataBackfillRunner implements ApplicationRunner {
                     report.getReviewsCreated(),
                     report.getReviewsSkipped(),
                     report.getReviewsFailed(),
+                    report.getReviewFixtureLoaded(),
+                    report.getReviewFixtureInvalid(),
                     report.getEmotionsCreated(),
                     report.getMatchesClosedCreated(),
                     report.getCurrentCreated(),
@@ -52,4 +54,3 @@ public class DemoDataBackfillRunner implements ApplicationRunner {
         }
     }
 }
-

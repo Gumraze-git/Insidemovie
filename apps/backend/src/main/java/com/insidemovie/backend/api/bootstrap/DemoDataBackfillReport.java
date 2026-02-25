@@ -16,9 +16,10 @@ public class DemoDataBackfillReport {
     private final int reviewsCreated;
     private final int reviewsSkipped;
     private final int reviewsFailed;
+    private final int reviewFixtureLoaded;
+    private final int reviewFixtureInvalid;
     private final int emotionsCreated;
     private final int matchesClosedCreated;
     private final int currentCreated;
     private final int votesCreated;
 }
-

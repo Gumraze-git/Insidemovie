@@ -10,5 +10,6 @@ public class ReviewAiSeedReport {
     private final int createdReviews;
     private final int skippedReviews;
     private final int failedReviews;
+    private final int fixtureLoadedRows;
+    private final int fixtureInvalidRows;
 }
-
