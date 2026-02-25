@@ -37,6 +37,8 @@ public class KmdbMovieClient {
         if (title == null || title.isBlank()) {
             return List.of();
         }
+        String normalizedTitle = normalizeQuery(title);
+        String normalizedDirector = normalizeQuery(director);
 
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromPath(KMDB_SEARCH_PATH)
@@ -44,11 +46,14 @@ public class KmdbMovieClient {
                 .queryParam("ServiceKey", kmdbApiProperties.getKey())
                 .queryParam("detail", "Y")
                 .queryParam("listCount", Math.max(1, Math.min(listCount, 10)))
-                .queryParam("title", title);
+                .queryParam("title", normalizedTitle);
 
         if (year != null) {
             builder.queryParam("releaseDts", year);
             builder.queryParam("releaseDte", year);
+        }
+        if (!normalizedDirector.isBlank()) {
+            builder.queryParam("director", normalizedDirector);
         }
         String uri = builder.toUriString();
         JsonNode response;
@@ -174,5 +179,16 @@ public class KmdbMovieClient {
             return "";
         }
         return MARKUP_PATTERN.matcher(raw).replaceAll("").replaceAll("\\s+", " ").trim();
+    }
+
+    private String normalizeQuery(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        return raw
+                .replaceAll("!HS|!HE|<[^>]+>", " ")
+                .replaceAll("\\([^)]*\\)|\\[[^\\]]*\\]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 }

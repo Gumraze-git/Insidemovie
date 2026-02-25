@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -59,13 +61,12 @@ public class MovieMetadataBackfillService {
 
                 Integer year = resolveYear(info, movie);
                 String director = info.directors() == null || info.directors().isEmpty() ? "" : info.directors().get(0);
-                List<KmdbMovieCandidate> candidates = kmdbMovieClient.searchMovieCandidates(searchTitle, year, director, 5);
-                if (candidates.isEmpty() && year != null) {
-                    candidates = kmdbMovieClient.searchMovieCandidates(searchTitle, null, director, 5);
-                }
-                if (candidates.isEmpty() && !isBlank(info.titleEn())) {
-                    candidates = kmdbMovieClient.searchMovieCandidates(info.titleEn(), null, director, 5);
-                }
+                List<KmdbMovieCandidate> candidates = searchCandidates(
+                        searchTitle,
+                        firstNonBlank(info.titleEn(), movie.getTitleEn()),
+                        year,
+                        director
+                );
                 Optional<KmdbMovieCandidate> matched = selectBestMatch(info, movie, candidates);
 
                 if (matched.isEmpty() || !matched.get().hasMetadata()) {
@@ -141,14 +142,17 @@ public class MovieMetadataBackfillService {
 
         KmdbMovieCandidate best = null;
         int bestScore = -1;
+        boolean bestHasPoster = false;
 
         for (KmdbMovieCandidate candidate : candidates) {
             int score = scoreTitle(kobisTitle, candidate.title())
                     + scoreYear(kobisYear, candidate.productionYear())
                     + scoreDirectors(kobisDirectors, candidate.directors());
-            if (score > bestScore) {
+            boolean hasPoster = !isBlank(candidate.posterPath());
+            if (score > bestScore || (score == bestScore && hasPoster && !bestHasPoster)) {
                 bestScore = score;
                 best = candidate;
+                bestHasPoster = hasPoster;
             }
         }
 
@@ -226,7 +230,9 @@ public class MovieMetadataBackfillService {
             return "";
         }
         return value
-                .replaceAll("!HS|!HE|<[^>]+>", "")
+                .replaceAll("!HS|!HE|<[^>]+>", " ")
+                .replaceAll("\\([^)]*\\)|\\[[^\\]]*\\]", " ")
+                .replaceAll("[:：\\-–_]", " ")
                 .replaceAll("[\\s\\p{Punct}]+", "")
                 .toLowerCase(Locale.ROOT)
                 .trim();
@@ -244,5 +250,38 @@ public class MovieMetadataBackfillService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private List<KmdbMovieCandidate> searchCandidates(String title, String titleEn, Integer year, String director) {
+        List<KmdbMovieCandidate> merged = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, director, 5));
+        if (year != null) {
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, "", 5));
+        }
+        if (!isBlank(director)) {
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, director, 5));
+        }
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, "", 5));
+        if (!isBlank(titleEn)) {
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(titleEn, null, "", 5));
+        }
+        return merged;
+    }
+
+    private void appendUnique(List<KmdbMovieCandidate> merged, Set<String> seen, List<KmdbMovieCandidate> candidates) {
+        if (candidates == null || candidates.isEmpty()) {
+            return;
+        }
+        for (KmdbMovieCandidate candidate : candidates) {
+            String key = normalizeText(candidate.title()) + "|" + candidate.productionYear() + "|"
+                    + (candidate.directors() == null || candidate.directors().isEmpty()
+                    ? ""
+                    : normalizeText(candidate.directors().get(0)));
+            if (seen.add(key)) {
+                merged.add(candidate);
+            }
+        }
     }
 }
