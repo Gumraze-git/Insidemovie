@@ -5,8 +5,6 @@ import com.insidemovie.backend.api.constant.EmotionType;
 import com.insidemovie.backend.api.member.entity.Member;
 import com.insidemovie.backend.api.member.repository.MemberRepository;
 import com.insidemovie.backend.api.movie.entity.Movie;
-import com.insidemovie.backend.api.movie.infrastructure.kmdb.KmdbMovieClient;
-import com.insidemovie.backend.api.movie.infrastructure.kobis.KobisMovieInfoClient;
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
 import com.insidemovie.backend.api.review.repository.ReviewRepository;
 import com.insidemovie.backend.api.review.service.ReviewService;
@@ -16,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,11 +40,7 @@ class ReviewAiSeedServiceTest {
     @Mock
     private ReviewService reviewService;
     @Mock
-    private KobisMovieInfoClient kobisMovieInfoClient;
-    @Mock
-    private KmdbMovieClient kmdbMovieClient;
-    @Mock
-    private WebSynopsisClient webSynopsisClient;
+    private DemoReviewFixtureLoader fixtureLoader;
 
     @InjectMocks
     private ReviewAiSeedService reviewAiSeedService;
@@ -58,26 +52,39 @@ class ReviewAiSeedServiceTest {
                 EmotionType.JOY, 0.6f, 0.1f, 0.1f, 0.1f, 0.1f
         );
 
-        Member member = Member.builder().id(11L).email(general.email()).isBanned(false).build();
-        Movie movie = Movie.builder()
-                .id(1L)
-                .title("테스트 영화")
-                .overview("주인공이 성장하는 이야기입니다.")
-                .releaseDate(LocalDate.of(2024, 1, 1))
+        DemoReviewSeedRow row = DemoReviewSeedRow.builder()
+                .accountKey("general-01")
+                .movieKoficId("20261150")
+                .rating(4.5)
+                .spoiler(false)
+                .watchedAt(LocalDateTime.parse("2025-01-04T11:07:00"))
+                .content("테스트 리뷰")
                 .build();
 
+        DemoDataBackfillProperties.Review reviewProperties = new DemoDataBackfillProperties.Review();
+        reviewProperties.setFixturePath("seed/demo-reviews.v1.jsonl");
+        reviewProperties.setTargetPerAccount(20);
+        reviewProperties.setMaxContentLen(260);
+
+        Member member = Member.builder().id(11L).email(general.email()).isBanned(false).build();
+        Movie movie = Movie.builder().id(1L).koficId("20261150").title("점보").build();
+
         when(demoAccountCatalogService.getGeneralAccountDefinitions()).thenReturn(List.of(general));
+        when(fixtureLoader.load("seed/demo-reviews.v1.jsonl", 260))
+                .thenReturn(new DemoReviewFixtureLoadResult(List.of(row), 0));
         when(memberRepository.findByEmail(general.email())).thenReturn(Optional.of(member));
-        when(movieRepository.findAll()).thenReturn(List.of(movie));
-        when(reviewRepository.countByMember(member)).thenReturn(19L);
-        when(reviewRepository.findMovieIdsByMemberId(11L)).thenReturn(List.of());
+        when(movieRepository.findByKoficId("20261150")).thenReturn(Optional.of(movie));
+        when(reviewRepository.findByMemberAndMovie(member, movie)).thenReturn(Optional.empty());
         when(reviewService.createReview(eq(1L), any(), eq(11L))).thenReturn(1L);
 
-        ReviewAiSeedReport report = reviewAiSeedService.seed(false, 20, false);
+        ReviewAiSeedReport report = reviewAiSeedService.seed(false, reviewProperties);
 
         assertThat(report.getRequestedReviews()).isEqualTo(1);
         assertThat(report.getCreatedReviews()).isEqualTo(1);
+        assertThat(report.getSkippedReviews()).isZero();
         assertThat(report.getFailedReviews()).isZero();
+        assertThat(report.getFixtureLoadedRows()).isEqualTo(1);
+        assertThat(report.getFixtureInvalidRows()).isZero();
         verify(reviewService, times(1)).createReview(eq(1L), any(), eq(11L));
     }
 
@@ -88,20 +95,34 @@ class ReviewAiSeedServiceTest {
                 EmotionType.JOY, 0.6f, 0.1f, 0.1f, 0.1f, 0.1f
         );
 
+        DemoReviewSeedRow row = DemoReviewSeedRow.builder()
+                .accountKey("general-01")
+                .movieKoficId("20261150")
+                .rating(4.5)
+                .spoiler(false)
+                .watchedAt(LocalDateTime.parse("2025-01-04T11:07:00"))
+                .content("테스트 리뷰")
+                .build();
+
+        DemoDataBackfillProperties.Review reviewProperties = new DemoDataBackfillProperties.Review();
+        reviewProperties.setFixturePath("seed/demo-reviews.v1.jsonl");
+        reviewProperties.setTargetPerAccount(1);
+        reviewProperties.setMaxContentLen(260);
+
         Member member = Member.builder().id(7L).email(general.email()).isBanned(false).build();
-        Movie movie = Movie.builder().id(3L).title("테스트 영화2").overview("설명이 있는 영화").build();
+        Movie movie = Movie.builder().id(3L).koficId("20261150").title("점보").build();
 
         when(demoAccountCatalogService.getGeneralAccountDefinitions()).thenReturn(List.of(general));
+        when(fixtureLoader.load("seed/demo-reviews.v1.jsonl", 260))
+                .thenReturn(new DemoReviewFixtureLoadResult(List.of(row), 0));
         when(memberRepository.findByEmail(general.email())).thenReturn(Optional.of(member));
-        when(movieRepository.findAll()).thenReturn(List.of(movie));
-        when(reviewRepository.countByMember(member)).thenReturn(0L);
-        when(reviewRepository.findMovieIdsByMemberId(7L)).thenReturn(List.of());
+        when(movieRepository.findByKoficId("20261150")).thenReturn(Optional.of(movie));
+        when(reviewRepository.findByMemberAndMovie(member, movie)).thenReturn(Optional.empty());
 
-        ReviewAiSeedReport report = reviewAiSeedService.seed(true, 1, true);
+        ReviewAiSeedReport report = reviewAiSeedService.seed(true, reviewProperties);
 
         assertThat(report.getRequestedReviews()).isEqualTo(1);
         assertThat(report.getCreatedReviews()).isEqualTo(1);
         verify(reviewService, never()).createReview(eq(3L), any(), eq(7L));
     }
 }
-
