@@ -45,6 +45,12 @@ make up
 
 - 실제 반영: `make seed-movie-metadata`
 - 시뮬레이션: `make seed-movie-metadata-dry-run`
+- 포스터 감사(원인 분류 + 보강): `make audit-movie-posters`
+- 포스터 감사 dry-run: `make audit-movie-posters-dry-run`
+
+참고:
+- KOBIS/KOFIC OpenAPI는 영화 포스터 URL을 제공하지 않습니다.
+- 포스터 보강 원천은 KMDb이며, 끝까지 누락되는 경우 프론트 fallback 이미지를 사용합니다.
 
 필수 환경변수:
 - `KOBIS_API_KEY`
@@ -60,9 +66,14 @@ make up
 세부 디버깅용:
 - 리뷰+AI만: `make seed-reviews-ai`
 - 대결/이력만: `make seed-matches`
+- 포스터 감사만: `make audit-movie-posters`
 
 재실행 정책:
 - 기존 데이터를 삭제하지 않고 부족분만 채우는 idempotent 증분 방식
+
+리뷰 시드 정책:
+- 리뷰는 런타임 생성이 아닌 고정 fixture(`apps/backend/src/main/resources/seed/demo-reviews.v1.jsonl`)를 사용합니다.
+- 면접/데모 환경에서 추가 파일 없이 동일 결과를 재현할 수 있습니다.
 
 주의:
 - Docker daemon이 꺼져 있으면 모든 `make` 명령이 실패합니다. 먼저 Docker Desktop을 실행하세요.

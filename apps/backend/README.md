@@ -16,6 +16,12 @@
 
 - `make seed-movie-metadata`
 - `make seed-movie-metadata-dry-run`
+- `make audit-movie-posters`
+- `make audit-movie-posters-dry-run`
+
+참고:
+- KOBIS/KOFIC OpenAPI는 포스터 URL을 제공하지 않습니다.
+- 포스터 보강은 KMDb에서 수행하며 누락 시 프론트 fallback 이미지를 사용합니다.
 
 ## 통합 데모 데이터 백필
 
@@ -34,3 +40,7 @@
 단일 영역 디버그:
 - `make seed-reviews-ai`
 - `make seed-matches`
+
+리뷰 시드 정책:
+- 고정 fixture 파일 `apps/backend/src/main/resources/seed/demo-reviews.v1.jsonl`을 사용합니다.
+- 실행 시 생성형 호출 없이 fixture를 읽어 리뷰/감정 데이터를 적재합니다.
