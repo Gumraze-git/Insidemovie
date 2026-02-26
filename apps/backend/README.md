@@ -18,6 +18,9 @@
 - `make seed-movie-metadata-dry-run`
 - `make audit-movie-posters`
 - `make audit-movie-posters-dry-run`
+- `make refresh-movie-posters`
+- `make refresh-movie-posters-dry-run`
+- 감사 리포트 출력: `apps/backend/build/reports/poster-audit.json`
 
 참고:
 - KOBIS/KOFIC OpenAPI는 포스터 URL을 제공하지 않습니다.
@@ -32,8 +35,10 @@
 
 포함 범위:
 - 데모 계정(온보딩 5 + 일반 30) 시드 보장
+- 박스오피스(일간/주간) 적재
 - movie_genre 백필
 - movie 메타데이터(포스터/배경/시놉시스) 누락 백필
+- 포스터 감사 집계 로그 출력
 - 일반 계정 리뷰 + AI 감정 결과 생성
 - 영화 대결 이력(닫힌 매치 8 + 현재 진행 1) 시드
 
