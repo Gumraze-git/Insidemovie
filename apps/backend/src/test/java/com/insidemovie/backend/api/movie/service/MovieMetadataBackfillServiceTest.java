@@ -73,7 +73,7 @@ class MovieMetadataBackfillServiceTest {
 
         when(movieRepository.findAllByKoficIdIsNotNullAndMetadataMissing()).thenReturn(List.of(movie));
         when(kobisMovieInfoClient.fetchMovieInfo("20020234")).thenReturn(Optional.of(info));
-        when(kmdbMovieClient.searchMovieCandidates("반지의 제왕 : 두 개의 탑", 2002, "피터 잭슨", 5))
+        when(kmdbMovieClient.searchMovieCandidates("반지의 제왕 : 두 개의 탑", 2002, "피터 잭슨", 20))
                 .thenReturn(List.of(candidate));
 
         MovieMetadataBackfillReport report = movieMetadataBackfillService.backfill(false);
@@ -124,7 +124,7 @@ class MovieMetadataBackfillServiceTest {
 
         when(movieRepository.findAllByKoficIdIsNotNullAndMetadataMissing()).thenReturn(List.of(movie));
         when(kobisMovieInfoClient.fetchMovieInfo("20241266")).thenReturn(Optional.of(info));
-        when(kmdbMovieClient.searchMovieCandidates("대가족", 2024, "양우석", 5))
+        when(kmdbMovieClient.searchMovieCandidates("대가족", 2024, "양우석", 20))
                 .thenReturn(List.of(candidate));
 
         MovieMetadataBackfillReport report = movieMetadataBackfillService.backfill(true);
@@ -133,5 +133,54 @@ class MovieMetadataBackfillServiceTest {
         assertThat(report.getSucceededMovies()).isEqualTo(1);
         assertThat(report.getUpdatedPosterCount()).isEqualTo(1);
         assertThat(report.getUpdatedOverviewCount()).isEqualTo(1);
+    }
+
+    @Test
+    void backfill_shouldAcceptRelaxedMatchWhenScoreBelowDefaultThreshold() {
+        Movie movie = Movie.builder()
+                .id(3L)
+                .koficId("20020234")
+                .title("반지의 제왕 : 두 개의 탑")
+                .releaseDate(LocalDate.of(2002, 12, 19))
+                .overview("")
+                .posterPath(null)
+                .backdropPath(null)
+                .build();
+
+        KobisMovieInfo info = new KobisMovieInfo(
+                "20020234",
+                "반지의 제왕 : 두 개의 탑",
+                "The Lord of the Rings: The Two Towers",
+                "20021219",
+                2002,
+                179,
+                "미국",
+                List.of("피터 잭슨"),
+                List.of(),
+                "12세관람가",
+                List.of("액션", "판타지")
+        );
+
+        KmdbMovieCandidate relaxedCandidate = new KmdbMovieCandidate(
+                "반지의 제왕",
+                "The Lord of the Rings",
+                2003,
+                List.of("피터 잭슨"),
+                "http://poster.example/lotr-relaxed.jpg",
+                "",
+                ""
+        );
+
+        when(movieRepository.findAllByKoficIdIsNotNullAndMetadataMissing()).thenReturn(List.of(movie));
+        when(kobisMovieInfoClient.fetchMovieInfo("20020234")).thenReturn(Optional.of(info));
+        when(kmdbMovieClient.searchMovieCandidates("반지의 제왕 : 두 개의 탑", 2002, "피터 잭슨", 20))
+                .thenReturn(List.of(relaxedCandidate));
+
+        MovieMetadataBackfillReport report = movieMetadataBackfillService.backfill(false);
+
+        verify(movieRepository, times(1)).save(any(Movie.class));
+        assertThat(report.getSucceededMovies()).isEqualTo(1);
+        assertThat(report.getUpdatedPosterCount()).isEqualTo(1);
+        assertThat(report.getIgnoredMovies()).isEqualTo(0);
     }
 }
