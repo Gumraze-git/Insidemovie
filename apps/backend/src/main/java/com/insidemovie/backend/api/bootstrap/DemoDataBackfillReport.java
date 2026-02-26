@@ -22,4 +22,8 @@ public class DemoDataBackfillReport {
     private final int matchesClosedCreated;
     private final int currentCreated;
     private final int votesCreated;
+    private final int posterAuditTargetMissing;
+    private final int posterAuditMatchedUpdated;
+    private final int posterAuditKmdbNoResult;
+    private final int posterAuditMatchScoreBelowThreshold;
 }

@@ -8,6 +8,7 @@ import com.insidemovie.backend.api.movie.infrastructure.kobis.model.KobisMovieIn
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +26,27 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MoviePosterAuditService {
 
-    private static final int MATCH_SCORE_THRESHOLD = 70;
-
     private final MovieRepository movieRepository;
     private final KobisMovieInfoClient kobisMovieInfoClient;
     private final KmdbMovieClient kmdbMovieClient;
+    @Value("${movie.metadata.match.list-count:20}")
+    private int listCount = 20;
+    @Value("${movie.metadata.match.min-score:70}")
+    private int minScore = 70;
+    @Value("${movie.metadata.match.relaxed-min-score:55}")
+    private int relaxedMinScore = 55;
+    @Value("${movie.metadata.match.relaxed-year-tolerance:1}")
+    private int relaxedYearTolerance = 1;
 
     @Transactional
     public MoviePosterAuditReport auditAndBackfill(boolean dryRun) {
+        return auditAndBackfill(dryRun, false);
+    }
+
+    @Transactional
+    public MoviePosterAuditReport auditAndBackfill(boolean dryRun, boolean includeDetails) {
         List<Movie> movies = movieRepository.findAllByKoficIdIsNotNull();
+        List<MoviePosterAuditReport.MoviePosterAuditDetail> details = includeDetails ? new ArrayList<>() : List.of();
 
         int totalMovies = 0;
         int targetMissingPosterMovies = 0;
@@ -50,6 +63,7 @@ public class MoviePosterAuditService {
 
             if (!isBlank(movie.getPosterPath())) {
                 alreadyHasPoster++;
+                addDetail(details, includeDetails, movie, "ALREADY_HAS_POSTER");
                 continue;
             }
 
@@ -68,18 +82,21 @@ public class MoviePosterAuditService {
                 List<KmdbMovieCandidate> candidates = searchCandidates(searchTitle, titleEn, year, director);
                 if (candidates.isEmpty()) {
                     kmdbNoResult++;
+                    addDetail(details, includeDetails, movie, "KMDB_NO_RESULT");
                     continue;
                 }
 
                 Optional<KmdbMovieCandidate> matched = selectBestMatch(info, movie, candidates);
                 if (matched.isEmpty()) {
                     matchScoreBelowThreshold++;
+                    addDetail(details, includeDetails, movie, "MATCH_SCORE_BELOW_THRESHOLD");
                     continue;
                 }
 
                 KmdbMovieCandidate candidate = matched.get();
                 if (isBlank(candidate.posterPath())) {
                     kmdbResultNoPoster++;
+                    addDetail(details, includeDetails, movie, "KMDB_RESULT_NO_POSTER");
                     continue;
                 }
 
@@ -96,9 +113,12 @@ public class MoviePosterAuditService {
                     }
                     movieRepository.save(movie);
                 }
+
                 matchedUpdated++;
+                addDetail(details, includeDetails, movie, "MATCHED_UPDATED");
             } catch (Exception e) {
                 failed++;
+                addDetail(details, includeDetails, movie, "FAILED");
                 log.warn("[MoviePosterAudit] failed movieId={} koficId={} error={}",
                         movie.getId(), movie.getKoficId(), e.getMessage());
             }
@@ -114,7 +134,25 @@ public class MoviePosterAuditService {
                 .matchScoreBelowThreshold(matchScoreBelowThreshold)
                 .matchedUpdated(matchedUpdated)
                 .failed(failed)
+                .details(details)
                 .build();
+    }
+
+    private void addDetail(
+            List<MoviePosterAuditReport.MoviePosterAuditDetail> details,
+            boolean includeDetails,
+            Movie movie,
+            String reason
+    ) {
+        if (!includeDetails) {
+            return;
+        }
+        details.add(MoviePosterAuditReport.MoviePosterAuditDetail.builder()
+                .movieId(movie.getId())
+                .koficId(movie.getKoficId())
+                .title(movie.getTitle())
+                .reason(reason)
+                .build());
     }
 
     private Optional<KmdbMovieCandidate> selectBestMatch(KobisMovieInfo info, Movie movie, List<KmdbMovieCandidate> candidates) {
@@ -142,26 +180,39 @@ public class MoviePosterAuditService {
             }
         }
 
-        if (best == null || bestScore < MATCH_SCORE_THRESHOLD) {
+        if (best == null) {
             return Optional.empty();
         }
-        return Optional.of(best);
+        if (bestScore >= minScore) {
+            return Optional.of(best);
+        }
+        if (allowRelaxedMatch(best, bestScore, kobisTitle, kobisYear)) {
+            log.info("KMDb relaxed poster match accepted movieId={} title={} score={} minScore={}",
+                    movie.getId(), movie.getTitle(), bestScore, minScore);
+            return Optional.of(best);
+        }
+        return Optional.empty();
     }
 
     private List<KmdbMovieCandidate> searchCandidates(String title, String titleEn, Integer year, String director) {
         List<KmdbMovieCandidate> merged = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        String normalizedTitle = normalizeTitleForQuery(title);
 
-        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, director, 5));
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, director, listCount));
         if (year != null) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, "", 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, "", listCount));
         }
         if (!isBlank(director)) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, director, 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, director, listCount));
         }
-        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, "", 5));
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, "", listCount));
         if (!isBlank(titleEn)) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(titleEn, null, "", 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(titleEn, null, "", listCount));
+        }
+        if (!normalizedTitle.isBlank() && !normalizedTitle.equals(title)) {
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(normalizedTitle, year, director, listCount));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(normalizedTitle, null, "", listCount));
         }
         return merged;
     }
@@ -239,6 +290,17 @@ public class MoviePosterAuditService {
                 .trim();
     }
 
+    private String normalizeTitleForQuery(String title) {
+        if (isBlank(title)) {
+            return "";
+        }
+        return title
+                .replaceAll("\\([^)]*\\)|\\[[^\\]]*\\]", " ")
+                .replaceAll("[:：\\-–_]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
     private String firstNonBlank(String primary, String fallback) {
         if (!isBlank(primary)) {
             return primary.trim();
@@ -272,7 +334,42 @@ public class MoviePosterAuditService {
         return firstNonBlank(info.directors().get(0), "");
     }
 
+    private boolean allowRelaxedMatch(
+            KmdbMovieCandidate best,
+            int bestScore,
+            String sourceTitle,
+            Integer sourceYear
+    ) {
+        if (bestScore < relaxedMinScore) {
+            return false;
+        }
+        if (isBlank(best.posterPath())) {
+            return false;
+        }
+        if (!isTitleSimilar(sourceTitle, best.title())) {
+            return false;
+        }
+        return isYearWithinTolerance(sourceYear, best.productionYear(), relaxedYearTolerance);
+    }
+
+    private boolean isTitleSimilar(String sourceTitle, String candidateTitle) {
+        if (isBlank(sourceTitle) || isBlank(candidateTitle)) {
+            return false;
+        }
+        String source = normalizeText(sourceTitle);
+        String candidate = normalizeText(candidateTitle);
+        return source.equals(candidate) || source.contains(candidate) || candidate.contains(source);
+    }
+
+    private boolean isYearWithinTolerance(Integer sourceYear, Integer candidateYear, int tolerance) {
+        if (sourceYear == null || candidateYear == null) {
+            return false;
+        }
+        return Math.abs(sourceYear - candidateYear) <= Math.max(tolerance, 0);
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
 }
+

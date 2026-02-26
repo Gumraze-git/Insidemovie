@@ -110,4 +110,32 @@ class MoviePosterAuditServiceTest {
         assertThat(report.getKmdbNoResult()).isEqualTo(1);
         assertThat(report.getMatchedUpdated()).isZero();
     }
+
+    @Test
+    void auditShouldIncludeDetailsWhenRequested() {
+        Movie hasPoster = Movie.builder()
+                .id(10L)
+                .koficId("20100001")
+                .title("이미 포스터 있음")
+                .posterPath("http://poster.example/exist.jpg")
+                .build();
+        Movie noPoster = Movie.builder()
+                .id(11L)
+                .koficId("20100002")
+                .title("포스터 없음")
+                .posterPath(null)
+                .build();
+
+        when(movieRepository.findAllByKoficIdIsNotNull()).thenReturn(List.of(hasPoster, noPoster));
+        when(kobisMovieInfoClient.fetchMovieInfo("20100002")).thenReturn(Optional.empty());
+        when(kmdbMovieClient.searchMovieCandidates(anyString(), nullable(Integer.class), anyString(), anyInt()))
+                .thenReturn(List.of());
+
+        MoviePosterAuditReport report = moviePosterAuditService.auditAndBackfill(true, true);
+
+        assertThat(report.getDetails()).hasSize(2);
+        assertThat(report.getDetails())
+                .extracting(MoviePosterAuditReport.MoviePosterAuditDetail::getReason)
+                .containsExactlyInAnyOrder("ALREADY_HAS_POSTER", "KMDB_NO_RESULT");
+    }
 }

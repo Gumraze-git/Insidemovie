@@ -2,10 +2,13 @@ package com.insidemovie.backend.api.bootstrap;
 
 import com.insidemovie.backend.api.auth.service.DemoAccountSeedReport;
 import com.insidemovie.backend.api.auth.service.DemoAccountSeedService;
+import com.insidemovie.backend.api.movie.service.BoxOfficeService;
 import com.insidemovie.backend.api.movie.service.MovieGenreBackfillReport;
 import com.insidemovie.backend.api.movie.service.MovieGenreBackfillService;
 import com.insidemovie.backend.api.movie.service.MovieMetadataBackfillReport;
 import com.insidemovie.backend.api.movie.service.MovieMetadataBackfillService;
+import com.insidemovie.backend.api.movie.service.MoviePosterAuditReport;
+import com.insidemovie.backend.api.movie.service.MoviePosterAuditService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,9 +26,13 @@ class DemoDataBackfillServiceTest {
     @Mock
     private DemoAccountSeedService demoAccountSeedService;
     @Mock
+    private BoxOfficeService boxOfficeService;
+    @Mock
     private MovieGenreBackfillService movieGenreBackfillService;
     @Mock
     private MovieMetadataBackfillService movieMetadataBackfillService;
+    @Mock
+    private MoviePosterAuditService moviePosterAuditService;
     @Mock
     private ReviewAiSeedService reviewAiSeedService;
     @Mock
@@ -45,8 +52,10 @@ class DemoDataBackfillServiceTest {
         match.setCurrentVoteTarget(10);
 
         when(properties.isIncludeAccounts()).thenReturn(true);
+        when(properties.isIncludeBoxoffice()).thenReturn(false);
         when(properties.isIncludeGenres()).thenReturn(true);
         when(properties.isIncludeMetadata()).thenReturn(true);
+        when(properties.isIncludePosterRefresh()).thenReturn(false);
         when(properties.isIncludeReviews()).thenReturn(true);
         when(properties.isIncludeMatches()).thenReturn(true);
         when(properties.getReview()).thenReturn(review);
@@ -89,5 +98,42 @@ class DemoDataBackfillServiceTest {
         assertThat(report.getEmotionsCreated()).isEqualTo(580);
         assertThat(report.getMatchesClosedCreated()).isEqualTo(8);
         assertThat(report.getCurrentCreated()).isEqualTo(1);
+        assertThat(report.getPosterAuditMatchedUpdated()).isZero();
+    }
+
+    @Test
+    void runShouldExecutePosterRefreshWhenEnabled() {
+        when(properties.isIncludeAccounts()).thenReturn(false);
+        when(properties.isIncludeBoxoffice()).thenReturn(false);
+        when(properties.isIncludeGenres()).thenReturn(false);
+        when(properties.isIncludeMetadata()).thenReturn(false);
+        when(properties.isIncludePosterRefresh()).thenReturn(true);
+        when(properties.isIncludeReviews()).thenReturn(false);
+        when(properties.isIncludeMatches()).thenReturn(false);
+        when(properties.getPosterRefresh()).thenReturn(new DemoDataBackfillProperties.PosterRefresh());
+
+        when(movieMetadataBackfillService.backfill(false)).thenReturn(MovieMetadataBackfillReport.builder()
+                .requestedMovies(5).succeededMovies(4).failedMovies(1).ignoredMovies(0)
+                .updatedPosterCount(3).updatedOverviewCount(1).updatedBackdropCount(1)
+                .build());
+        when(moviePosterAuditService.auditAndBackfill(false, false)).thenReturn(MoviePosterAuditReport.builder()
+                .totalMovies(80)
+                .targetMissingPosterMovies(50)
+                .alreadyHasPoster(30)
+                .kobisNoPosterSource(50)
+                .kmdbNoResult(20)
+                .kmdbResultNoPoster(0)
+                .matchScoreBelowThreshold(10)
+                .matchedUpdated(20)
+                .failed(0)
+                .build());
+
+        DemoDataBackfillReport report = demoDataBackfillService.run(false);
+
+        assertThat(report.getMetadataUpdatedPoster()).isEqualTo(3);
+        assertThat(report.getPosterAuditTargetMissing()).isEqualTo(50);
+        assertThat(report.getPosterAuditMatchedUpdated()).isEqualTo(20);
+        assertThat(report.getPosterAuditKmdbNoResult()).isEqualTo(20);
+        assertThat(report.getPosterAuditMatchScoreBelowThreshold()).isEqualTo(10);
     }
 }
