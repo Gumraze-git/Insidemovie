@@ -283,6 +283,7 @@ const MovieEmotionStep: React.FC<MovieEmotionStepProps> = ({
                     >
                         <SafeImage
                             src={movie.posterPath}
+                            fallbackKey={movie.id}
                             alt={movie.title}
                             className="w-12 h-16 rounded"
                         />
@@ -332,6 +333,7 @@ const MovieEmotionStep: React.FC<MovieEmotionStepProps> = ({
                         >
                             <SafeImage
                                 src={movie.posterPath}
+                                fallbackKey={movie.id}
                                 alt={movie.title}
                                 className="w-full object-contain"
                             />

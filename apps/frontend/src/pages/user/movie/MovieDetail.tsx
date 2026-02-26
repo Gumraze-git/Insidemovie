@@ -188,6 +188,8 @@ const MovieDetail: React.FC = () => {
                 <div className="absolute -top-[100px] left-0 w-full h-[840px] z-10">
                     <SafeImage
                         src={movieInfo.backdropPath}
+                        fallbackKey={`backdrop-${movieInfo.id}`}
+                        fallbackLabel="배경 준비중"
                         alt="backdrop"
                         className="w-full h-full object-cover opacity-50 blur-xs"
                         style={{
@@ -205,6 +207,7 @@ const MovieDetail: React.FC = () => {
                     <div className="flex flex-col items-center md:items-start md:flex-row gap-10 text-white">
                         <SafeImage
                             src={movieInfo.posterPath}
+                            fallbackKey={movieInfo.id}
                             alt={movieInfo.title}
                             className="w-80 h-fit rounded-md"
                         />

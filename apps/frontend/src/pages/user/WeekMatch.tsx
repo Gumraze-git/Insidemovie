@@ -178,6 +178,7 @@ const WeekMatch: React.FC = () => {
                                     pastWinners.map((movie, i) => (
                                         <WinnerItem
                                             key={i}
+                                            movieId={movie.movie.id}
                                             posterImg={movie.movie.posterPath}
                                             posterName={movie.movie.title}
                                             emotionIcon={

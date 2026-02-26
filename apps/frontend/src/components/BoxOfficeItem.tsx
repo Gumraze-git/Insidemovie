@@ -80,6 +80,7 @@ const BoxOfficeItem: React.FC<BoxOfficeItemProps> = ({
             <div className="flex w-full rounded-3xl bg-box_bg_white items-center cursor-pointer transform transition-all duration-200 hover:bg-box_bg_white/30">
                 <SafeImage
                     src={posterPath}
+                    fallbackKey={movieId}
                     alt={title}
                     className="w-auto h-32 rounded-l-3xl object-cover me-4"
                 />
