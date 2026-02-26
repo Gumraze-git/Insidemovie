@@ -45,7 +45,7 @@ public class KmdbMovieClient {
                 .queryParam("collection", "kmdb_new2")
                 .queryParam("ServiceKey", kmdbApiProperties.getKey())
                 .queryParam("detail", "Y")
-                .queryParam("listCount", Math.max(1, Math.min(listCount, 10)))
+                .queryParam("listCount", Math.max(1, Math.min(listCount, 20)))
                 .queryParam("title", normalizedTitle);
 
         if (year != null) {
@@ -188,6 +188,8 @@ public class KmdbMovieClient {
         return raw
                 .replaceAll("!HS|!HE|<[^>]+>", " ")
                 .replaceAll("\\([^)]*\\)|\\[[^\\]]*\\]", " ")
+                .replaceAll("[:：\\-–_]", " ")
+                .replaceAll("[\\p{Punct}]+", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
     }

@@ -8,6 +8,7 @@ import com.insidemovie.backend.api.movie.infrastructure.kobis.model.KobisMovieIn
 import com.insidemovie.backend.api.movie.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +26,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MovieMetadataBackfillService {
 
-    private static final int MATCH_SCORE_THRESHOLD = 70;
-
     private final MovieRepository movieRepository;
     private final KobisMovieInfoClient kobisMovieInfoClient;
     private final KmdbMovieClient kmdbMovieClient;
+    @Value("${movie.metadata.match.list-count:20}")
+    private int listCount = 20;
+    @Value("${movie.metadata.match.min-score:70}")
+    private int minScore = 70;
+    @Value("${movie.metadata.match.relaxed-min-score:55}")
+    private int relaxedMinScore = 55;
+    @Value("${movie.metadata.match.relaxed-year-tolerance:1}")
+    private int relaxedYearTolerance = 1;
 
     @Transactional
     public MovieMetadataBackfillReport backfill(boolean dryRun) {
@@ -156,11 +163,25 @@ public class MovieMetadataBackfillService {
             }
         }
 
-        if (best == null || bestScore < MATCH_SCORE_THRESHOLD) {
+        if (best == null) {
+            return Optional.empty();
+        }
+
+        if (bestScore >= minScore) {
+            return Optional.of(best);
+        }
+
+        if (allowRelaxedMatch(best, bestScore, kobisTitle, kobisYear)) {
+            log.info("KMDb relaxed match accepted movieId={} title={} score={} minScore={}",
+                    movie.getId(), movie.getTitle(), bestScore, minScore);
+            return Optional.of(best);
+        }
+
+        if (bestScore < minScore) {
             log.debug("KMDb match below threshold movieId={} title={} bestScore={}", movie.getId(), movie.getTitle(), bestScore);
             return Optional.empty();
         }
-        return Optional.of(best);
+        return Optional.empty();
     }
 
     private int scoreTitle(String sourceTitle, String candidateTitle) {
@@ -255,17 +276,22 @@ public class MovieMetadataBackfillService {
     private List<KmdbMovieCandidate> searchCandidates(String title, String titleEn, Integer year, String director) {
         List<KmdbMovieCandidate> merged = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        String normalizedTitle = normalizeTitleForQuery(title);
 
-        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, director, 5));
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, director, listCount));
         if (year != null) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, "", 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, year, "", listCount));
         }
         if (!isBlank(director)) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, director, 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, director, listCount));
         }
-        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, "", 5));
+        appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(title, null, "", listCount));
         if (!isBlank(titleEn)) {
-            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(titleEn, null, "", 5));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(titleEn, null, "", listCount));
+        }
+        if (!normalizedTitle.isBlank() && !normalizedTitle.equals(title)) {
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(normalizedTitle, year, director, listCount));
+            appendUnique(merged, seen, kmdbMovieClient.searchMovieCandidates(normalizedTitle, null, "", listCount));
         }
         return merged;
     }
@@ -283,5 +309,50 @@ public class MovieMetadataBackfillService {
                 merged.add(candidate);
             }
         }
+    }
+
+    private boolean allowRelaxedMatch(
+            KmdbMovieCandidate best,
+            int bestScore,
+            String sourceTitle,
+            Integer sourceYear
+    ) {
+        if (bestScore < relaxedMinScore) {
+            return false;
+        }
+        if (isBlank(best.posterPath())) {
+            return false;
+        }
+        if (!isTitleSimilar(sourceTitle, best.title())) {
+            return false;
+        }
+        return isYearWithinTolerance(sourceYear, best.productionYear(), relaxedYearTolerance);
+    }
+
+    private boolean isYearWithinTolerance(Integer sourceYear, Integer candidateYear, int tolerance) {
+        if (sourceYear == null || candidateYear == null) {
+            return false;
+        }
+        return Math.abs(sourceYear - candidateYear) <= Math.max(tolerance, 0);
+    }
+
+    private boolean isTitleSimilar(String sourceTitle, String candidateTitle) {
+        if (isBlank(sourceTitle) || isBlank(candidateTitle)) {
+            return false;
+        }
+        String source = normalizeText(sourceTitle);
+        String candidate = normalizeText(candidateTitle);
+        return source.equals(candidate) || source.contains(candidate) || candidate.contains(source);
+    }
+
+    private String normalizeTitleForQuery(String title) {
+        if (isBlank(title)) {
+            return "";
+        }
+        return title
+                .replaceAll("\\([^)]*\\)|\\[[^\\]]*\\]", " ")
+                .replaceAll("[:：\\-–_]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 }
