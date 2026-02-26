@@ -2,10 +2,14 @@ package com.insidemovie.backend.api.bootstrap;
 
 import com.insidemovie.backend.api.auth.service.DemoAccountSeedReport;
 import com.insidemovie.backend.api.auth.service.DemoAccountSeedService;
+import com.insidemovie.backend.api.movie.dto.boxoffice.BoxOfficeRequestDTO;
+import com.insidemovie.backend.api.movie.service.BoxOfficeService;
 import com.insidemovie.backend.api.movie.service.MovieGenreBackfillReport;
 import com.insidemovie.backend.api.movie.service.MovieGenreBackfillService;
 import com.insidemovie.backend.api.movie.service.MovieMetadataBackfillReport;
 import com.insidemovie.backend.api.movie.service.MovieMetadataBackfillService;
+import com.insidemovie.backend.api.movie.service.MoviePosterAuditReport;
+import com.insidemovie.backend.api.movie.service.MoviePosterAuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +19,10 @@ public class DemoDataBackfillService {
 
     private final DemoDataBackfillProperties properties;
     private final DemoAccountSeedService demoAccountSeedService;
+    private final BoxOfficeService boxOfficeService;
     private final MovieGenreBackfillService movieGenreBackfillService;
     private final MovieMetadataBackfillService movieMetadataBackfillService;
+    private final MoviePosterAuditService moviePosterAuditService;
     private final ReviewAiSeedService reviewAiSeedService;
     private final MatchSeedService matchSeedService;
 
@@ -63,9 +69,32 @@ public class DemoDataBackfillService {
                 .currentMatchesCreated(0)
                 .votesCreated(0)
                 .build();
+        MoviePosterAuditReport posterAuditReport = MoviePosterAuditReport.builder()
+                .totalMovies(0)
+                .targetMissingPosterMovies(0)
+                .alreadyHasPoster(0)
+                .kobisNoPosterSource(0)
+                .kmdbNoResult(0)
+                .kmdbResultNoPoster(0)
+                .matchScoreBelowThreshold(0)
+                .matchedUpdated(0)
+                .failed(0)
+                .build();
 
         if (properties.isIncludeAccounts()) {
             accountReport = demoAccountSeedService.seed(dryRun);
+        }
+        if (properties.isIncludeBoxoffice()) {
+            if (dryRun) {
+                // Boxoffice external fetch는 dry-run에서 실행하지 않고 단계만 표시한다.
+            } else {
+                BoxOfficeRequestDTO request = BoxOfficeRequestDTO.builder()
+                        .itemPerPage(10)
+                        .weekGb("0")
+                        .build();
+                boxOfficeService.fetchAndStoreDailyBoxOffice(request);
+                boxOfficeService.fetchAndStoreWeeklyBoxOffice(request);
+            }
         }
         if (properties.isIncludeGenres()) {
             genreReport = movieGenreBackfillService.backfill(dryRun);
@@ -81,6 +110,15 @@ public class DemoDataBackfillService {
                     dryRun,
                     properties.getMatch().getClosedTargetCount(),
                     properties.getMatch().getCurrentVoteTarget()
+            );
+        }
+        if (properties.isIncludePosterRefresh()) {
+            if (!properties.isIncludeMetadata()) {
+                metadataReport = movieMetadataBackfillService.backfill(dryRun);
+            }
+            posterAuditReport = moviePosterAuditService.auditAndBackfill(
+                    dryRun,
+                    properties.getPosterRefresh().isIncludeDetails()
             );
         }
 
@@ -101,6 +139,10 @@ public class DemoDataBackfillService {
                 .matchesClosedCreated(matchReport.getClosedMatchesCreated())
                 .currentCreated(matchReport.getCurrentMatchesCreated())
                 .votesCreated(matchReport.getVotesCreated())
+                .posterAuditTargetMissing(posterAuditReport.getTargetMissingPosterMovies())
+                .posterAuditMatchedUpdated(posterAuditReport.getMatchedUpdated())
+                .posterAuditKmdbNoResult(posterAuditReport.getKmdbNoResult())
+                .posterAuditMatchScoreBelowThreshold(posterAuditReport.getMatchScoreBelowThreshold())
                 .build();
     }
 }

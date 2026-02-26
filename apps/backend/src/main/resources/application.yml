@@ -83,11 +83,24 @@ scheduler:
 movie:
   seed-enabled: false # 시딩 끝나면 false
   update-enabled: false # TMDB 연동 제거로 업데이트 스케줄러 비활성화
+  boxoffice:
+    seed:
+      enabled: false
+      dry-run: false
+      include-daily: true
+      include-weekly: true
+      item-per-page: 10
+      week-gb: "0"
   genre:
     backfill:
       enabled: false
       dry-run: false
   metadata:
+    match:
+      list-count: 20
+      min-score: 70
+      relaxed-min-score: 55
+      relaxed-year-tolerance: 1
     backfill:
       enabled: false
       dry-run: false
@@ -95,6 +108,8 @@ movie:
       audit:
         enabled: false
         dry-run: true
+        include-details: false
+        report-path: build/reports/poster-audit.json
 
 demo:
   accounts:
@@ -105,8 +120,10 @@ demo:
       enabled: false
       dry-run: false
       include-accounts: true
+      include-boxoffice: true
       include-genres: true
       include-metadata: true
+      include-poster-refresh: true
       include-reviews: true
       include-matches: true
       review:
@@ -116,3 +133,5 @@ demo:
       match:
         closed-target-count: 8
         current-vote-target: 10
+      poster-refresh:
+        include-details: false

@@ -2,6 +2,7 @@ DOCKER_COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.yml
 PROJECT_NAME ?= insidemovie
 DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
+BACKEND_REPORTS_VOLUME = -v $(PWD)/apps/backend/build/reports:/app/build/reports
 
 .PHONY: help prepare-model build up down restart logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
@@ -10,6 +11,8 @@ DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 	logs-frontend logs-frontend-dev logs-backend-spring logs-backend-ai \
 	seed-movie-genres seed-movie-genres-dry-run \
 	seed-movie-metadata seed-movie-metadata-dry-run \
+	seed-boxoffice seed-boxoffice-dry-run \
+	refresh-movie-posters refresh-movie-posters-dry-run \
 	audit-movie-posters audit-movie-posters-dry-run \
 	data-backfill data-backfill-dry-run \
 	seed-reviews-ai seed-reviews-ai-dry-run \
@@ -45,6 +48,10 @@ help:
 	@echo "  make seed-movie-genres-dry-run - DB 저장 없이 movie_genre 백필 dry-run 실행"
 	@echo "  make seed-movie-metadata       - KMDb 기반 영화 메타(포스터/시놉시스/배경) 누락 백필 실행"
 	@echo "  make seed-movie-metadata-dry-run - DB 저장 없이 영화 메타 누락 백필 dry-run 실행"
+	@echo "  make seed-boxoffice            - KOBIS 일/주간 박스오피스 데이터 적재"
+	@echo "  make seed-boxoffice-dry-run    - 박스오피스 적재 dry-run (실제 저장 없음)"
+	@echo "  make refresh-movie-posters     - 영화 포스터 메타 보강 + 감사 리포트 실행"
+	@echo "  make refresh-movie-posters-dry-run - 영화 포스터 메타 보강 + 감사 리포트 dry-run"
 	@echo "  make audit-movie-posters         - 포스터 누락 원인 감사 및 KMDb 기반 보강 실행"
 	@echo "  make audit-movie-posters-dry-run - DB 저장 없이 포스터 누락 원인 감사 dry-run 실행"
 	@echo "  make data-backfill            - 계정/영화/리뷰-AI/대결 데이터를 통합 증분 시드"
@@ -151,20 +158,38 @@ seed-movie-metadata-dry-run:
 	$(DC) up -d mysql
 	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.backfill.enabled=true --movie.metadata.backfill.dry-run=true
 
+seed-boxoffice:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.boxoffice.seed.enabled=true --movie.boxoffice.seed.dry-run=false --movie.boxoffice.seed.include-daily=true --movie.boxoffice.seed.include-weekly=true --movie.boxoffice.seed.item-per-page=10 --movie.boxoffice.seed.week-gb=0
+
+seed-boxoffice-dry-run:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.boxoffice.seed.enabled=true --movie.boxoffice.seed.dry-run=true --movie.boxoffice.seed.include-daily=true --movie.boxoffice.seed.include-weekly=true --movie.boxoffice.seed.item-per-page=10 --movie.boxoffice.seed.week-gb=0
+
+refresh-movie-posters:
+	$(MAKE) seed-movie-metadata
+	$(MAKE) audit-movie-posters
+
+refresh-movie-posters-dry-run:
+	$(MAKE) seed-movie-metadata-dry-run
+	$(MAKE) audit-movie-posters-dry-run
+
 audit-movie-posters:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=false
+	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=false --movie.metadata.poster.audit.include-details=true
 
 audit-movie-posters-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql
-	$(DC) run --rm --no-deps backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=true
+	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=true --movie.metadata.poster.audit.include-details=true
 
 data-backfill:
 	$(DC) build backend
 	$(DC) up -d mysql ai
-	$(DC) run --rm --no-deps backend \
+	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend \
 		--spring.main.web-application-type=none \
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=false
@@ -172,7 +197,7 @@ data-backfill:
 data-backfill-dry-run:
 	$(DC) build backend
 	$(DC) up -d mysql ai
-	$(DC) run --rm --no-deps backend \
+	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend \
 		--spring.main.web-application-type=none \
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=true
@@ -185,8 +210,10 @@ seed-reviews-ai:
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=false \
 		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-boxoffice=false \
 		--demo.data.backfill.include-genres=false \
 		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-poster-refresh=false \
 		--demo.data.backfill.include-reviews=true \
 		--demo.data.backfill.include-matches=false
 
@@ -198,8 +225,10 @@ seed-reviews-ai-dry-run:
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=true \
 		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-boxoffice=false \
 		--demo.data.backfill.include-genres=false \
 		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-poster-refresh=false \
 		--demo.data.backfill.include-reviews=true \
 		--demo.data.backfill.include-matches=false
 
@@ -211,8 +240,10 @@ seed-matches:
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=false \
 		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-boxoffice=false \
 		--demo.data.backfill.include-genres=false \
 		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-poster-refresh=false \
 		--demo.data.backfill.include-reviews=false \
 		--demo.data.backfill.include-matches=true
 
@@ -224,7 +255,9 @@ seed-matches-dry-run:
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=true \
 		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-boxoffice=false \
 		--demo.data.backfill.include-genres=false \
 		--demo.data.backfill.include-metadata=false \
+		--demo.data.backfill.include-poster-refresh=false \
 		--demo.data.backfill.include-reviews=false \
 		--demo.data.backfill.include-matches=true

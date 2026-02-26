@@ -11,12 +11,15 @@ public class DemoDataBackfillProperties {
     private boolean enabled = false;
     private boolean dryRun = false;
     private boolean includeAccounts = true;
+    private boolean includeBoxoffice = true;
     private boolean includeGenres = true;
     private boolean includeMetadata = true;
+    private boolean includePosterRefresh = true;
     private boolean includeReviews = true;
     private boolean includeMatches = true;
     private final Review review = new Review();
     private final Match match = new Match();
+    private final PosterRefresh posterRefresh = new PosterRefresh();
 
     @Getter
     @Setter
@@ -31,5 +34,11 @@ public class DemoDataBackfillProperties {
     public static class Match {
         private int closedTargetCount = 8;
         private int currentVoteTarget = 10;
+    }
+
+    @Getter
+    @Setter
+    public static class PosterRefresh {
+        private boolean includeDetails = false;
     }
 }

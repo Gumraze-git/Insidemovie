@@ -25,7 +25,7 @@ public class DemoDataBackfillRunner implements ApplicationRunner {
         try {
             boolean dryRun = properties.isDryRun();
             DemoDataBackfillReport report = demoDataBackfillService.run(dryRun);
-            log.info("[DemoDataBackfill] completed dryRun={} accountsCreated={} accountsUpdated={} genreMapped={} metadataUpdatedPoster={} metadataUpdatedOverview={} metadataUpdatedBackdrop={} reviewsRequested={} reviewsCreated={} reviewsSkipped={} reviewsFailed={} reviewFixtureLoaded={} reviewFixtureInvalid={} emotionsCreated={} matchesClosedCreated={} currentCreated={} votesCreated={}",
+            log.info("[DemoDataBackfill] completed dryRun={} accountsCreated={} accountsUpdated={} genreMapped={} metadataUpdatedPoster={} metadataUpdatedOverview={} metadataUpdatedBackdrop={} reviewsRequested={} reviewsCreated={} reviewsSkipped={} reviewsFailed={} reviewFixtureLoaded={} reviewFixtureInvalid={} emotionsCreated={} matchesClosedCreated={} currentCreated={} votesCreated={} posterAuditTargetMissing={} posterAuditMatchedUpdated={} posterAuditKmdbNoResult={} posterAuditMatchScoreBelowThreshold={}",
                     dryRun,
                     report.getAccountsCreated(),
                     report.getAccountsUpdated(),
@@ -42,7 +42,11 @@ public class DemoDataBackfillRunner implements ApplicationRunner {
                     report.getEmotionsCreated(),
                     report.getMatchesClosedCreated(),
                     report.getCurrentCreated(),
-                    report.getVotesCreated()
+                    report.getVotesCreated(),
+                    report.getPosterAuditTargetMissing(),
+                    report.getPosterAuditMatchedUpdated(),
+                    report.getPosterAuditKmdbNoResult(),
+                    report.getPosterAuditMatchScoreBelowThreshold()
             );
         } catch (Exception e) {
             exitCode = 1;
