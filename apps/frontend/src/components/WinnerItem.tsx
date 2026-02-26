@@ -3,6 +3,7 @@ import StarFull from "@assets/star_full.svg?react";
 import SafeImage from "./common/SafeImage";
 
 interface WinnerItemProps {
+    movieId?: number;
     posterImg: string | null;
     posterName: string;
     emotionIcon: string;
@@ -13,6 +14,7 @@ interface WinnerItemProps {
 }
 
 const WinnerItem: React.FC<WinnerItemProps> = ({
+    movieId,
     posterImg,
     posterName,
     ratingAvg,
@@ -26,6 +28,7 @@ const WinnerItem: React.FC<WinnerItemProps> = ({
         >
             <SafeImage
                 src={posterImg}
+                fallbackKey={movieId ?? posterName}
                 alt={posterName}
                 className="w-auto h-32 rounded-l-3xl object-cover me-4"
             />

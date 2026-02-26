@@ -144,6 +144,7 @@ const ReviewWrite: React.FC = () => {
                     <div className="flex gap-10 text-white">
                         <SafeImage
                             src={movieInfo.posterPath}
+                            fallbackKey={movieIdNumber}
                             alt={movieInfo.title}
                             className="w-20 object-contain"
                         />
