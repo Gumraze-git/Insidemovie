@@ -58,7 +58,7 @@ class MatchSeedServiceTest {
         when(memberRepository.findByEmail(general02.email()))
                 .thenReturn(Optional.of(Member.builder().id(2L).email(general02.email()).isBanned(false).build()));
 
-        when(matchRepository.countByWinnerIdIsNotNull()).thenReturn(6L);
+        when(matchRepository.countClosedMatchesWithExistingWinnerMovie()).thenReturn(6L);
         when(matchRepository.countByWinnerIdIsNull()).thenReturn(0L);
 
         MatchSeedReport report = matchSeedService.seed(true, 8, 10);
@@ -71,4 +71,3 @@ class MatchSeedServiceTest {
         verify(matchService, never()).closeMatch();
     }
 }
-

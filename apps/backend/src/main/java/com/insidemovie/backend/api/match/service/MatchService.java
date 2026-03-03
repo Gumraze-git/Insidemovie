@@ -196,13 +196,16 @@ public class MatchService {
 
     // 역대 우승 영화 조회
     public List<WinnerHistoryDto> getWinnerHistory() {
-        List<Match> matches = matchRepository.findAll();
+        List<Match> matches = matchRepository.findAllByWinnerIdIsNotNullOrderByMatchNumberDesc();
         List<WinnerHistoryDto> response = new ArrayList<>();
 
         for (Match match : matches) {
-            if (match.getWinnerId() == null) continue;
-            Movie movie = movieRepository.findById(match.getWinnerId())
-                    .orElseThrow(() -> new NotFoundException(ErrorStatus.NOT_FOUND_MOVIE_EXCEPTION.getMessage()));
+            Movie movie = movieRepository.findById(match.getWinnerId()).orElse(null);
+            if (movie == null) {
+                log.warn("match winner movie not found. matchId={} matchNumber={} winnerId={}",
+                        match.getId(), match.getMatchNumber(), match.getWinnerId());
+                continue;
+            }
 
             Double ratingAvg = reviewRepository.findAverageByMovieId(movie.getId());
             BigDecimal rounded;
@@ -212,16 +215,6 @@ public class MatchService {
                 rounded= BigDecimal.valueOf(ratingAvg)
                         .setScale(2, RoundingMode.HALF_UP);
             }
-
-            MovieEmotionSummary movieEmotion = movie.getEmotions();
-            MovieEmotionResDTO emotionDto = MovieEmotionResDTO.builder()
-                    .joy(movieEmotion.getJoy())
-                    .anger(movieEmotion.getAnger())
-                    .sadness(movieEmotion.getSadness())
-                    .fear(movieEmotion.getFear())
-                    .disgust(movieEmotion.getDisgust())
-                    .dominantEmotion(movieEmotion.getDominantEmotion())
-                    .build();
 
             MovieDetailSimpleResDto movieDto = MovieDetailSimpleResDto.builder()
                     .id(movie.getId())

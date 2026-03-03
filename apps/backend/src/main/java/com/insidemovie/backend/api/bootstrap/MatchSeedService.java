@@ -47,7 +47,7 @@ public class MatchSeedService {
                     .build();
         }
 
-        long closed = matchRepository.countByWinnerIdIsNotNull();
+        long closed = matchRepository.countClosedMatchesWithExistingWinnerMovie();
         if (dryRun) {
             int missingClosed = Math.max(0, closedTargetCount - (int) closed);
             int currentNeeded = matchRepository.countByWinnerIdIsNull() == 0 ? 1 : 0;
@@ -59,7 +59,7 @@ public class MatchSeedService {
                     .build();
         }
 
-        while (matchRepository.countByWinnerIdIsNotNull() < closedTargetCount) {
+        while (matchRepository.countClosedMatchesWithExistingWinnerMovie() < closedTargetCount) {
             Optional<Match> openMatch = matchRepository.findTopByWinnerIdIsNullOrderByMatchNumberDesc();
             if (openMatch.isEmpty()) {
                 matchService.createMatch();
@@ -135,4 +135,3 @@ public class MatchSeedService {
                 .toList();
     }
 }
-
