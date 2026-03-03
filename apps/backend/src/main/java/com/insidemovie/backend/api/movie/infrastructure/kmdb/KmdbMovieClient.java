@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -39,41 +39,54 @@ public class KmdbMovieClient {
         }
         String normalizedTitle = normalizeQuery(title);
         String normalizedDirector = normalizeQuery(director);
-
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromPath(KMDB_SEARCH_PATH)
-                .queryParam("collection", "kmdb_new2")
-                .queryParam("ServiceKey", kmdbApiProperties.getKey())
-                .queryParam("detail", "Y")
-                .queryParam("listCount", Math.max(1, Math.min(listCount, 20)))
-                .queryParam("title", normalizedTitle);
-
-        if (year != null) {
-            builder.queryParam("releaseDts", year);
-            builder.queryParam("releaseDte", year);
+        if (normalizedTitle.isBlank()) {
+            return List.of();
         }
-        if (!normalizedDirector.isBlank()) {
-            builder.queryParam("director", normalizedDirector);
-        }
-        String uri = builder.toUriString();
+        int safeListCount = Math.max(1, Math.min(listCount, 20));
+        String queryMode = resolveQueryMode(year, normalizedDirector);
         JsonNode response;
         try {
-            String raw = kmdbRestClient.get().uri(uri).retrieve().body(String.class);
+            String raw = kmdbRestClient.get()
+                    .uri(uriBuilder -> {
+                        var builder = uriBuilder.path(KMDB_SEARCH_PATH)
+                                .queryParam("collection", "kmdb_new2")
+                                .queryParam("ServiceKey", kmdbApiProperties.getKey())
+                                .queryParam("detail", "Y")
+                                .queryParam("listCount", safeListCount)
+                                .queryParam("title", normalizedTitle);
+                        if (year != null) {
+                            builder.queryParam("releaseDts", String.format(Locale.ROOT, "%04d0101", year));
+                            builder.queryParam("releaseDte", String.format(Locale.ROOT, "%04d1231", year));
+                        }
+                        if (!normalizedDirector.isBlank()) {
+                            builder.queryParam("director", normalizedDirector);
+                        }
+                        return builder.build();
+                    })
+                    .retrieve()
+                    .body(String.class);
             if (raw == null || raw.isBlank()) {
+                log.debug("KMDb search returned empty body title={} year={} director={} queryMode={}",
+                        title, year, director, queryMode);
                 return List.of();
             }
             response = objectMapper.readTree(raw);
         } catch (RestClientException e) {
-            log.warn("KMDb search request failed title={} year={} director={} error={}", title, year, director, e.getMessage());
+            log.warn("KMDb search request failed title={} year={} director={} queryMode={} error={}",
+                    title, year, director, queryMode, e.getMessage());
             return List.of();
         } catch (Exception e) {
-            log.warn("KMDb response parse failed title={} year={} director={} error={}", title, year, director, e.getMessage());
+            log.warn("KMDb response parse failed title={} year={} director={} queryMode={} error={}",
+                    title, year, director, queryMode, e.getMessage());
             return List.of();
         }
 
         JsonNode dataNode = Optional.ofNullable(response)
                 .orElseGet(JsonNodeFactory.instance::objectNode)
                 .path("Data");
+        int totalCount = extractTotalCount(dataNode);
+        log.debug("KMDb search completed title={} year={} director={} queryMode={} totalCount={}",
+                title, year, director, queryMode, totalCount);
 
         if (!dataNode.isArray() || dataNode.isEmpty()) {
             return List.of();
@@ -87,6 +100,38 @@ public class KmdbMovieClient {
         return StreamSupport.stream(resultArray.spliterator(), false)
                 .map(this::toCandidate)
                 .toList();
+    }
+
+    private String resolveQueryMode(Integer year, String normalizedDirector) {
+        if (year != null && !normalizedDirector.isBlank()) {
+            return "TITLE_YEAR_DIRECTOR";
+        }
+        if (year != null) {
+            return "TITLE_YEAR";
+        }
+        if (!normalizedDirector.isBlank()) {
+            return "TITLE_DIRECTOR";
+        }
+        return "TITLE_ONLY";
+    }
+
+    private int extractTotalCount(JsonNode dataNode) {
+        if (!dataNode.isArray() || dataNode.isEmpty()) {
+            return 0;
+        }
+        JsonNode totalCountNode = dataNode.get(0).path("TotalCount");
+        if (totalCountNode.isInt() || totalCountNode.isLong()) {
+            return totalCountNode.asInt(0);
+        }
+        String raw = totalCountNode.asText("0").trim();
+        if (raw.isBlank()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     private KmdbMovieCandidate toCandidate(JsonNode node) {

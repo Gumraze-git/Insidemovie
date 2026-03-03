@@ -26,6 +26,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MoviePosterAuditService {
 
+    private static final String REASON_ALREADY_HAS_POSTER = "ALREADY_HAS_POSTER";
+    private static final String REASON_NO_RESULT_AFTER_ALL_QUERIES = "NO_RESULT_AFTER_ALL_QUERIES";
+    private static final String REASON_NO_MATCH_ABOVE_THRESHOLD = "NO_MATCH_ABOVE_THRESHOLD";
+    private static final String REASON_MATCHED_CANDIDATE_WITHOUT_POSTER = "MATCHED_CANDIDATE_WITHOUT_POSTER";
+    private static final String REASON_MATCHED_UPDATED = "MATCHED_UPDATED";
+    private static final String REASON_FAILED = "FAILED";
+
     private final MovieRepository movieRepository;
     private final KobisMovieInfoClient kobisMovieInfoClient;
     private final KmdbMovieClient kmdbMovieClient;
@@ -63,7 +70,7 @@ public class MoviePosterAuditService {
 
             if (!isBlank(movie.getPosterPath())) {
                 alreadyHasPoster++;
-                addDetail(details, includeDetails, movie, "ALREADY_HAS_POSTER");
+                addDetail(details, includeDetails, movie, REASON_ALREADY_HAS_POSTER);
                 continue;
             }
 
@@ -82,21 +89,21 @@ public class MoviePosterAuditService {
                 List<KmdbMovieCandidate> candidates = searchCandidates(searchTitle, titleEn, year, director);
                 if (candidates.isEmpty()) {
                     kmdbNoResult++;
-                    addDetail(details, includeDetails, movie, "KMDB_NO_RESULT");
+                    addDetail(details, includeDetails, movie, REASON_NO_RESULT_AFTER_ALL_QUERIES);
                     continue;
                 }
 
                 Optional<KmdbMovieCandidate> matched = selectBestMatch(info, movie, candidates);
                 if (matched.isEmpty()) {
                     matchScoreBelowThreshold++;
-                    addDetail(details, includeDetails, movie, "MATCH_SCORE_BELOW_THRESHOLD");
+                    addDetail(details, includeDetails, movie, REASON_NO_MATCH_ABOVE_THRESHOLD);
                     continue;
                 }
 
                 KmdbMovieCandidate candidate = matched.get();
                 if (isBlank(candidate.posterPath())) {
                     kmdbResultNoPoster++;
-                    addDetail(details, includeDetails, movie, "KMDB_RESULT_NO_POSTER");
+                    addDetail(details, includeDetails, movie, REASON_MATCHED_CANDIDATE_WITHOUT_POSTER);
                     continue;
                 }
 
@@ -115,10 +122,10 @@ public class MoviePosterAuditService {
                 }
 
                 matchedUpdated++;
-                addDetail(details, includeDetails, movie, "MATCHED_UPDATED");
+                addDetail(details, includeDetails, movie, REASON_MATCHED_UPDATED);
             } catch (Exception e) {
                 failed++;
-                addDetail(details, includeDetails, movie, "FAILED");
+                addDetail(details, includeDetails, movie, REASON_FAILED);
                 log.warn("[MoviePosterAudit] failed movieId={} koficId={} error={}",
                         movie.getId(), movie.getKoficId(), e.getMessage());
             }
@@ -372,4 +379,3 @@ public class MoviePosterAuditService {
         return value == null || value.trim().isEmpty();
     }
 }
-

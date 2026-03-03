@@ -136,6 +136,6 @@ class MoviePosterAuditServiceTest {
         assertThat(report.getDetails()).hasSize(2);
         assertThat(report.getDetails())
                 .extracting(MoviePosterAuditReport.MoviePosterAuditDetail::getReason)
-                .containsExactlyInAnyOrder("ALREADY_HAS_POSTER", "KMDB_NO_RESULT");
+                .containsExactlyInAnyOrder("ALREADY_HAS_POSTER", "NO_RESULT_AFTER_ALL_QUERIES");
     }
 }
