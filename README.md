@@ -44,7 +44,6 @@
 ## 자주 쓰는 명령
 
 - 전체 실행: `make up`
-- 프론트엔드 서버 실행: `make up-frontend-dev`
 - 백엔드 서버 실행(Spring + AI): `make up-backend-spring && make up-backend-ai`
 - Spring 서버 실행: `make up-backend-spring`
 - AI 서버 실행: `make up-backend-ai`
@@ -57,8 +56,10 @@
 
 아래 명령은 계정/영화 장르/영화 메타/리뷰+AI 감정/영화 대결 이력을 한 번에 증분 시드합니다.
 
-- 실제 반영: `make data-backfill`
+- 실제 반영: `make seed-all`
+- DB 초기화 후 전체 시드: `make seed-all-reset` (주의: 기존 데이터 삭제)
 - 시뮬레이션: `make data-backfill-dry-run`
+- 고급/세부 실행 명령: `make data-backfill`
 
 재실행 정책:
 - 기존 데이터를 삭제하지 않고 부족분만 채우는 idempotent 증분 방식
