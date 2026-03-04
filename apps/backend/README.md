@@ -38,6 +38,8 @@ AI 포함 전체 스택 검증이 필요할 때만 루트에서 `make up`을 사
 ## 통합 데모 데이터 백필
 
 기본 통합 시드는 로컬 snapshot SQL을 적재하며, 외부 API(KOBIS/KMDb/FastAPI)를 호출하지 않습니다.
+snapshot 적재 후 `insidemovie_backend.movie_emotion_summary`를
+`insidemovie_ai.movie_emotion_summary`로 동기화해 맞춤영화 추천 원본 데이터까지 보장합니다.
 
 - `make seed-all`
 - `make seed-all-no-ai`
