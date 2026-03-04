@@ -28,7 +28,7 @@ print_manual_download_guide() {
 }
 
 print_no_ai_guide() {
-  echo '[모델] AI 없이 먼저 데모를 실행하려면 `make up-no-ai`를 사용하세요.'
+  echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'
 }
 
 try_auto_download_model() {
@@ -86,8 +86,9 @@ case "${MODEL_MODE}" in
 esac
 
 if [[ "${MODEL_MODE}" == "skip" ]]; then
-  log_info "MODEL=skip 설정으로 모델 검증 없이 제한 모드(no-AI)로 진행합니다."
+  log_warn "MODEL=skip은 make up(full 전용)에서 지원하지 않습니다."
   print_no_ai_guide
+  log_info "요청에 따라 이번 make up 실행을 중단합니다."
   exit 1
 fi
 
@@ -119,7 +120,7 @@ while true; do
   printf "모델 다운로드 절차를 진행할까요? (y/n): "
   if ! IFS= read -r answer; then
     echo
-    log_warn "입력이 종료되어 제한 모드(no-AI)로 진행합니다."
+    log_warn "입력이 종료되어 이번 make up 실행을 중단합니다."
     print_no_ai_guide
     exit 1
   fi
@@ -142,11 +143,11 @@ while true; do
       fi
       log_info "안내한 명령을 수동 실행한 뒤 다시 make up을 실행하면 전체 모드(full)로 기동할 수 있습니다."
       print_no_ai_guide
-      log_info "이번 실행은 제한 모드(no-AI)로 계속 진행합니다."
+      log_info "요청에 따라 이번 make up 실행을 중단합니다."
       exit 1
       ;;
     n|N)
-      log_info "다운로드를 생략했습니다. 이번 실행은 제한 모드(no-AI)로 계속 진행합니다."
+      log_info "다운로드를 생략했습니다. 이번 make up 실행을 중단합니다."
       print_no_ai_guide
       exit 1
       ;;
