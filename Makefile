@@ -7,8 +7,12 @@ SEED ?= ask
 SEED_EST_TIME ?= 약 2~5분 (네트워크 환경에 따라 달라질 수 있음)
 SEED_EST_SIZE ?= 약 20~80MB (초기 데모 데이터 기준)
 SEED_CHECK_TIMEOUT_SEC ?= 60
+MODEL ?= ask
+MODEL_EST_SIZE ?= 약 352MB
+MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
+SEED_TARGET ?= seed-all
 
-.PHONY: help help-all prepare-model build up post-up-seed down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model build up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -17,18 +21,20 @@ SEED_CHECK_TIMEOUT_SEC ?= 60
 	seed-boxoffice seed-boxoffice-dry-run \
 	refresh-movie-posters refresh-movie-posters-dry-run \
 	audit-movie-posters audit-movie-posters-dry-run \
-	seed-all seed-all-reset \
-	data-backfill data-backfill-dry-run \
+	seed-all seed-all-no-ai seed-all-reset \
+	data-backfill data-backfill-no-ai data-backfill-dry-run \
 	seed-reviews-ai seed-reviews-ai-dry-run \
 	seed-matches seed-matches-dry-run
 
 help:
 	@echo "핵심 타겟:"
-	@echo "  make up                - 전체 서비스 실행 후 DB 상태에 따라 데모 시드 여부 확인"
+	@echo "  make up                - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
+	@echo "                           - MODEL=ask|required|skip (기본 ask)"
 	@echo "  make down              - 전체 서비스 중지/제거"
 	@echo "  make logs              - 전체 로그 팔로우"
 	@echo "  make ps                - 컨테이너 상태 확인"
 	@echo "  make seed-all          - 통합 증분 시드 실행"
+	@echo "  make seed-all-no-ai    - 리뷰/AI 단계 제외 통합 시드 실행"
 	@echo "  make seed-all-reset    - DB 초기화 후 통합 시드 실행(주의: 기존 데이터 삭제)"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
 	@echo "  make help-all          - 전체/고급 타깃 보기"
@@ -37,7 +43,9 @@ help-all:
 	@echo "전체 타겟:"
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
-	@echo "  make up                    - 모든 서비스 실행 후 조건부 시드 여부 확인"
+	@echo "  make up                    - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
+	@echo "                              - MODEL=ask|required|skip (기본 ask)"
+	@echo "                              - MODEL_EST_SIZE/MODEL_EST_TIME 안내 문구 오버라이드 가능"
 	@echo "                              - SEED=ask|yes|no (기본 ask)"
 	@echo "                              - SEED_EST_TIME/SEED_EST_SIZE/SEED_CHECK_TIMEOUT_SEC 오버라이드 가능"
 	@echo "  make down                  - 컨테이너 중지 및 제거"
@@ -56,8 +64,10 @@ help-all:
 	@echo "  make logs-backend-spring   - backend(Spring) 로그 확인"
 	@echo "  make logs-backend-ai       - ai(FastAPI) 로그 확인"
 	@echo "  make seed-all              - 통합 증분 시드 실행(data-backfill 래퍼)"
+	@echo "  make seed-all-no-ai        - 리뷰/AI 감정 단계 제외 통합 시드 실행"
 	@echo "  make seed-all-reset        - DB 초기화 후 통합 시드 실행"
 	@echo "  make data-backfill         - 계정/영화/리뷰-AI/대결 통합 증분 시드"
+	@echo "  make data-backfill-no-ai   - 리뷰/AI 감정 단계 제외 통합 증분 시드"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
 	@echo "  make seed-movie-genres     - KOBIS movieInfo 기반 movie_genre 백필 실행"
 	@echo "  make seed-movie-genres-dry-run - movie_genre 백필 dry-run"
@@ -80,9 +90,32 @@ prepare-model:
 build: prepare-model
 	$(DC) build
 
-up: prepare-model
+up:
+	@MODEL="$(MODEL)" \
+	MODEL_EST_SIZE="$(MODEL_EST_SIZE)" \
+	MODEL_EST_TIME="$(MODEL_EST_TIME)" \
+	./scripts/decide-model-for-up.sh; \
+	mode_code=$$?; \
+	if [ $$mode_code -eq 0 ]; then \
+		echo "[모델] 전체 모드(full)로 실행합니다."; \
+		$(MAKE) up-full; \
+		$(MAKE) post-up-seed; \
+	elif [ $$mode_code -eq 1 ]; then \
+		echo "[모델] 제한 모드(limited, no-AI)로 실행합니다."; \
+		$(MAKE) up-limited; \
+		$(MAKE) SEED_TARGET=seed-all-no-ai post-up-seed; \
+	elif [ $$mode_code -ge 2 ]; then \
+		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
+		exit $$mode_code; \
+	fi
+
+up-full:
 	$(DC) up -d --build
-	@$(MAKE) post-up-seed
+
+up-limited:
+	$(DC) up -d mysql
+	$(DC) up -d --build --no-deps backend
+	$(DC) up -d --build --no-deps frontend
 
 post-up-seed:
 	@SEED="$(SEED)" \
@@ -95,8 +128,8 @@ post-up-seed:
 	./scripts/maybe-seed-after-up.sh; \
 	code=$$?; \
 	if [ $$code -eq 0 ]; then \
-		echo "[시드] 통합 데모 데이터 시드를 시작합니다."; \
-		$(MAKE) seed-all; \
+		echo "[시드] 통합 데모 데이터 시드를 시작합니다. target=$(SEED_TARGET)"; \
+		$(MAKE) $(SEED_TARGET); \
 	elif [ $$code -eq 1 ]; then \
 		echo "[시드] 통합 데모 데이터 시드를 생략합니다."; \
 	elif [ $$code -ge 2 ]; then \
@@ -207,8 +240,26 @@ data-backfill:
 		--demo.data.backfill.enabled=true \
 		--demo.data.backfill.dry-run=false
 
+data-backfill-no-ai:
+	$(DC) build backend
+	$(DC) up -d mysql
+	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend \
+		--spring.main.web-application-type=none \
+		--demo.data.backfill.enabled=true \
+		--demo.data.backfill.dry-run=false \
+		--demo.data.backfill.include-accounts=true \
+		--demo.data.backfill.include-boxoffice=true \
+		--demo.data.backfill.include-genres=true \
+		--demo.data.backfill.include-metadata=true \
+		--demo.data.backfill.include-poster-refresh=true \
+		--demo.data.backfill.include-reviews=false \
+		--demo.data.backfill.include-matches=true
+
 seed-all:
 	$(MAKE) data-backfill
+
+seed-all-no-ai:
+	$(MAKE) data-backfill-no-ai
 
 seed-all-reset:
 	$(MAKE) reset-db
