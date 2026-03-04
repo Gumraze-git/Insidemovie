@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,6 +28,16 @@ public class KmdbMovieClient {
 
     private static final String KMDB_SEARCH_PATH = "/search_api/search_json2.jsp";
     private static final Pattern MARKUP_PATTERN = Pattern.compile("!HS|!HE|<[^>]+>");
+    private static final String PLACEHOLDER_KMDB_KEY = "dev-kmdb-api-key";
+    private static final List<String> AUTH_FAILURE_TOKENS = List.of(
+            "인증키",
+            "유효하지",
+            "servicekey",
+            "service key",
+            "invalid key"
+    );
+    private static final AtomicBoolean INVALID_KEY_INFO_LOGGED = new AtomicBoolean(false);
+    private static final AtomicBoolean AUTH_FAILURE_INFO_LOGGED = new AtomicBoolean(false);
 
     @Qualifier("kmdbRestClient")
     private final RestClient kmdbRestClient;
@@ -44,13 +55,20 @@ public class KmdbMovieClient {
         }
         int safeListCount = Math.max(1, Math.min(listCount, 20));
         String queryMode = resolveQueryMode(year, normalizedDirector);
+        String serviceKey = kmdbApiProperties.getKey();
+        if (isInvalidOrPlaceholderKey(serviceKey)) {
+            logInvalidKeySkipOnce(serviceKey, queryMode);
+            return List.of();
+        }
+
         JsonNode response;
+        String raw = null;
         try {
-            String raw = kmdbRestClient.get()
+            raw = kmdbRestClient.get()
                     .uri(uriBuilder -> {
                         var builder = uriBuilder.path(KMDB_SEARCH_PATH)
                                 .queryParam("collection", "kmdb_new2")
-                                .queryParam("ServiceKey", kmdbApiProperties.getKey())
+                                .queryParam("ServiceKey", serviceKey)
                                 .queryParam("detail", "Y")
                                 .queryParam("listCount", safeListCount)
                                 .queryParam("title", normalizedTitle);
@@ -70,12 +88,20 @@ public class KmdbMovieClient {
                         title, year, director, queryMode);
                 return List.of();
             }
+            if (isAuthFailureBody(raw)) {
+                logAuthFailureSkipOnce(queryMode);
+                return List.of();
+            }
             response = objectMapper.readTree(raw);
         } catch (RestClientException e) {
             log.warn("KMDb search request failed title={} year={} director={} queryMode={} error={}",
                     title, year, director, queryMode, e.getMessage());
             return List.of();
         } catch (Exception e) {
+            if (isAuthFailureBody(raw)) {
+                logAuthFailureSkipOnce(queryMode);
+                return List.of();
+            }
             log.warn("KMDb response parse failed title={} year={} director={} queryMode={} error={}",
                     title, year, director, queryMode, e.getMessage());
             return List.of();
@@ -237,5 +263,37 @@ public class KmdbMovieClient {
                 .replaceAll("[\\p{Punct}]+", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
+    }
+
+    private boolean isInvalidOrPlaceholderKey(String key) {
+        if (key == null || key.isBlank()) {
+            return true;
+        }
+        return PLACEHOLDER_KMDB_KEY.equals(key.trim());
+    }
+
+    private boolean isAuthFailureBody(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return false;
+        }
+        String normalized = raw.toLowerCase(Locale.ROOT);
+        return AUTH_FAILURE_TOKENS.stream().anyMatch(normalized::contains);
+    }
+
+    private void logInvalidKeySkipOnce(String key, String queryMode) {
+        String keyState = (key == null || key.isBlank()) ? "blank" : "placeholder";
+        if (INVALID_KEY_INFO_LOGGED.compareAndSet(false, true)) {
+            log.info("KMDb key is invalid (state={}). Skip KMDb requests. queryMode={}", keyState, queryMode);
+            return;
+        }
+        log.debug("KMDb key is invalid (state={}). Skip KMDb requests. queryMode={}", keyState, queryMode);
+    }
+
+    private void logAuthFailureSkipOnce(String queryMode) {
+        if (AUTH_FAILURE_INFO_LOGGED.compareAndSet(false, true)) {
+            log.info("KMDb authentication failure response detected. Skip KMDb responses. queryMode={}", queryMode);
+            return;
+        }
+        log.debug("KMDb authentication failure response detected. Skip KMDb responses. queryMode={}", queryMode);
     }
 }

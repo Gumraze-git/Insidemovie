@@ -67,6 +67,11 @@ public class MatchService {
 
             log.info("대체된 랜덤 영화 리스트: {}", titles);
         }
+
+        if (movieList.isEmpty()) {
+            log.warn("대결 후보 영화가 없어 매치를 생성하지 않습니다.");
+            return;
+        }
         // 몇 번째 match인지 계산
         Integer matchNumber = (int) matchRepository.count() + 1;
 
@@ -94,24 +99,31 @@ public class MatchService {
 
     // 대결 종료
     @Transactional
-    public void closeMatch() {
+    public boolean closeMatch() {
         // 마지막 매치 조회
         Match lastMatch = matchRepository.findTopByOrderByMatchNumberDesc()
                 .orElseThrow(() -> new NotFoundException((ErrorStatus.NOT_FOUND_MATCH.getMessage())));
 
         // 마지막 매치의 영화 조회
         List<MovieMatch> movieMatches = movieMatchRepository.findByMatchId(lastMatch.getId());
+        if (movieMatches.isEmpty()) {
+            log.warn("마지막 매치에 후보 영화가 없어 종료를 생략합니다. matchId={}", lastMatch.getId());
+            return false;
+        }
+
+        Comparator<MovieMatch> winnerComparator = Comparator
+                .comparing(MatchService::safeVoteCount)
+                .thenComparing(MatchService::safeMovieRating);
 
         // 우승 영화
         MovieMatch winner = movieMatches.stream()
-                .sorted(Comparator
-                        .comparing(MovieMatch::getVoteCount, Comparator.reverseOrder())
-                        .thenComparing(m -> m.getMovie().getRating(), Comparator.reverseOrder()))
-                .findFirst()
+                .filter(m -> m.getMovie() != null)
+                .max(winnerComparator)
                 .orElseThrow(() -> new InternalServerException(ErrorStatus.NOT_FOUND_WINNER.getMessage()));
 
         lastMatch.setWinnerId(winner.getMovie().getId());
         matchRepository.save(lastMatch);
+        return true;
     }
 
     // 대결 투표
@@ -232,5 +244,20 @@ public class MatchService {
             response.add(winnerHistoryDto);
         }
         return response;
+    }
+
+    private static Long safeVoteCount(MovieMatch movieMatch) {
+        return movieMatch.getVoteCount() == null ? 0L : movieMatch.getVoteCount();
+    }
+
+    private static Double safeMovieRating(MovieMatch movieMatch) {
+        if (movieMatch.getMovie() == null || movieMatch.getMovie().getRating() == null) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(movieMatch.getMovie().getRating());
+        } catch (NumberFormatException ignored) {
+            return 0.0;
+        }
     }
 }

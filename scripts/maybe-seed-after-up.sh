@@ -3,6 +3,7 @@ set -euo pipefail
 
 SEED_MODE_RAW="${SEED:-ask}"
 SEED_MODE="$(printf '%s' "${SEED_MODE_RAW}" | tr '[:upper:]' '[:lower:]')"
+SEED_TARGET_VALUE="${SEED_TARGET:-seed-all}"
 SEED_EST_TIME="${SEED_EST_TIME:-약 2~5분 (네트워크 환경에 따라 달라질 수 있음)}"
 SEED_EST_SIZE="${SEED_EST_SIZE:-약 20~80MB (초기 데모 데이터 기준)}"
 SEED_CHECK_TIMEOUT_SEC_RAW="${SEED_CHECK_TIMEOUT_SEC:-60}"
@@ -93,17 +94,17 @@ SELECT IF(
   @table_count = 0,
   'SELECT 0 AS has_data',
   CONCAT(
-    'SELECT EXISTS (',
+    'SELECT IF(',
     (
       SELECT GROUP_CONCAT(
-        CONCAT('SELECT 1 FROM \`${BACKEND_DB_NAME_VALUE}\`.\`', table_name, '\` LIMIT 1')
-        SEPARATOR ' UNION ALL '
+        CONCAT('EXISTS (SELECT 1 FROM \`${BACKEND_DB_NAME_VALUE}\`.\`', table_name, '\` LIMIT 1)')
+        SEPARATOR ' OR '
       )
       FROM information_schema.tables
       WHERE table_schema='${BACKEND_DB_NAME_VALUE}'
         AND table_type='BASE TABLE'
     ),
-    ') AS has_data'
+    ', 1, 0) AS has_data'
   )
 ) INTO @has_data_sql;
 
@@ -112,12 +113,24 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 SQL
 
-if ! has_data_raw="$("${dc_cmd[@]}" exec -T mysql mysql -N -B -u"${MYSQL_USER_VALUE}" -p"${MYSQL_PASSWORD_VALUE}" -e "${HAS_DATA_SQL}" 2>/dev/null)"; then
-  echo_warn "DB 데이터 존재 여부 검사에 실패하여 시드 질문을 생략합니다."
-  exit 1
+db_check_err_file="$(mktemp)"
+if ! has_data_raw="$("${dc_cmd[@]}" exec -T mysql mysql -N -B -u"${MYSQL_USER_VALUE}" -p"${MYSQL_PASSWORD_VALUE}" -e "${HAS_DATA_SQL}" 2>"${db_check_err_file}")"; then
+  db_check_reason="$(grep -m1 -E 'ERROR|Error|error|failed|Failed' "${db_check_err_file}" || true)"
+  if [[ -z "${db_check_reason}" ]]; then
+    db_check_reason="$(awk 'NF { print; exit }' "${db_check_err_file}")"
+  fi
+  if [[ -n "${db_check_reason}" ]]; then
+    echo_warn "DB 데이터 존재 여부 검사에 실패했습니다. 원인: ${db_check_reason}"
+  else
+    echo_warn "DB 데이터 존재 여부 검사에 실패했습니다. 원인 로그를 확인하지 못했습니다."
+  fi
+  rm -f "${db_check_err_file}"
+  has_data="unknown"
+else
+  rm -f "${db_check_err_file}"
+  has_data="$(printf '%s\n' "${has_data_raw}" | awk 'NF { last=$0 } END { print last }')"
 fi
 
-has_data="$(printf '%s\n' "${has_data_raw}" | awk 'NF { last=$0 } END { print last }')"
 case "${has_data}" in
   1)
     echo_info "데이터가 존재합니다. 시드 질문을 생략합니다."
@@ -126,16 +139,18 @@ case "${has_data}" in
   0)
     echo_info "데이터가 존재하지 않습니다. 시드 여부를 확인합니다."
     ;;
+  unknown)
+    echo_warn "DB 상태를 자동 판별하지 못했습니다. 시드 여부를 확인합니다."
+    ;;
   *)
-    echo_warn "DB 데이터 판정 결과를 해석하지 못해 시드 질문을 생략합니다: ${has_data}"
-    exit 1
+    echo_warn "DB 데이터 판정 결과를 해석하지 못했습니다. 시드 여부를 확인합니다: ${has_data}"
     ;;
 esac
 
 echo_info "데모 데이터 시드를 실행할 수 있습니다."
 echo_info "예상 소요 시간: ${SEED_EST_TIME}"
 echo_info "예상 데이터 크기: ${SEED_EST_SIZE}"
-echo_info "진행 시 make seed-all 명령이 실행됩니다."
+echo_info "진행 시 make ${SEED_TARGET_VALUE} 명령이 실행됩니다."
 
 while true; do
   printf "데모 데이터 시드를 지금 실행할까요? (y/n): "

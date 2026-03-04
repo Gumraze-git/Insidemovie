@@ -43,6 +43,8 @@ import java.util.Optional;
 @Slf4j
 public class ReviewService {
 
+    private static final String EMOTION_MODEL = "overall_avg";
+
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRepository reviewRepository;
     private final MovieRepository movieRepository;
@@ -57,7 +59,20 @@ public class ReviewService {
     // 리뷰 작성
     @Transactional
     public Long createReview(Long movieId, ReviewCreateDTO reviewCreateDTO, Long userId) {
+        return createReviewInternal(movieId, reviewCreateDTO, userId, false);
+    }
 
+    @Transactional
+    public Long createReviewForSeed(Long movieId, ReviewCreateDTO reviewCreateDTO, Long userId) {
+        return createReviewInternal(movieId, reviewCreateDTO, userId, true);
+    }
+
+    private Long createReviewInternal(
+            Long movieId,
+            ReviewCreateDTO reviewCreateDTO,
+            Long userId,
+            boolean allowFallbackEmotion
+    ) {
         Member member = memberPolicyService.getActiveMemberById(userId);
 
         Movie movie = movieRepository.findById(movieId)
@@ -80,39 +95,18 @@ public class ReviewService {
 
         Review savedReview = reviewRepository.save(review);
 
-        // 감정 분석
-        try {
-            PredictRequestDTO request = new PredictRequestDTO(savedReview.getContent(), "overall_avg");
-            PredictResponseDTO response = fastApiRestClient.post()
-                    .uri("/api/v1/emotion-predictions")
-                    .body(request)
-                    .retrieve()
-                    .body(PredictResponseDTO.class);
+        Map<String, Double> probabilities = requestEmotionProbabilities(
+                savedReview.getContent(),
+                reviewCreateDTO.getRating(),
+                allowFallbackEmotion,
+                movieId,
+                userId
+        );
+        saveEmotion(savedReview, probabilities);
 
-            if (response == null || response.getProbabilities() == null) {
-                throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
-            }
-
-            Map<String, Double> probabilities = response.getProbabilities();
-            Emotion emotion = Emotion.builder()
-                    .anger(probabilities.getOrDefault("anger", 0.0))
-                    .fear(probabilities.getOrDefault("fear", 0.0))
-                    .joy(probabilities.getOrDefault("joy", 0.0))
-                    .disgust(probabilities.getOrDefault("disgust", 0.0))
-                    .sadness(probabilities.getOrDefault("sadness", 0.0))
-                    .review(savedReview)
-                    .build();
-            emotionRepository.save(emotion);
-
-            // 리뷰 등록 후 영화 감정 요약 업데이트
-            movieService.getMovieEmotionSummary(movieId);
-            // 영화 감정 요약 재계산 호출
-            movieEmotionSummaryService.recalcMovieSummary(movieId);
-
-
-        } catch (RestClientException e) {
-            throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
-        }
+        // 리뷰 등록 후 영화 감정 요약 업데이트
+        movieService.getMovieEmotionSummary(movieId);
+        movieEmotionSummaryService.recalcMovieSummary(movieId);
         return savedReview.getId();
     }
 
@@ -361,5 +355,61 @@ public class ReviewService {
                 .isConcealed(review.isConcealed())
                 .reportStatus(reportStatus)
                 .build();
+    }
+
+    private Map<String, Double> requestEmotionProbabilities(
+            String reviewContent,
+            double rating,
+            boolean allowFallbackEmotion,
+            Long movieId,
+            Long userId
+    ) {
+        try {
+            PredictRequestDTO request = new PredictRequestDTO(reviewContent, EMOTION_MODEL);
+            PredictResponseDTO response = fastApiRestClient.post()
+                    .uri("/api/v1/emotion-predictions")
+                    .body(request)
+                    .retrieve()
+                    .body(PredictResponseDTO.class);
+            if (response == null || response.getProbabilities() == null || response.getProbabilities().isEmpty()) {
+                throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
+            }
+            return response.getProbabilities();
+        } catch (RestClientException | ExternalServiceException e) {
+            if (!allowFallbackEmotion) {
+                if (e instanceof ExternalServiceException externalServiceException) {
+                    throw externalServiceException;
+                }
+                throw new ExternalServiceException(ErrorStatus.EXTERNAL_SERVICE_ERROR.getMessage());
+            }
+            log.warn("[ReviewService] FastAPI unavailable while seeding. fallback emotion is used. movieId={} userId={} reason={}",
+                    movieId, userId, e.getMessage());
+            return buildFallbackEmotionProbabilities(rating);
+        }
+    }
+
+    private Map<String, Double> buildFallbackEmotionProbabilities(double rating) {
+        double clampedRating = Math.max(0.0, Math.min(5.0, rating));
+        double joy = clampedRating / 5.0;
+        double negative = 1.0 - joy;
+        return Map.of(
+                "joy", joy,
+                "sadness", negative * 0.45,
+                "anger", negative * 0.25,
+                "fear", negative * 0.15,
+                "disgust", negative * 0.15
+        );
+    }
+
+    private void saveEmotion(Review review, Map<String, Double> probabilities) {
+        Emotion emotion = Emotion.builder()
+                .anger(probabilities.getOrDefault("anger", 0.0))
+                .fear(probabilities.getOrDefault("fear", 0.0))
+                .joy(probabilities.getOrDefault("joy", 0.0))
+                .disgust(probabilities.getOrDefault("disgust", 0.0))
+                .sadness(probabilities.getOrDefault("sadness", 0.0))
+                .review(review)
+                .build();
+        emotionRepository.save(emotion);
     }
 }

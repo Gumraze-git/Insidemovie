@@ -73,14 +73,21 @@ public class ReviewAiSeedService {
                         row.movieKoficId(),
                         movieRepository::findByKoficId
                 );
-
+                Movie movie;
                 if (movieOptional.isEmpty()) {
-                    failed++;
-                    log.warn("[ReviewAiSeed] movie not found by koficId={} accountKey={}",
-                            row.movieKoficId(), row.accountKey());
-                    continue;
+                    if (dryRun) {
+                        created++;
+                        log.warn("[ReviewAiSeed] movie not found by koficId={}. dry-run에서는 placeholder 생성을 가정합니다.",
+                                row.movieKoficId());
+                        continue;
+                    }
+                    movie = createPlaceholderMovie(row.movieKoficId());
+                    movieByKoficIdCache.put(row.movieKoficId(), Optional.of(movie));
+                    log.warn("[ReviewAiSeed] movie not found by koficId={}. placeholder created movieId={} title={}",
+                            row.movieKoficId(), movie.getId(), movie.getTitle());
+                } else {
+                    movie = movieOptional.get();
                 }
-                Movie movie = movieOptional.get();
 
                 if (reviewRepository.findByMemberAndMovie(member, movie).isPresent()) {
                     skipped++;
@@ -120,7 +127,7 @@ public class ReviewAiSeedService {
     private boolean createWithRetry(Long movieId, ReviewCreateDTO request, Long userId) {
         for (int attempt = 1; attempt <= FASTAPI_RETRY + 1; attempt++) {
             try {
-                reviewService.createReview(movieId, request, userId);
+                reviewService.createReviewForSeed(movieId, request, userId);
                 return true;
             } catch (Exception e) {
                 if (attempt > FASTAPI_RETRY) {
@@ -130,5 +137,18 @@ public class ReviewAiSeedService {
             }
         }
         return false;
+    }
+
+    private Movie createPlaceholderMovie(String koficId) {
+        Movie placeholder = Movie.builder()
+                .koficId(koficId)
+                .title("Demo Placeholder " + koficId)
+                .titleEn("Demo Placeholder " + koficId)
+                .overview("Auto-created placeholder movie for demo review seeding.")
+                .status("UNKNOWN")
+                .popularity(0.0)
+                .isMatched(false)
+                .build();
+        return movieRepository.save(placeholder);
     }
 }

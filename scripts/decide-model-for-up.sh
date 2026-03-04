@@ -27,6 +27,31 @@ print_manual_download_guide() {
   echo "[모델]   3) git lfs pull --include=\"${MODEL_PATH_VALUE}\""
 }
 
+print_no_ai_guide() {
+  echo '[모델] AI 없이 먼저 데모를 실행하려면 `make up-no-ai`를 사용하세요.'
+}
+
+try_auto_download_model() {
+  if ! git lfs version >/dev/null 2>&1; then
+    log_warn "git-lfs가 설치되어 있지 않아 자동 다운로드를 진행할 수 없습니다."
+    return 10
+  fi
+
+  log_info "git lfs pull로 모델 자동 다운로드를 시도합니다..."
+  if ! git lfs pull --include="${MODEL_PATH_VALUE}" --exclude="" >/dev/null 2>&1; then
+    log_warn "git lfs pull 실행에 실패했습니다."
+    return 1
+  fi
+
+  if is_model_ready; then
+    log_info "모델 자동 다운로드 완료: ${MODEL_PATH_VALUE} (${MODEL_FILE_SIZE_BYTES} bytes)"
+    return 0
+  fi
+
+  log_warn "자동 다운로드 이후에도 모델이 준비되지 않았습니다: ${MODEL_ISSUE}"
+  return 1
+}
+
 is_model_ready() {
   if [[ ! -f "${MODEL_PATH_VALUE}" ]]; then
     MODEL_ISSUE="모델 파일이 없습니다: ${MODEL_PATH_VALUE}"
@@ -62,6 +87,7 @@ esac
 
 if [[ "${MODEL_MODE}" == "skip" ]]; then
   log_info "MODEL=skip 설정으로 모델 검증 없이 제한 모드(no-AI)로 진행합니다."
+  print_no_ai_guide
   exit 1
 fi
 
@@ -94,18 +120,34 @@ while true; do
   if ! IFS= read -r answer; then
     echo
     log_warn "입력이 종료되어 제한 모드(no-AI)로 진행합니다."
+    print_no_ai_guide
     exit 1
   fi
 
   case "${answer}" in
     y|Y)
       log_info "다운로드 진행 의사를 확인했습니다."
+      if try_auto_download_model; then
+        log_info "이번 실행을 전체 모드(full)로 계속 진행합니다."
+        exit 0
+      else
+        download_code=$?
+        if [[ ${download_code} -eq 10 ]]; then
+          log_info "git-lfs를 설치하지 않아 자동 다운로드를 진행할 수 없습니다."
+          print_manual_download_guide
+          print_no_ai_guide
+          log_info "요청에 따라 이번 make up 실행을 중단합니다."
+          exit 3
+        fi
+      fi
       log_info "안내한 명령을 수동 실행한 뒤 다시 make up을 실행하면 전체 모드(full)로 기동할 수 있습니다."
+      print_no_ai_guide
       log_info "이번 실행은 제한 모드(no-AI)로 계속 진행합니다."
       exit 1
       ;;
     n|N)
       log_info "다운로드를 생략했습니다. 이번 실행은 제한 모드(no-AI)로 계속 진행합니다."
+      print_no_ai_guide
       exit 1
       ;;
     *)

@@ -63,10 +63,19 @@ public class MatchSeedService {
             Optional<Match> openMatch = matchRepository.findTopByWinnerIdIsNullOrderByMatchNumberDesc();
             if (openMatch.isEmpty()) {
                 matchService.createMatch();
+                openMatch = matchRepository.findTopByWinnerIdIsNullOrderByMatchNumberDesc();
+                if (openMatch.isEmpty()) {
+                    log.warn("[MatchSeed] 후보 영화가 없어 새 매치를 만들지 못했습니다. closedTargetCount={} currentClosed={}",
+                            closedTargetCount, matchRepository.countClosedMatchesWithExistingWinnerMovie());
+                    break;
+                }
             }
 
             votesCreated += seedVotesForLatestOpenMatch(voterIds, voterIds.size());
-            matchService.closeMatch();
+            if (!matchService.closeMatch()) {
+                log.warn("[MatchSeed] 후보 영화가 없어 매치 종료를 중단합니다. 전체 시드는 계속 진행합니다.");
+                break;
+            }
             closedMatchesCreated++;
         }
 
