@@ -12,7 +12,7 @@ MODEL_EST_SIZE ?= 약 352MB
 MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
 SEED_TARGET ?= seed-all
 
-.PHONY: help help-all prepare-model build up up-full up-limited up-no-ai post-up-seed down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model build demo demo-no-ai-up up up-full up-limited up-no-ai post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -28,10 +28,11 @@ SEED_TARGET ?= seed-all
 
 help:
 	@echo "핵심 타겟:"
-	@echo "  make up                - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
-	@echo "                           - MODEL=ask|required|skip (기본 ask)"
+	@echo "  make demo              - 면접관/외부 사용자 권장 원커맨드 데모 실행(no-AI + snapshot 시드)"
+	@echo "  make up                - 개발자용 전체/full 모드 실행(모델 준비 필요)"
+	@echo "                           - MODEL=ask|required (기본 ask)"
 	@echo "                           - SEED=yes|ask|no (기본 yes)"
-	@echo "  make up-no-ai          - 모델/AI 없이 제한 모드로 실행 + 통합 시드 실행"
+	@echo "  make up-no-ai          - (호환) make demo로 위임"
 	@echo "  make down              - 전체 서비스 중지/제거"
 	@echo "  make logs              - 전체 로그 팔로우"
 	@echo "  make ps                - 컨테이너 상태 확인"
@@ -43,11 +44,13 @@ help:
 
 help-all:
 	@echo "전체 타겟:"
+	@echo "  make demo                  - 사전점검 + no-AI 데모 스택 기동 + snapshot 시드"
+	@echo "                              - 면접관/외부 사용자 권장 진입점"
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
-	@echo "  make up                    - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
-	@echo "  make up-no-ai              - 모델/AI 없이 제한 모드(mysql+backend+frontend) 실행 + 통합 시드"
-	@echo "                              - MODEL=ask|required|skip (기본 ask)"
+	@echo "  make up                    - 개발자용 전체/full 모드 실행(모델 준비 필요)"
+	@echo "  make up-no-ai              - (호환) make demo로 위임"
+	@echo "                              - MODEL=ask|required (기본 ask)"
 	@echo "                              - MODEL_EST_SIZE/MODEL_EST_TIME 안내 문구 오버라이드 가능"
 	@echo "                              - SEED=yes|ask|no (기본 yes)"
 	@echo "                              - SEED_EST_TIME/SEED_EST_SIZE/SEED_CHECK_TIMEOUT_SEC 오버라이드 가능"
@@ -94,6 +97,17 @@ prepare-model:
 build: prepare-model
 	$(DC) build
 
+demo:
+	@./scripts/ensure-demo-prereqs.sh
+	@$(MAKE) demo-no-ai-up
+	@echo "[데모] 실행 완료"
+	@echo "[데모]   Frontend: http://localhost:5173"
+	@echo "[데모]   Backend API 문서: http://localhost:8080/api-doc"
+
+demo-no-ai-up:
+	$(MAKE) up-limited
+	$(MAKE) SEED=yes SEED_TARGET=seed-all-no-ai post-up-seed
+
 up:
 	@MODEL="$(MODEL)" \
 	MODEL_EST_SIZE="$(MODEL_EST_SIZE)" \
@@ -105,14 +119,16 @@ up:
 		$(MAKE) up-full; \
 		$(MAKE) post-up-seed; \
 	elif [ $$mode_code -eq 1 ]; then \
-		echo "[모델] 제한 모드(limited, no-AI)로 실행합니다."; \
-		$(MAKE) up-no-ai; \
+		echo "[모델] make up은 full 전용이며, 모델이 준비되지 않아 실행을 중단합니다."; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
+		exit $$mode_code; \
 	elif [ $$mode_code -eq 3 ]; then \
 		echo "[모델] 자동 다운로드를 진행할 수 없어 make up 실행을 중단합니다."; \
-		echo '[모델] AI 없이 먼저 데모를 실행하려면 `make up-no-ai`를 사용하세요.'; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
 		exit $$mode_code; \
 	elif [ $$mode_code -ge 2 ]; then \
 		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
 		exit $$mode_code; \
 	fi
 
@@ -125,8 +141,8 @@ up-limited:
 	$(DC) up -d --build --no-deps frontend
 
 up-no-ai:
-	$(MAKE) up-limited
-	$(MAKE) SEED_TARGET=seed-all-no-ai post-up-seed
+	@echo "[데모][안내] make up-no-ai는 호환 명령입니다. 표준 데모 실행은 make demo를 사용하세요."
+	$(MAKE) demo
 
 post-up-seed:
 	@SEED="$(SEED)" \
