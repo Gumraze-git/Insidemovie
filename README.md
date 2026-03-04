@@ -59,12 +59,14 @@
 
 ## 통합 데모 데이터 시드
 
-아래 명령은 계정/영화 장르/영화 메타/리뷰+AI 감정/영화 대결 이력을 한 번에 증분 시드합니다.
+기본 통합 시드는 로컬 snapshot SQL을 적재하며, 외부 API(KOBIS/KMDb/FastAPI)를 호출하지 않습니다.
 
-- 실제 반영: `make seed-all`
+- 기본 시드: `make seed-all`
+- no-AI 모드 기본 시드: `make seed-all-no-ai`
 - DB 초기화 후 전체 시드: `make seed-all-reset` (주의: 기존 데이터 삭제)
-- 시뮬레이션: `make data-backfill-dry-run`
-- 고급/세부 실행 명령: `make data-backfill`
+- snapshot만 단독 적재: `make seed-snapshot`
+- (옵션) 외부 API 연동 증분 백필: `make data-backfill`
+- (옵션) 외부 API 연동 dry-run: `make data-backfill-dry-run`
 
 재실행 정책:
 - 기존 데이터를 삭제하지 않고 부족분만 채우는 idempotent 증분 방식
