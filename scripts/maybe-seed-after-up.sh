@@ -79,6 +79,8 @@ if ! wait_mysql_ready; then
   exit 1
 fi
 
+echo_info "DB 데이터 존재 여부를 확인합니다..."
+
 read -r -d '' HAS_DATA_SQL <<SQL || true
 SET SESSION group_concat_max_len = 1024000;
 
@@ -118,10 +120,11 @@ fi
 has_data="$(printf '%s\n' "${has_data_raw}" | awk 'NF { last=$0 } END { print last }')"
 case "${has_data}" in
   1)
-    echo_info "기존 데이터가 감지되어 시드 질문을 생략합니다."
+    echo_info "데이터가 존재합니다. 시드 질문을 생략합니다."
     exit 1
     ;;
   0)
+    echo_info "데이터가 존재하지 않습니다. 시드 여부를 확인합니다."
     ;;
   *)
     echo_warn "DB 데이터 판정 결과를 해석하지 못해 시드 질문을 생략합니다: ${has_data}"
