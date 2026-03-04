@@ -14,6 +14,8 @@
 - 권장 커밋 형식: `type(scope): summary`
 - 권장 scope: `frontend`, `backend`, `ai`, `monorepo`
 - 브랜치는 작업 목적이 드러나게 짧고 명확하게 작성합니다.
+- 팀 브랜치 권장 형식: `fix/<topic>`, `feat/<topic>`, `refactor/<topic>`, `chore/<topic>`, `docs/<topic>`
+- Codex 자동화 작업은 `codex/<type>-<topic>` 형식을 허용합니다. (예: `codex/fix-backend-env-fallback`)
 
 ## PR Minimum Checklist
 
