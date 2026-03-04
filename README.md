@@ -43,7 +43,9 @@
 
 ## 자주 쓰는 명령
 
-- 전체 실행: `make up`
+- 전체 실행(기본 ask): `make up`
+- 전체 실행 + 통합 시드 강제: `SEED=yes make up`
+- 전체 실행 + 시드 생략 강제: `SEED=no make up`
 - 백엔드 서버 실행(Spring + AI): `make up-backend-spring && make up-backend-ai`
 - Spring 서버 실행: `make up-backend-spring`
 - AI 서버 실행: `make up-backend-ai`
@@ -88,7 +90,11 @@ git lfs install
 make up
 ```
 
-`make up`은 서비스 기동만 수행하며, 데모 데이터 백필은 별도 명령으로 실행합니다.
+`make up` 동작:
+- 서비스 기동 후 `insidemovie_backend` DB를 검사합니다.
+- 기존 데이터가 있으면 시드 질문 없이 종료합니다.
+- DB가 비어 있으면 예상 소요 시간/데이터 크기를 안내하고 `y/n`을 반드시 입력받습니다.
+- `CI=true` 또는 비대화식 실행(stdin 비-TTY)에서는 질문 없이 시드를 생략합니다.
 
 ## 에러 대응
 
