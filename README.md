@@ -43,9 +43,10 @@
 
 ## 자주 쓰는 명령
 
-- 전체 실행(기본 ask): `make up`
+- 전체 실행(기본 시드 포함): `make up`
 - 전체 실행(모델 필수): `MODEL=required make up`
 - 전체 실행(모델 스킵, no-AI 제한 모드): `MODEL=skip make up`
+- 모델/AI 없이 제한 모드 + 통합 시드: `make up-no-ai`
 - 전체 실행 + 통합 시드 강제: `SEED=yes make up`
 - 전체 실행 + 시드 생략 강제: `SEED=no make up`
 - 백엔드 서버 실행(Spring + AI): `make up-backend-spring && make up-backend-ai`
@@ -75,6 +76,8 @@
 주의:
 - Docker daemon이 꺼져 있으면 모든 `make` 명령이 실패합니다. 먼저 Docker Desktop을 실행하세요.
 - 공개(public) 레포에서는 Git LFS 객체도 접근 가능한 사용자에게 다운로드될 수 있으므로, 민감 데이터는 절대 저장하지 마세요.
+- `KMDB_API_KEY`가 비어 있거나 기본값(`dev-kmdb-api-key`)이면 KMDb 호출을 자동으로 스킵하며 인증키 경고 스팸을 출력하지 않습니다.
+- 실제 영화 메타/포스터 보강이 필요하면 `env/backend.env`에 유효한 `KMDB_API_KEY`를 설정하세요.
 
 ## 첫 실행
 
@@ -96,10 +99,14 @@ make up
 `make up` 동작:
 - `MODEL=ask|required|skip` 정책으로 모델 준비 상태를 먼저 판단합니다. (기본: `MODEL=ask`)
 - 모델 준비가 완료되면 전체 모드(full)로 `mysql+ai+backend+frontend`를 기동합니다.
-- 모델 미준비 + `MODEL=ask` + 대화형 터미널이면 용량/시간/수동 명령을 안내하고 `y/n` 확인 후 이번 실행은 제한 모드(no-AI)로 진행합니다.
+- 모델 미준비 + `MODEL=ask` + 대화형 터미널이면 용량/시간/수동 명령을 안내하고 `y/n` 확인을 받습니다.
+- `y` 선택 시 `git lfs pull` 자동 다운로드를 먼저 시도하고, 성공하면 이번 실행을 전체 모드(full)로 계속 진행합니다.
+- `y` 선택 후 `git-lfs`가 설치되어 있지 않으면 이번 `make up` 실행을 중단하고 `make up-no-ai`를 안내합니다.
+- 그 외 자동 다운로드 실패 시에는 제한 모드(no-AI)로 계속 진행하며 `make up-no-ai`도 안내합니다.
 - 모델 미준비 + 비대화식 실행(`CI=true` 또는 stdin 비-TTY) + `MODEL=ask`는 실패 종료합니다.
-- 제한 모드(no-AI)에서는 `mysql+backend+frontend`만 기동하고, 시드가 필요할 때는 `seed-all-no-ai` 경로를 사용합니다.
-- 이후 서비스 기동이 끝나면 `insidemovie_backend` DB를 검사해 시드 여부를 기존처럼 확인합니다. (`SEED=ask|yes|no`)
+- 제한 모드(no-AI)에서는 `mysql+backend+frontend`만 기동하고, 시드는 `seed-all-no-ai` 경로(리뷰 감정 fallback 포함)로 실행합니다.
+- 기본값은 `SEED=yes`이며, 서비스 기동 후 통합 데모 시드를 자동 실행합니다.
+- `SEED=ask|no`로 동작을 바꿀 수 있습니다. (`SEED=ask`는 DB 상태를 확인해 시드 여부를 물어봅니다.)
 
 ## 모델 준비(수동)
 
@@ -117,7 +124,7 @@ git lfs pull --include="apps/ai/models/0717_kobert_5_emotion_model/model.safeten
 ## 제한 실행 모드(no-AI) 제약
 
 - AI 컨테이너를 기동하지 않으므로 AI 의존 기능(감정 예측/추천)이 제한됩니다.
-- 리뷰 AI 감정 생성 단계는 제외된 시드(`seed-all-no-ai`)만 실행됩니다.
+- `seed-all-no-ai`는 리뷰 데이터를 포함해 통합 시드를 실행하며, AI 서버가 없으면 감정값은 fallback 로직으로 생성됩니다.
 - AI 포함 전체 기능 검증이 필요하면 모델 다운로드 후 `make up` 또는 `MODEL=required make up`을 사용하세요.
 
 ## 에러 대응
