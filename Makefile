@@ -12,7 +12,7 @@ MODEL_EST_SIZE ?= 약 352MB
 MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
 SEED_TARGET ?= seed-all
 
-.PHONY: help help-all prepare-model build up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model prepare-docker build up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -42,6 +42,7 @@ help:
 help-all:
 	@echo "전체 타겟:"
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
+	@echo "  make prepare-docker        - Docker daemon 실행 상태 확인"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
 	@echo "  make up                    - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
 	@echo "                              - MODEL=ask|required|skip (기본 ask)"
@@ -87,10 +88,15 @@ help-all:
 prepare-model:
 	@./scripts/ensure-ai-model.sh
 
+prepare-docker:
+	@if [ "$(DOCKER_CHECKED)" != "1" ]; then \
+		./scripts/ensure-docker-daemon.sh; \
+	fi
+
 build: prepare-model
 	$(DC) build
 
-up:
+up: prepare-docker
 	@MODEL="$(MODEL)" \
 	MODEL_EST_SIZE="$(MODEL_EST_SIZE)" \
 	MODEL_EST_TIME="$(MODEL_EST_TIME)" \
@@ -98,21 +104,21 @@ up:
 	mode_code=$$?; \
 	if [ $$mode_code -eq 0 ]; then \
 		echo "[모델] 전체 모드(full)로 실행합니다."; \
-		$(MAKE) up-full; \
+		$(MAKE) DOCKER_CHECKED=1 up-full; \
 		$(MAKE) post-up-seed; \
 	elif [ $$mode_code -eq 1 ]; then \
 		echo "[모델] 제한 모드(limited, no-AI)로 실행합니다."; \
-		$(MAKE) up-limited; \
+		$(MAKE) DOCKER_CHECKED=1 up-limited; \
 		$(MAKE) SEED_TARGET=seed-all-no-ai post-up-seed; \
 	elif [ $$mode_code -ge 2 ]; then \
 		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
 		exit $$mode_code; \
 	fi
 
-up-full:
+up-full: prepare-docker
 	$(DC) up -d --build
 
-up-limited:
+up-limited: prepare-docker
 	$(DC) up -d mysql
 	$(DC) up -d --build --no-deps backend
 	$(DC) up -d --build --no-deps frontend

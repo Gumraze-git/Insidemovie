@@ -94,6 +94,7 @@ make up
 ```
 
 `make up` 동작:
+- 실행 전 Docker daemon 연결 상태를 확인하고, 미실행 시 해결 가이드를 출력한 뒤 종료합니다.
 - `MODEL=ask|required|skip` 정책으로 모델 준비 상태를 먼저 판단합니다. (기본: `MODEL=ask`)
 - 모델 준비가 완료되면 전체 모드(full)로 `mysql+ai+backend+frontend`를 기동합니다.
 - 모델 미준비 + `MODEL=ask` + 대화형 터미널이면 용량/시간/수동 명령을 안내하고 `y/n` 확인 후 이번 실행은 제한 모드(no-AI)로 진행합니다.
