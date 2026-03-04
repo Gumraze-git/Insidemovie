@@ -75,7 +75,7 @@ class ReviewAiSeedServiceTest {
         when(memberRepository.findByEmail(general.email())).thenReturn(Optional.of(member));
         when(movieRepository.findByKoficId("20261150")).thenReturn(Optional.of(movie));
         when(reviewRepository.findByMemberAndMovie(member, movie)).thenReturn(Optional.empty());
-        when(reviewService.createReview(eq(1L), any(), eq(11L))).thenReturn(1L);
+        when(reviewService.createReviewForSeed(eq(1L), any(), eq(11L))).thenReturn(1L);
 
         ReviewAiSeedReport report = reviewAiSeedService.seed(false, reviewProperties);
 
@@ -85,7 +85,7 @@ class ReviewAiSeedServiceTest {
         assertThat(report.getFailedReviews()).isZero();
         assertThat(report.getFixtureLoadedRows()).isEqualTo(1);
         assertThat(report.getFixtureInvalidRows()).isZero();
-        verify(reviewService, times(1)).createReview(eq(1L), any(), eq(11L));
+        verify(reviewService, times(1)).createReviewForSeed(eq(1L), any(), eq(11L));
     }
 
     @Test
@@ -123,6 +123,6 @@ class ReviewAiSeedServiceTest {
 
         assertThat(report.getRequestedReviews()).isEqualTo(1);
         assertThat(report.getCreatedReviews()).isEqualTo(1);
-        verify(reviewService, never()).createReview(eq(3L), any(), eq(7L));
+        verify(reviewService, never()).createReviewForSeed(eq(3L), any(), eq(7L));
     }
 }
