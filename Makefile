@@ -21,7 +21,7 @@ SEED_TARGET ?= seed-all
 	seed-boxoffice seed-boxoffice-dry-run \
 	refresh-movie-posters refresh-movie-posters-dry-run \
 	audit-movie-posters audit-movie-posters-dry-run \
-	seed-all seed-all-no-ai seed-all-reset \
+	seed-snapshot seed-all seed-all-no-ai seed-all-reset \
 	data-backfill data-backfill-no-ai data-backfill-dry-run \
 	seed-reviews-ai seed-reviews-ai-dry-run \
 	seed-matches seed-matches-dry-run
@@ -35,9 +35,9 @@ help:
 	@echo "  make down              - 전체 서비스 중지/제거"
 	@echo "  make logs              - 전체 로그 팔로우"
 	@echo "  make ps                - 컨테이너 상태 확인"
-	@echo "  make seed-all          - 통합 증분 시드 실행"
-	@echo "  make seed-all-no-ai    - AI 컨테이너 없이 통합 시드 실행(리뷰 감정 fallback)"
-	@echo "  make seed-all-reset    - DB 초기화 후 통합 시드 실행(주의: 기존 데이터 삭제)"
+	@echo "  make seed-all          - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
+	@echo "  make seed-all-no-ai    - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
+	@echo "  make seed-all-reset    - DB 초기화 후 snapshot 통합 시드(주의: 기존 데이터 삭제)"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
 	@echo "  make help-all          - 전체/고급 타깃 보기"
 
@@ -66,9 +66,10 @@ help-all:
 	@echo "  make logs-frontend         - frontend(정적 nginx) 로그 확인"
 	@echo "  make logs-backend-spring   - backend(Spring) 로그 확인"
 	@echo "  make logs-backend-ai       - ai(FastAPI) 로그 확인"
-	@echo "  make seed-all              - 통합 증분 시드 실행(data-backfill 래퍼)"
-	@echo "  make seed-all-no-ai        - AI 컨테이너 없이 통합 시드 실행(리뷰 감정 fallback)"
-	@echo "  make seed-all-reset        - DB 초기화 후 통합 시드 실행"
+	@echo "  make seed-snapshot         - 로컬 snapshot(SQL) 데이터 적재"
+	@echo "  make seed-all              - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
+	@echo "  make seed-all-no-ai        - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
+	@echo "  make seed-all-reset        - DB 초기화 후 snapshot 통합 시드"
 	@echo "  make data-backfill         - 계정/영화/리뷰-AI/대결 통합 증분 시드"
 	@echo "  make data-backfill-no-ai   - AI 미기동 상태에서 통합 증분 시드(리뷰 감정 fallback)"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
@@ -243,6 +244,12 @@ audit-movie-posters-dry-run:
 	$(DC) up -d mysql
 	$(DC) run --rm --no-deps $(BACKEND_REPORTS_VOLUME) backend --spring.main.web-application-type=none --movie.metadata.poster.audit.enabled=true --movie.metadata.poster.audit.dry-run=true --movie.metadata.poster.audit.include-details=true
 
+seed-snapshot:
+	DOCKER_COMPOSE="$(DOCKER_COMPOSE)" \
+	COMPOSE_FILE="$(COMPOSE_FILE)" \
+	PROJECT_NAME="$(PROJECT_NAME)" \
+	./scripts/seed-from-snapshot.sh
+
 data-backfill:
 	$(DC) build backend
 	$(DC) up -d mysql ai
@@ -267,10 +274,10 @@ data-backfill-no-ai:
 		--demo.data.backfill.include-matches=true
 
 seed-all:
-	$(MAKE) data-backfill
+	$(MAKE) seed-snapshot
 
 seed-all-no-ai:
-	$(MAKE) data-backfill-no-ai
+	$(MAKE) seed-snapshot
 
 seed-all-reset:
 	$(MAKE) reset-db

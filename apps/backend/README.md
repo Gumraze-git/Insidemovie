@@ -28,12 +28,14 @@
 
 ## 통합 데모 데이터 백필
 
-백엔드/AI를 띄운 뒤 데모 필수 데이터를 증분으로 채웁니다.
+기본 통합 시드는 로컬 snapshot SQL을 적재하며, 외부 API(KOBIS/KMDb/FastAPI)를 호출하지 않습니다.
 
 - `make seed-all`
+- `make seed-all-no-ai`
 - `make seed-all-reset` (주의: DB 볼륨 초기화 후 시드)
-- `make data-backfill-dry-run`
-- `make data-backfill` (고급/세부 실행용)
+- `make seed-snapshot`
+- `make data-backfill` (옵션: 외부 API 연동 증분 백필)
+- `make data-backfill-dry-run` (옵션: 외부 API 연동 dry-run)
 
 포함 범위:
 - 데모 계정(온보딩 5 + 일반 30) 시드 보장
