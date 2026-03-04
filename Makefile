@@ -3,8 +3,12 @@ COMPOSE_FILE ?= docker-compose.yml
 PROJECT_NAME ?= insidemovie
 DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 BACKEND_REPORTS_VOLUME = -v $(PWD)/apps/backend/build/reports:/app/build/reports
+SEED ?= ask
+SEED_EST_TIME ?= 약 2~5분 (네트워크 환경에 따라 달라질 수 있음)
+SEED_EST_SIZE ?= 약 20~80MB (초기 데모 데이터 기준)
+SEED_CHECK_TIMEOUT_SEC ?= 60
 
-.PHONY: help help-all prepare-model build up down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model build up post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -20,7 +24,7 @@ BACKEND_REPORTS_VOLUME = -v $(PWD)/apps/backend/build/reports:/app/build/reports
 
 help:
 	@echo "핵심 타겟:"
-	@echo "  make up                - 전체 서비스 실행(필요 시 빌드)"
+	@echo "  make up                - 전체 서비스 실행 후 DB 상태에 따라 데모 시드 여부 확인"
 	@echo "  make down              - 전체 서비스 중지/제거"
 	@echo "  make logs              - 전체 로그 팔로우"
 	@echo "  make ps                - 컨테이너 상태 확인"
@@ -33,7 +37,9 @@ help-all:
 	@echo "전체 타겟:"
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
-	@echo "  make up                    - 모든 서비스 실행(백그라운드, 필요 시 빌드)"
+	@echo "  make up                    - 모든 서비스 실행 후 조건부 시드 여부 확인"
+	@echo "                              - SEED=ask|yes|no (기본 ask)"
+	@echo "                              - SEED_EST_TIME/SEED_EST_SIZE/SEED_CHECK_TIMEOUT_SEC 오버라이드 가능"
 	@echo "  make down                  - 컨테이너 중지 및 제거"
 	@echo "  make logs                  - 서비스 로그 실시간 확인"
 	@echo "  make ps                    - 컨테이너 상태 확인"
@@ -76,6 +82,27 @@ build: prepare-model
 
 up: prepare-model
 	$(DC) up -d --build
+	@$(MAKE) post-up-seed
+
+post-up-seed:
+	@SEED="$(SEED)" \
+	SEED_EST_TIME="$(SEED_EST_TIME)" \
+	SEED_EST_SIZE="$(SEED_EST_SIZE)" \
+	SEED_CHECK_TIMEOUT_SEC="$(SEED_CHECK_TIMEOUT_SEC)" \
+	DOCKER_COMPOSE="$(DOCKER_COMPOSE)" \
+	COMPOSE_FILE="$(COMPOSE_FILE)" \
+	PROJECT_NAME="$(PROJECT_NAME)" \
+	./scripts/maybe-seed-after-up.sh; \
+	code=$$?; \
+	if [ $$code -eq 0 ]; then \
+		echo "[시드] 통합 데모 데이터 시드를 시작합니다."; \
+		$(MAKE) seed-all; \
+	elif [ $$code -eq 1 ]; then \
+		echo "[시드] 통합 데모 데이터 시드를 생략합니다."; \
+	elif [ $$code -ge 2 ]; then \
+		echo "[시드] 시드 의사결정 로직에서 오류가 발생했습니다. code=$$code" >&2; \
+		exit $$code; \
+	fi
 
 build-frontend:
 	$(DC) build frontend
