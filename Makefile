@@ -3,7 +3,7 @@ COMPOSE_FILE ?= docker-compose.yml
 PROJECT_NAME ?= insidemovie
 DC = $(DOCKER_COMPOSE) -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 BACKEND_REPORTS_VOLUME = -v $(PWD)/apps/backend/build/reports:/app/build/reports
-SEED ?= ask
+SEED ?= yes
 SEED_EST_TIME ?= 약 2~5분 (네트워크 환경에 따라 달라질 수 있음)
 SEED_EST_SIZE ?= 약 20~80MB (초기 데모 데이터 기준)
 SEED_CHECK_TIMEOUT_SEC ?= 60
@@ -12,7 +12,7 @@ MODEL_EST_SIZE ?= 약 352MB
 MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
 SEED_TARGET ?= seed-all
 
-.PHONY: help help-all prepare-model build up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model build up up-full up-limited up-no-ai post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -30,11 +30,13 @@ help:
 	@echo "핵심 타겟:"
 	@echo "  make up                - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
 	@echo "                           - MODEL=ask|required|skip (기본 ask)"
+	@echo "                           - SEED=yes|ask|no (기본 yes)"
+	@echo "  make up-no-ai          - 모델/AI 없이 제한 모드로 실행 + 통합 시드 실행"
 	@echo "  make down              - 전체 서비스 중지/제거"
 	@echo "  make logs              - 전체 로그 팔로우"
 	@echo "  make ps                - 컨테이너 상태 확인"
 	@echo "  make seed-all          - 통합 증분 시드 실행"
-	@echo "  make seed-all-no-ai    - 리뷰/AI 단계 제외 통합 시드 실행"
+	@echo "  make seed-all-no-ai    - AI 컨테이너 없이 통합 시드 실행(리뷰 감정 fallback)"
 	@echo "  make seed-all-reset    - DB 초기화 후 통합 시드 실행(주의: 기존 데이터 삭제)"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
 	@echo "  make help-all          - 전체/고급 타깃 보기"
@@ -44,9 +46,10 @@ help-all:
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
 	@echo "  make up                    - 모델 상태에 따라 전체/full 또는 제한/no-AI 모드 실행"
+	@echo "  make up-no-ai              - 모델/AI 없이 제한 모드(mysql+backend+frontend) 실행 + 통합 시드"
 	@echo "                              - MODEL=ask|required|skip (기본 ask)"
 	@echo "                              - MODEL_EST_SIZE/MODEL_EST_TIME 안내 문구 오버라이드 가능"
-	@echo "                              - SEED=ask|yes|no (기본 ask)"
+	@echo "                              - SEED=yes|ask|no (기본 yes)"
 	@echo "                              - SEED_EST_TIME/SEED_EST_SIZE/SEED_CHECK_TIMEOUT_SEC 오버라이드 가능"
 	@echo "  make down                  - 컨테이너 중지 및 제거"
 	@echo "  make logs                  - 서비스 로그 실시간 확인"
@@ -64,10 +67,10 @@ help-all:
 	@echo "  make logs-backend-spring   - backend(Spring) 로그 확인"
 	@echo "  make logs-backend-ai       - ai(FastAPI) 로그 확인"
 	@echo "  make seed-all              - 통합 증분 시드 실행(data-backfill 래퍼)"
-	@echo "  make seed-all-no-ai        - 리뷰/AI 감정 단계 제외 통합 시드 실행"
+	@echo "  make seed-all-no-ai        - AI 컨테이너 없이 통합 시드 실행(리뷰 감정 fallback)"
 	@echo "  make seed-all-reset        - DB 초기화 후 통합 시드 실행"
 	@echo "  make data-backfill         - 계정/영화/리뷰-AI/대결 통합 증분 시드"
-	@echo "  make data-backfill-no-ai   - 리뷰/AI 감정 단계 제외 통합 증분 시드"
+	@echo "  make data-backfill-no-ai   - AI 미기동 상태에서 통합 증분 시드(리뷰 감정 fallback)"
 	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
 	@echo "  make seed-movie-genres     - KOBIS movieInfo 기반 movie_genre 백필 실행"
 	@echo "  make seed-movie-genres-dry-run - movie_genre 백필 dry-run"
@@ -102,8 +105,11 @@ up:
 		$(MAKE) post-up-seed; \
 	elif [ $$mode_code -eq 1 ]; then \
 		echo "[모델] 제한 모드(limited, no-AI)로 실행합니다."; \
-		$(MAKE) up-limited; \
-		$(MAKE) SEED_TARGET=seed-all-no-ai post-up-seed; \
+		$(MAKE) up-no-ai; \
+	elif [ $$mode_code -eq 3 ]; then \
+		echo "[모델] 자동 다운로드를 진행할 수 없어 make up 실행을 중단합니다."; \
+		echo '[모델] AI 없이 먼저 데모를 실행하려면 `make up-no-ai`를 사용하세요.'; \
+		exit $$mode_code; \
 	elif [ $$mode_code -ge 2 ]; then \
 		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
 		exit $$mode_code; \
@@ -117,8 +123,13 @@ up-limited:
 	$(DC) up -d --build --no-deps backend
 	$(DC) up -d --build --no-deps frontend
 
+up-no-ai:
+	$(MAKE) up-limited
+	$(MAKE) SEED_TARGET=seed-all-no-ai post-up-seed
+
 post-up-seed:
 	@SEED="$(SEED)" \
+	SEED_TARGET="$(SEED_TARGET)" \
 	SEED_EST_TIME="$(SEED_EST_TIME)" \
 	SEED_EST_SIZE="$(SEED_EST_SIZE)" \
 	SEED_CHECK_TIMEOUT_SEC="$(SEED_CHECK_TIMEOUT_SEC)" \
@@ -252,7 +263,7 @@ data-backfill-no-ai:
 		--demo.data.backfill.include-genres=true \
 		--demo.data.backfill.include-metadata=true \
 		--demo.data.backfill.include-poster-refresh=true \
-		--demo.data.backfill.include-reviews=false \
+		--demo.data.backfill.include-reviews=true \
 		--demo.data.backfill.include-matches=true
 
 seed-all:
