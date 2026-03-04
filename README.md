@@ -80,6 +80,8 @@ make demo
 ## 통합 데모 데이터 시드
 
 기본 통합 시드는 로컬 snapshot SQL을 적재하며, 외부 API(KOBIS/KMDb/FastAPI)를 호출하지 않습니다.
+또한 snapshot 적재 직후 `insidemovie_backend.movie_emotion_summary`를
+`insidemovie_ai.movie_emotion_summary`로 동기화해 맞춤영화 추천 원본 데이터를 함께 보장합니다.
 
 - 기본 시드: `make seed-all`
 - no-AI 모드 기본 시드: `make seed-all-no-ai`
