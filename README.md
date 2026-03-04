@@ -26,6 +26,26 @@
 - Infra/Docs: Docker Compose, OpenAPI/Swagger
 - External API: KOBIS, KMDb
 
+## 빠른 시작 (면접관/첫 사용자)
+
+macOS/Linux 기준:
+
+```bash
+git clone https://github.com/Gumraze-git/Insidemovie.git
+cd Insidemovie
+make demo
+```
+
+기대 결과:
+- `mysql+backend+frontend`가 기동됩니다. (AI 컨테이너 제외)
+- 로컬 snapshot 시드가 자동 적재됩니다.
+- 접속 주소:
+  - Frontend: `http://localhost:5173`
+  - Backend API 문서: `http://localhost:8080/api-doc`
+
+참고:
+- Windows는 WSL2 환경에서 동일 명령 사용을 권장합니다.
+
 ## 내 역할
 
 - 인증/인가 흐름 설계 및 예외 응답 표준화
@@ -43,10 +63,10 @@
 
 ## 자주 쓰는 명령
 
-- 전체 실행(기본 시드 포함): `make up`
+- 원커맨드 데모 실행(권장): `make demo`
+- 전체 실행(개발자 full 모드): `make up`
 - 전체 실행(모델 필수): `MODEL=required make up`
-- 전체 실행(모델 스킵, no-AI 제한 모드): `MODEL=skip make up`
-- 모델/AI 없이 제한 모드 + 통합 시드: `make up-no-ai`
+- 모델/AI 없이 제한 모드 + 통합 시드(호환): `make up-no-ai` (`make demo`로 위임)
 - 전체 실행 + 통합 시드 강제: `SEED=yes make up`
 - 전체 실행 + 시드 생략 강제: `SEED=no make up`
 - 백엔드 서버 실행(Spring + AI): `make up-backend-spring && make up-backend-ai`
@@ -99,14 +119,16 @@ make up
 ```
 
 `make up` 동작:
-- `MODEL=ask|required|skip` 정책으로 모델 준비 상태를 먼저 판단합니다. (기본: `MODEL=ask`)
+- `MODEL=ask|required` 정책으로 모델 준비 상태를 먼저 판단합니다. (기본: `MODEL=ask`)
 - 모델 준비가 완료되면 전체 모드(full)로 `mysql+ai+backend+frontend`를 기동합니다.
 - 모델 미준비 + `MODEL=ask` + 대화형 터미널이면 용량/시간/수동 명령을 안내하고 `y/n` 확인을 받습니다.
 - `y` 선택 시 `git lfs pull` 자동 다운로드를 먼저 시도하고, 성공하면 이번 실행을 전체 모드(full)로 계속 진행합니다.
-- `y` 선택 후 `git-lfs`가 설치되어 있지 않으면 이번 `make up` 실행을 중단하고 `make up-no-ai`를 안내합니다.
-- 그 외 자동 다운로드 실패 시에는 제한 모드(no-AI)로 계속 진행하며 `make up-no-ai`도 안내합니다.
+- `y` 선택 후 `git-lfs`가 설치되어 있지 않으면 이번 `make up` 실행을 중단하고 `make demo`를 안내합니다.
+- 그 외 자동 다운로드 실패 시에도 이번 `make up` 실행을 중단하고 `make demo`를 안내합니다.
+- `n` 선택 또는 입력 종료(EOF) 시 이번 `make up` 실행을 중단하고 `make demo`를 안내합니다.
+- `MODEL=skip` 입력 시 `make up` 실행을 중단하고 `make demo`를 안내합니다.
 - 모델 미준비 + 비대화식 실행(`CI=true` 또는 stdin 비-TTY) + `MODEL=ask`는 실패 종료합니다.
-- 제한 모드(no-AI)에서는 `mysql+backend+frontend`만 기동하고, 시드는 `seed-all-no-ai` 경로(리뷰 감정 fallback 포함)로 실행합니다.
+- `make up`은 모델 미준비 상태에서 자동으로 제한 모드(no-AI)로 전환하지 않습니다.
 - 기본값은 `SEED=yes`이며, 서비스 기동 후 통합 데모 시드를 자동 실행합니다.
 - `SEED=ask|no`로 동작을 바꿀 수 있습니다. (`SEED=ask`는 DB 상태를 확인해 시드 여부를 물어봅니다.)
 
@@ -126,8 +148,38 @@ git lfs pull --include="apps/ai/models/0717_kobert_5_emotion_model/model.safeten
 ## 제한 실행 모드(no-AI) 제약
 
 - AI 컨테이너를 기동하지 않으므로 AI 의존 기능(감정 예측/추천)이 제한됩니다.
-- `seed-all-no-ai`는 리뷰 데이터를 포함해 통합 시드를 실행하며, AI 서버가 없으면 감정값은 fallback 로직으로 생성됩니다.
+- `make demo`(또는 `make up-no-ai`)는 `seed-all-no-ai` 경로로 snapshot 시드를 적재합니다.
+- AI 서버가 없으므로 감정 추론 등 AI 기능은 제한됩니다.
 - AI 포함 전체 기능 검증이 필요하면 모델 다운로드 후 `make up` 또는 `MODEL=required make up`을 사용하세요.
+
+## 빠른 트러블슈팅
+
+1. Docker daemon 미실행
+- 증상: `Cannot connect to the Docker daemon ...`
+- 해결:
+```bash
+docker info
+```
+정상 응답이 나올 때까지 Docker Desktop(macOS) 또는 Docker Engine(Linux)을 실행하세요.
+
+2. 포트 충돌(5173/8080)
+- 증상: 컨테이너 기동 시 port already allocated
+- 해결:
+```bash
+lsof -i :5173
+lsof -i :8080
+```
+충돌 프로세스를 종료하거나 포트가 비어 있는 환경에서 다시 실행하세요.
+
+3. full 모드에서 모델 준비 실패
+- 증상: `LFS 포인터 파일 상태입니다` 또는 모델 검증 실패
+- 해결:
+```bash
+brew install git-lfs
+git lfs install --local
+git lfs pull --include="apps/ai/models/0717_kobert_5_emotion_model/model.safetensors"
+```
+전체 기능이 필요 없다면 `make demo`를 사용하세요.
 
 ## 에러 대응
 

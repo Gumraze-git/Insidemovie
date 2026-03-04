@@ -1,6 +1,15 @@
 # Insidemovie-BE
 인사이드 무비 백엔드 레포지토리
 
+## 데모 실행 우선 경로
+
+면접/외부 시연 환경에서는 루트에서 아래 명령을 먼저 사용하세요.
+
+- `make demo` (권장: no-AI + snapshot 시드 원커맨드)
+- `make up-no-ai` (호환 명령, 내부적으로 `make demo`로 위임)
+
+AI 포함 전체 스택 검증이 필요할 때만 루트에서 `make up`을 사용합니다.
+
 ## movie_genre 백필
 
 추천 영화(`/api/v1/movies/recommend/*`)는 `movie_genre`를 기준으로 조회됩니다.
