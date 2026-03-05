@@ -66,7 +66,6 @@ make demo
 - 원커맨드 데모 실행(권장): `make demo`
 - 전체 실행(개발자 full 모드): `make up`
 - 전체 실행(모델 필수): `MODEL=required make up`
-- 모델/AI 없이 제한 모드 + 통합 시드(호환): `make up-no-ai` (`make demo`로 위임)
 - 전체 실행 + 통합 시드 강제: `SEED=yes make up`
 - 전체 실행 + 시드 생략 강제: `SEED=no make up`
 - 백엔드 서버 실행(Spring + AI): `make up-backend-spring && make up-backend-ai`
@@ -84,11 +83,10 @@ make demo
 `insidemovie_ai.movie_emotion_summary`로 동기화해 맞춤영화 추천 원본 데이터를 함께 보장합니다.
 
 - 기본 시드: `make seed-all`
-- no-AI 모드 기본 시드: `make seed-all-no-ai`
 - DB 초기화 후 전체 시드: `make seed-all-reset` (주의: 기존 데이터 삭제)
 - snapshot만 단독 적재: `make seed-snapshot`
 - (옵션) 외부 API 연동 증분 백필: `make data-backfill`
-- (옵션) 외부 API 연동 dry-run: `make data-backfill-dry-run`
+- (옵션, 진단용) 외부 API 연동 dry-run: `make data-backfill-dry-run`
 
 재실행 정책:
 - 기존 데이터를 삭제하지 않고 부족분만 채우는 idempotent 증분 방식
@@ -150,7 +148,7 @@ git lfs pull --include="apps/ai/models/0717_kobert_5_emotion_model/model.safeten
 ## 제한 실행 모드(no-AI) 제약
 
 - AI 컨테이너를 기동하지 않으므로 AI 의존 기능(감정 예측/추천)이 제한됩니다.
-- `make demo`(또는 `make up-no-ai`)는 `seed-all-no-ai` 경로로 snapshot 시드를 적재합니다.
+- `make demo`는 `seed-all` 경로로 snapshot 시드를 적재합니다.
 - AI 서버가 없으므로 감정 추론 등 AI 기능은 제한됩니다.
 - AI 포함 전체 기능 검증이 필요하면 모델 다운로드 후 `make up` 또는 `MODEL=required make up`을 사용하세요.
 

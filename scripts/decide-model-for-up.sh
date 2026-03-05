@@ -28,7 +28,7 @@ print_manual_download_guide() {
 }
 
 print_no_ai_guide() {
-  echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'
+  echo '[모델] 데모 실행은 `make demo`를 사용하세요.'
 }
 
 try_auto_download_model() {

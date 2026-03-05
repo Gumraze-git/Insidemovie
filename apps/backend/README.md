@@ -6,7 +6,6 @@
 면접/외부 시연 환경에서는 루트에서 아래 명령을 먼저 사용하세요.
 
 - `make demo` (권장: no-AI + snapshot 시드 원커맨드)
-- `make up-no-ai` (호환 명령, 내부적으로 `make demo`로 위임)
 
 AI 포함 전체 스택 검증이 필요할 때만 루트에서 `make up`을 사용합니다.
 
@@ -42,11 +41,10 @@ snapshot 적재 후 `insidemovie_backend.movie_emotion_summary`를
 `insidemovie_ai.movie_emotion_summary`로 동기화해 맞춤영화 추천 원본 데이터까지 보장합니다.
 
 - `make seed-all`
-- `make seed-all-no-ai`
 - `make seed-all-reset` (주의: DB 볼륨 초기화 후 시드)
 - `make seed-snapshot`
 - `make data-backfill` (옵션: 외부 API 연동 증분 백필)
-- `make data-backfill-dry-run` (옵션: 외부 API 연동 dry-run)
+- `make data-backfill-dry-run` (옵션/진단용: 외부 API 연동 dry-run)
 
 포함 범위:
 - 데모 계정(온보딩 5 + 일반 30) 시드 보장

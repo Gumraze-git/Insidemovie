@@ -12,7 +12,7 @@ MODEL_EST_SIZE ?= 약 352MB
 MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
 SEED_TARGET ?= seed-all
 
-.PHONY: help help-all prepare-model build demo demo-no-ai-up up up-full up-limited up-no-ai post-up-seed down logs ps clean reset-db build-toolbox \
+.PHONY: help help-all prepare-model build demo demo-no-ai-up up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
 	up-frontend up-backend-spring up-backend-ai \
 	logs-frontend logs-backend-spring logs-backend-ai \
@@ -21,26 +21,27 @@ SEED_TARGET ?= seed-all
 	seed-boxoffice seed-boxoffice-dry-run \
 	refresh-movie-posters refresh-movie-posters-dry-run \
 	audit-movie-posters audit-movie-posters-dry-run \
-	seed-snapshot seed-all seed-all-no-ai seed-all-reset \
+	seed-snapshot seed-all seed-all-reset \
 	data-backfill data-backfill-no-ai data-backfill-dry-run \
 	seed-reviews-ai seed-reviews-ai-dry-run \
 	seed-matches seed-matches-dry-run
 
 help:
 	@echo "핵심 타겟:"
-	@echo "  make demo              - 면접관/외부 사용자 권장 원커맨드 데모 실행(no-AI + snapshot 시드)"
-	@echo "  make up                - 개발자용 전체/full 모드 실행(모델 준비 필요)"
+	@echo "  make demo              - 🎬 외부 사용자 권장 원커맨드 데모 실행"
+	@echo "                           - 기동: mysql+backend+frontend"
+	@echo "                           - AI 미포함(no-AI), snapshot 시드 포함"
+	@echo "  make up                - 🚀 개발자용 full 스택 실행"
+	@echo "                           - 기동: mysql+ai+backend+frontend"
+	@echo "                           - AI 모델 필요(미준비 시 중단)"
 	@echo "                           - MODEL=ask|required (기본 ask)"
 	@echo "                           - SEED=yes|ask|no (기본 yes)"
-	@echo "  make up-no-ai          - (호환) make demo로 위임"
-	@echo "  make down              - 전체 서비스 중지/제거"
-	@echo "  make logs              - 전체 로그 팔로우"
-	@echo "  make ps                - 컨테이너 상태 확인"
-	@echo "  make seed-all          - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
-	@echo "  make seed-all-no-ai    - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
-	@echo "  make seed-all-reset    - DB 초기화 후 snapshot 통합 시드(주의: 기존 데이터 삭제)"
-	@echo "  make data-backfill-dry-run - 통합 시드 dry-run"
-	@echo "  make help-all          - 전체/고급 타깃 보기"
+	@echo "  make down              - 🛑 전체 서비스 중지/제거"
+	@echo "  make logs              - 📜 전체 로그 팔로우"
+	@echo "  make ps                - 📦 컨테이너 상태 확인"
+	@echo "  make seed-all          - 🌱 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
+	@echo "  make seed-all-reset    - 🌱 DB 초기화 후 snapshot 통합 시드(주의: 기존 데이터 삭제)"
+	@echo "  make help-all          - 📘 전체/고급 타깃 보기"
 
 help-all:
 	@echo "전체 타겟:"
@@ -49,7 +50,6 @@ help-all:
 	@echo "  make prepare-model         - AI 모델 파일 상태 확인 및 필요 시 LFS pull 수행"
 	@echo "  make build                 - 모든 서비스 이미지 빌드"
 	@echo "  make up                    - 개발자용 전체/full 모드 실행(모델 준비 필요)"
-	@echo "  make up-no-ai              - (호환) make demo로 위임"
 	@echo "                              - MODEL=ask|required (기본 ask)"
 	@echo "                              - MODEL_EST_SIZE/MODEL_EST_TIME 안내 문구 오버라이드 가능"
 	@echo "                              - SEED=yes|ask|no (기본 yes)"
@@ -71,7 +71,6 @@ help-all:
 	@echo "  make logs-backend-ai       - ai(FastAPI) 로그 확인"
 	@echo "  make seed-snapshot         - 로컬 snapshot(SQL) 데이터 적재"
 	@echo "  make seed-all              - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
-	@echo "  make seed-all-no-ai        - 로컬 snapshot 기반 통합 시드(외부 API 호출 없음)"
 	@echo "  make seed-all-reset        - DB 초기화 후 snapshot 통합 시드"
 	@echo "  make data-backfill         - 계정/영화/리뷰-AI/대결 통합 증분 시드"
 	@echo "  make data-backfill-no-ai   - AI 미기동 상태에서 통합 증분 시드(리뷰 감정 fallback)"
@@ -106,7 +105,7 @@ demo:
 
 demo-no-ai-up:
 	$(MAKE) up-limited
-	$(MAKE) SEED=yes SEED_TARGET=seed-all-no-ai post-up-seed
+	$(MAKE) SEED=yes SEED_TARGET=seed-all post-up-seed
 
 up:
 	@MODEL="$(MODEL)" \
@@ -120,15 +119,15 @@ up:
 		$(MAKE) post-up-seed; \
 	elif [ $$mode_code -eq 1 ]; then \
 		echo "[모델] make up은 full 전용이며, 모델이 준비되지 않아 실행을 중단합니다."; \
-		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요.'; \
 		exit $$mode_code; \
 	elif [ $$mode_code -eq 3 ]; then \
 		echo "[모델] 자동 다운로드를 진행할 수 없어 make up 실행을 중단합니다."; \
-		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요.'; \
 		exit $$mode_code; \
 	elif [ $$mode_code -ge 2 ]; then \
 		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
-		echo '[모델] 데모 실행은 `make demo`를 사용하세요. (`make up-no-ai`도 동일 동작)'; \
+		echo '[모델] 데모 실행은 `make demo`를 사용하세요.'; \
 		exit $$mode_code; \
 	fi
 
@@ -139,10 +138,6 @@ up-limited:
 	$(DC) up -d mysql
 	$(DC) up -d --build --no-deps backend
 	$(DC) up -d --build --no-deps frontend
-
-up-no-ai:
-	@echo "[데모][안내] make up-no-ai는 호환 명령입니다. 표준 데모 실행은 make demo를 사용하세요."
-	$(MAKE) demo
 
 post-up-seed:
 	@SEED="$(SEED)" \
@@ -290,9 +285,6 @@ data-backfill-no-ai:
 		--demo.data.backfill.include-matches=true
 
 seed-all:
-	$(MAKE) seed-snapshot
-
-seed-all-no-ai:
 	$(MAKE) seed-snapshot
 
 seed-all-reset:
