@@ -105,7 +105,8 @@ demo:
 
 demo-no-ai-up:
 	$(MAKE) up-limited
-	$(MAKE) SEED=yes SEED_TARGET=seed-all post-up-seed
+	@echo "[데모] snapshot 시드를 적재합니다. (seed-all)"
+	$(MAKE) seed-all
 
 up:
 	@MODEL="$(MODEL)" \
@@ -117,13 +118,7 @@ up:
 		echo "[모델] 전체 모드(full)로 실행합니다."; \
 		$(MAKE) up-full; \
 		$(MAKE) post-up-seed; \
-	elif [ $$mode_code -eq 1 ]; then \
-		echo "[모델] make up은 full 전용이며, 모델이 준비되지 않아 실행을 중단합니다."; \
-		echo '[모델] 데모 실행은 `make demo`를 사용하세요.'; \
-		exit $$mode_code; \
-	elif [ $$mode_code -eq 3 ]; then \
-		echo "[모델] 자동 다운로드를 진행할 수 없어 make up 실행을 중단합니다."; \
-		echo '[모델] 데모 실행은 `make demo`를 사용하세요.'; \
+	elif [ $$mode_code -eq 1 ] || [ $$mode_code -eq 3 ]; then \
 		exit $$mode_code; \
 	elif [ $$mode_code -ge 2 ]; then \
 		echo "[모델] 모델 의사결정 로직에서 오류가 발생했습니다. code=$$mode_code" >&2; \
