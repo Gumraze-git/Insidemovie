@@ -40,11 +40,12 @@ make demo
 - `mysql+backend+frontend`가 기동됩니다. (AI 컨테이너 제외)
 - 로컬 snapshot 시드가 자동 적재됩니다.
 - 접속 주소:
-  - Frontend: `http://localhost:5173`
-  - Backend API 문서: `http://localhost:8080/api-doc`
+  - Frontend: `http://localhost:15173`
+  - Backend API 문서: `http://localhost:18080/api-doc`
 
 참고:
 - Windows는 WSL2 환경에서 동일 명령 사용을 권장합니다.
+- 포트 오버라이드 예시: `HOST_BACKEND_PORT=28080 HOST_FRONTEND_PORT=25173 make demo`
 
 ## 내 역할
 
@@ -162,12 +163,13 @@ docker info
 ```
 정상 응답이 나올 때까지 Docker Desktop(macOS) 또는 Docker Engine(Linux)을 실행하세요.
 
-2. 포트 충돌(5173/8080)
+2. 포트 충돌(15173/18080, full 모드에서는 18000 포함)
 - 증상: 컨테이너 기동 시 port already allocated
 - 해결:
 ```bash
-lsof -i :5173
-lsof -i :8080
+lsof -i :15173
+lsof -i :18080
+lsof -i :18000
 ```
 충돌 프로세스를 종료하거나 포트가 비어 있는 환경에서 다시 실행하세요.
 

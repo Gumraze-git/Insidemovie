@@ -61,8 +61,10 @@ snapshot 적재 후 `insidemovie_backend.movie_emotion_summary`를
 
 역대 우승 영화 데이터가 비어 있을 때:
 - `make seed-matches`를 먼저 실행해 닫힌 매치(우승 확정) 이력을 보강합니다.
-- 확인: `curl http://localhost:8080/api/v1/matches/winners`
+- 확인: `curl http://localhost:18080/api/v1/matches/winners`
 - DB를 초기화했거나 전체 데이터가 비어 있으면 `make seed-all-reset` 후 재확인합니다.
+
+포트 오버라이드가 필요하면 실행 시 `HOST_BACKEND_PORT=<port>`를 지정하세요.
 
 리뷰 시드 정책:
 - 고정 fixture 파일 `apps/backend/src/main/resources/seed/demo-reviews.v1.jsonl`을 사용합니다.
