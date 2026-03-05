@@ -199,7 +199,7 @@ logs-backend-ai:
 	$(DC) logs -f --tail=200 ai
 
 ps:
-	$(DC) ps
+	@$(DC) ps
 
 clean:
 	$(DC) down --remove-orphans
