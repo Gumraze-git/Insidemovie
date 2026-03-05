@@ -11,6 +11,13 @@ MODEL ?= ask
 MODEL_EST_SIZE ?= 약 352MB
 MODEL_EST_TIME ?= 약 2~10분 (네트워크에 따라 변동)
 SEED_TARGET ?= seed-all
+HOST_FRONTEND_PORT ?= 15173
+HOST_BACKEND_PORT ?= 18080
+HOST_AI_PORT ?= 18000
+
+export HOST_FRONTEND_PORT
+export HOST_BACKEND_PORT
+export HOST_AI_PORT
 
 .PHONY: help help-all prepare-model build demo demo-no-ai-up up up-full up-limited post-up-seed down logs ps clean reset-db build-toolbox \
 	build-frontend build-backend-spring build-backend-ai \
@@ -100,8 +107,8 @@ demo:
 	@./scripts/ensure-demo-prereqs.sh
 	@$(MAKE) demo-no-ai-up
 	@echo "[데모] 실행 완료"
-	@echo "[데모]   Frontend: http://localhost:5173"
-	@echo "[데모]   Backend API 문서: http://localhost:8080/api-doc"
+	@echo "[데모]   Frontend: http://localhost:$(HOST_FRONTEND_PORT)"
+	@echo "[데모]   Backend API 문서: http://localhost:$(HOST_BACKEND_PORT)/api-doc"
 
 demo-no-ai-up:
 	$(MAKE) up-limited
